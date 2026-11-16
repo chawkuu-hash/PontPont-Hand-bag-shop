@@ -32,6 +32,7 @@ interface UserProfilePageProps {
   onBackToShop: () => void;
   onOpenAdmin?: () => void;
   onAddToCart: (product: Product) => void;
+  lang?: "mm" | "en";
 }
 
 export default function UserProfilePage({
@@ -43,6 +44,7 @@ export default function UserProfilePage({
   onBackToShop,
   onOpenAdmin,
   onAddToCart,
+  lang = "mm",
 }: UserProfilePageProps) {
   const [name, setName] = useState(user.name);
   const [phone, setPhone] = useState(user.phone);
@@ -142,7 +144,11 @@ export default function UserProfilePage({
                 }`}
               >
                 {user.role === "admin"
-                  ? "Admin (ဆိုင်ရှင် / စီမံခန့်ခွဲသူ)"
+                  ? lang === "en"
+                    ? "Admin (Shop Owner)"
+                    : "Admin (ဆိုင်ရှင် / စီမံခန့်ခွဲသူ)"
+                  : lang === "en"
+                  ? "Customer Member"
                   : "Member (ဝယ်ယူသူအကောင့်)"}
               </span>
             </div>
@@ -151,7 +157,7 @@ export default function UserProfilePage({
             </p>
             {user.createdAt && (
               <p className="text-[11px] text-stone-400 mt-0.5">
-                အကောင့်စတင်ဖွင့်သည့်ရက်:{" "}
+                {lang === "en" ? "Joined:" : "အကောင့်စတင်ဖွင့်သည့်ရက်:"}{" "}
                 {new Date(user.createdAt).toLocaleDateString()}
               </p>
             )}
@@ -164,7 +170,7 @@ export default function UserProfilePage({
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/15 transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            အရောင်းဆိုင်သို့ ပြန်သွားရန်
+            {lang === "en" ? "Back to Storefront" : "အရောင်းဆိုင်သို့ ပြန်သွားရန်"}
           </button>
 
           {user.role === "admin" && onOpenAdmin && (
@@ -173,7 +179,7 @@ export default function UserProfilePage({
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-stone-950 text-xs font-extrabold transition shadow"
             >
               <ShieldCheck className="w-4 h-4" />
-              Admin Dashboard သို့ဝင်ရန်
+              {lang === "en" ? "Admin Dashboard" : "Admin Dashboard သို့ဝင်ရန်"}
             </button>
           )}
 
@@ -182,7 +188,7 @@ export default function UserProfilePage({
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow"
           >
             <LogOut className="w-4 h-4" />
-            အကောင့်မှထွက်ရန် (Logout)
+            {lang === "en" ? "Sign Out" : "အကောင့်မှထွက်ရန် (Logout)"}
           </button>
         </div>
       </div>
@@ -203,12 +209,14 @@ export default function UserProfilePage({
           >
             <h2 className="text-base font-extrabold text-stone-900 border-b border-stone-200 pb-3 flex items-center gap-2">
               <User className="w-4 h-4 text-amber-800" />
-              ကိုယ်ရေးအချက်အလက် ပြင်ဆင်ရန် (Edit Profile)
+              {lang === "en"
+                ? "Edit Personal Profile"
+                : "ကိုယ်ရေးအချက်အလက် ပြင်ဆင်ရန် (Edit Profile)"}
             </h2>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                အမည် (Full Name) *
+                {lang === "en" ? "Full Name *" : "အမည် (Full Name) *"}
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -224,7 +232,9 @@ export default function UserProfilePage({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                အီးမေးလ် (Email - ပြောင်းလဲ၍မရပါ)
+                {lang === "en"
+                  ? "Email Address (Read-only)"
+                  : "အီးမေးလ် (Email - ပြောင်းလဲ၍မရပါ)"}
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -239,7 +249,7 @@ export default function UserProfilePage({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                ဖုန်းနံပါတ် (Phone Number) *
+                {lang === "en" ? "Phone Number *" : "ဖုန်းနံပါတ် (Phone Number) *"}
               </label>
               <div className="relative">
                 <Phone className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -255,7 +265,7 @@ export default function UserProfilePage({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                မြို့နယ် (City)
+                {lang === "en" ? "City / Region" : "မြို့နယ် (City)"}
               </label>
               <select
                 value={city}
@@ -272,7 +282,9 @@ export default function UserProfilePage({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                ပို့ဆောင်ရမည့် နေရပ်လိပ်စာ (Default Delivery Address)
+                {lang === "en"
+                  ? "Default Delivery Address"
+                  : "ပို့ဆောင်ရမည့် နေရပ်လိပ်စာ (Default Delivery Address)"}
               </label>
               <div className="relative">
                 <MapPin className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -287,7 +299,9 @@ export default function UserProfilePage({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                စကားဝှက်အသစ် ပြောင်းရန် (New Password - Optional)
+                {lang === "en"
+                  ? "New Password (Optional)"
+                  : "စကားဝှက်အသစ် ပြောင်းရန် (New Password - Optional)"}
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -295,7 +309,11 @@ export default function UserProfilePage({
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="မပြောင်းလိုပါက အလွတ်ထားပါ"
+                  placeholder={
+                    lang === "en"
+                      ? "Leave blank to keep current password"
+                      : "မပြောင်းလိုပါက အလွတ်ထားပါ"
+                  }
                   className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-stone-300 text-stone-900 focus:border-amber-800 focus:outline-none"
                 />
               </div>
@@ -307,7 +325,11 @@ export default function UserProfilePage({
               className="w-full py-3 rounded-2xl bg-stone-900 hover:bg-amber-900 disabled:bg-stone-400 text-white font-bold text-sm transition shadow"
             >
               {saving
-                ? "သိမ်းဆည်းနေပါသည်..."
+                ? lang === "en"
+                  ? "Saving..."
+                  : "သိမ်းဆည်းနေပါသည်..."
+                : lang === "en"
+                ? "Save Changes"
                 : "ပြင်ဆင်မှုများ သိမ်းဆည်းမည် (Save Changes)"}
             </button>
           </form>
@@ -320,16 +342,20 @@ export default function UserProfilePage({
             <h2 className="text-base font-extrabold text-stone-900 border-b border-stone-200 pb-3 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Package className="w-4 h-4 text-amber-800" />
-                ကျွန်ုပ်၏ အော်ဒါမှတ်တမ်းများ (My Orders)
+                {lang === "en"
+                  ? "My Order History"
+                  : "ကျွန်ုပ်၏ အော်ဒါမှတ်တမ်းများ (My Orders)"}
               </span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 font-bold">
-                {myOrders.length} ခု
+                {myOrders.length}
               </span>
             </h2>
 
             {myOrders.length === 0 ? (
               <div className="text-center py-8 text-xs text-stone-500">
-                သင်မှာယူထားသော အော်ဒါမှတ်တမ်း မရှိသေးပါ။
+                {lang === "en"
+                  ? "You have not placed any orders yet."
+                  : "သင်မှာယူထားသော အော်ဒါမှတ်တမ်း မရှိသေးပါ။"}
               </div>
             ) : (
               <div className="space-y-3">
@@ -366,10 +392,12 @@ export default function UserProfilePage({
 
                     <div className="pt-2 border-t border-stone-200/70 flex justify-between items-center text-xs">
                       <span className="text-stone-500">
-                        ငွေပေးချေမှု: <strong>{order.paymentMethod}</strong>
+                        {lang === "en" ? "Payment:" : "ငွေပေးချေမှု:"}{" "}
+                        <strong>{order.paymentMethod}</strong>
                       </span>
                       <span className="text-sm font-extrabold text-amber-900">
-                        စုစုပေါင်း: {order.total.toLocaleString()} MMK
+                        {lang === "en" ? "Total:" : "စုစုပေါင်း:"}{" "}
+                        {order.total.toLocaleString()} MMK
                       </span>
                     </div>
                   </div>
@@ -383,16 +411,20 @@ export default function UserProfilePage({
             <h2 className="text-base font-extrabold text-stone-900 border-b border-stone-200 pb-3 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-                သိမ်းဆည်းထားသော အိတ်များ (My Wishlist)
+                {lang === "en"
+                  ? "My Wishlist"
+                  : "သိမ်းဆည်းထားသော အိတ်များ (My Wishlist)"}
               </span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 font-bold">
-                {wishlistProducts.length} မျိုး
+                {wishlistProducts.length}
               </span>
             </h2>
 
             {wishlistProducts.length === 0 ? (
               <div className="text-center py-6 text-xs text-stone-500">
-                သိမ်းဆည်းထားသော အိတ် မရှိသေးပါ။
+                {lang === "en"
+                  ? "No items in your wishlist yet."
+                  : "သိမ်းဆည်းထားသော အိတ် မရှိသေးပါ။"}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -420,7 +452,8 @@ export default function UserProfilePage({
                         onClick={() => onAddToCart(p)}
                         className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-stone-900 hover:text-amber-800"
                       >
-                        <ShoppingBag className="w-3 h-3" /> ခြင်းတောင်းထဲထည့်ရန်
+                        <ShoppingBag className="w-3 h-3" />{" "}
+                        {lang === "en" ? "Add to Bag" : "ခြင်းတောင်းထဲထည့်ရန်"}
                       </button>
                     </div>
                   </div>

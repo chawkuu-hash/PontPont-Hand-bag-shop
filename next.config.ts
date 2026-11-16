@@ -4,8 +4,6 @@ const nextConfig: NextConfig = {
   /* config options here */
   devIndicators: false,
   allowedDevOrigins: ["13.237.255.100", "172.26.0.40", "localhost"],
-  cacheComponents: true,
-  partialPrefetching: true,
   async headers() {
     return [
       {

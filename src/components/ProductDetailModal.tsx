@@ -19,6 +19,7 @@ interface ProductDetailModalProps {
   onAddToCart: (product: Product, color: string, quantity: number) => void;
   isWishlisted: boolean;
   onToggleWishlist: (productId: string) => void;
+  lang?: "mm" | "en";
 }
 
 export default function ProductDetailModal({
@@ -27,6 +28,7 @@ export default function ProductDetailModal({
   onAddToCart,
   isWishlisted,
   onToggleWishlist,
+  lang = "mm",
 }: ProductDetailModalProps) {
   const [selectedColor, setSelectedColor] = useState<string>(
     product?.colors[0]?.name || "Default"
@@ -84,7 +86,7 @@ export default function ProductDetailModal({
                   {product.price.toLocaleString()} MMK
                 </span>
                 <span className="text-xs font-bold text-stone-500">
-                  (လက်လီဈေး)
+                  ({lang === "en" ? "Retail Price" : "လက်လီဈေး"})
                 </span>
                 {product.originalPrice && (
                   <span className="text-sm text-stone-400 line-through">
@@ -94,9 +96,14 @@ export default function ProductDetailModal({
               </div>
               {product.wholesalePrice && (
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-amber-100/80 border border-amber-300 text-amber-950 text-xs font-bold">
-                  <span>လက်ကားဈေး (၅ လုံးနှင့်အထက်):</span>
+                  <span>
+                    {lang === "en"
+                      ? "Wholesale (5+ pcs):"
+                      : "လက်ကားဈေး (၅ လုံးနှင့်အထက်):"}
+                  </span>
                   <span className="text-sm font-extrabold text-amber-900">
-                    {product.wholesalePrice.toLocaleString()} MMK / တစ်လုံး
+                    {product.wholesalePrice.toLocaleString()} MMK /{" "}
+                    {lang === "en" ? "pc" : "တစ်လုံး"}
                   </span>
                 </div>
               )}
@@ -105,10 +112,7 @@ export default function ProductDetailModal({
             {/* Descriptions */}
             <div className="mt-4 space-y-2 text-sm text-stone-600 bg-stone-50 p-3.5 rounded-2xl border border-stone-200/70">
               <p className="text-stone-800 font-medium leading-relaxed">
-                {product.descriptionMm}
-              </p>
-              <p className="text-xs text-stone-500 leading-relaxed">
-                {product.descriptionEn}
+                {lang === "en" ? product.descriptionEn : product.descriptionMm}
               </p>
             </div>
 
@@ -124,7 +128,9 @@ export default function ProductDetailModal({
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stone-100/80 text-stone-700">
                 <Ruler className="w-4 h-4 text-amber-800 shrink-0" />
                 <div>
-                  <span className="block text-[10px] text-stone-500">အရွယ်အစား (Size)</span>
+                  <span className="block text-[10px] text-stone-500">
+                    {lang === "en" ? "Dimensions" : "အရွယ်အစား (Size)"}
+                  </span>
                   <span className="font-semibold">{product.dimensions}</span>
                 </div>
               </div>
@@ -133,7 +139,7 @@ export default function ProductDetailModal({
             {/* Color Selection */}
             <div className="mt-4">
               <label className="block text-xs font-semibold text-stone-700 mb-2">
-                အရောင်ရွေးချယ်ရန် (Color):{" "}
+                {lang === "en" ? "Select Color:" : "အရောင်ရွေးချယ်ရန် (Color):"}{" "}
                 <span className="text-amber-900 font-bold">{selectedColor}</span>
               </label>
               <div className="flex flex-wrap gap-2.5">
@@ -162,7 +168,7 @@ export default function ProductDetailModal({
             <div className="mt-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-stone-700">
-                  အရေအတွက် (Qty):
+                  {lang === "en" ? "Quantity:" : "အရေအတွက် (Qty):"}
                 </span>
                 <div className="flex items-center rounded-xl border border-stone-300 overflow-hidden">
                   <button
@@ -189,7 +195,9 @@ export default function ProductDetailModal({
 
               <span className="text-xs font-medium text-emerald-700 flex items-center gap-1">
                 <CheckCircle2 className="w-4 h-4" />
-                In Stock ({product.stock} လုံးကျန်)
+                {lang === "en"
+                  ? `In Stock (${product.stock} left)`
+                  : `In Stock (${product.stock} လုံးကျန်)`}
               </span>
             </div>
           </div>
@@ -208,7 +216,11 @@ export default function ProductDetailModal({
               >
                 <ShoppingBag className="w-4 h-4" />
                 {product.stock > 0
-                  ? "ဈေးခြင်းတောင်းထဲထည့်မည် (Add to Cart)"
+                  ? lang === "en"
+                    ? "Add to Cart"
+                    : "ဈေးခြင်းတောင်းထဲထည့်မည် (Add to Cart)"
+                  : lang === "en"
+                  ? "Out of Stock"
                   : "ပစ္စည်းပြတ်နေပါသည် (Out of Stock)"}
               </button>
               <button
@@ -232,7 +244,10 @@ export default function ProductDetailModal({
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-700" /> 100% Quality Guarantee
               </span>
               <span className="flex items-center gap-1">
-                <Truck className="w-3.5 h-3.5 text-amber-700" /> 100,000 MMK အထက် ပို့ခအခမဲ့
+                <Truck className="w-3.5 h-3.5 text-amber-700" />{" "}
+                {lang === "en"
+                  ? "Free Delivery over 100,000 MMK"
+                  : "100,000 MMK အထက် ပို့ခအခမဲ့"}
               </span>
             </div>
           </div>

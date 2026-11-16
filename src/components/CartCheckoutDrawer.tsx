@@ -27,6 +27,7 @@ interface CartCheckoutDrawerProps {
   onClearCart: () => void;
   user: UserProfile | null;
   onOrderCreated: (order: Order) => Promise<void>;
+  lang?: "mm" | "en";
 }
 
 export default function CartCheckoutDrawer({
@@ -38,6 +39,7 @@ export default function CartCheckoutDrawer({
   onClearCart,
   user,
   onOrderCreated,
+  lang = "mm",
 }: CartCheckoutDrawerProps) {
   const [step, setStep] = useState<"cart" | "checkout" | "success">("cart");
   const [promoInput, setPromoInput] = useState("");
@@ -166,12 +168,23 @@ export default function CartCheckoutDrawer({
             <ShoppingBag className="w-5 h-5 text-amber-400" />
             <div>
               <h3 className="font-bold text-base">
-                {step === "cart" && "ဈေးခြင်းတောင်း (Shopping Bag)"}
-                {step === "checkout" && "အော်ဒါမှာယူရန် & ငွေပေးချေမှု (Checkout)"}
-                {step === "success" && "အော်ဒါအောင်မြင်ပါသည် (Order Confirmed)"}
+                {step === "cart" &&
+                  (lang === "en"
+                    ? "Shopping Bag"
+                    : "ဈေးခြင်းတောင်း (Shopping Bag)")}
+                {step === "checkout" &&
+                  (lang === "en"
+                    ? "Checkout & Payment"
+                    : "အော်ဒါမှာယူရန် & ငွေပေးချေမှု (Checkout)")}
+                {step === "success" &&
+                  (lang === "en"
+                    ? "Order Confirmed"
+                    : "အော်ဒါအောင်မြင်ပါသည် (Order Confirmed)")}
               </h3>
               <p className="text-xs text-stone-400">
-                ပုံ့ပုံ့ အိတ်အမျိုးမျိုး လက်လီ/လက်ကား ရောင်းဝယ်ရေး (မန္တလေး)
+                {lang === "en"
+                  ? "Pont Pont Bag Shop (Mandalay Retail & Wholesale)"
+                  : "ပုံ့ပုံ့ အိတ်အမျိုးမျိုး လက်လီ/လက်ကား ရောင်းဝယ်ရေး (မန္တလေး)"}
               </p>
             </div>
           </div>
@@ -657,7 +670,9 @@ export default function CartCheckoutDrawer({
                 onClick={() => setStep("checkout")}
                 className="w-full py-3.5 px-5 rounded-2xl bg-stone-900 hover:bg-amber-900 text-white font-semibold text-sm flex items-center justify-center gap-2 transition shadow-lg"
               >
-                အော်ဒါမှာယူရန် ဆက်သွားမည် (Proceed to Checkout)
+                {lang === "en"
+                  ? "Proceed to Checkout"
+                  : "အော်ဒါမှာယူရန် ဆက်သွားမည် (Proceed to Checkout)"}
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
@@ -668,7 +683,11 @@ export default function CartCheckoutDrawer({
                 className="w-full py-3.5 px-5 rounded-2xl bg-amber-800 hover:bg-amber-900 disabled:bg-stone-400 text-white font-semibold text-sm flex items-center justify-center gap-2 transition shadow-lg"
               >
                 {submitting
-                  ? "အော်ဒါတင်နေပါသည်..."
+                  ? lang === "en"
+                    ? "Placing Order..."
+                    : "အော်ဒါတင်နေပါသည်..."
+                  : lang === "en"
+                  ? `Confirm Order (${total.toLocaleString()} MMK)`
                   : `အော်ဒါအတည်ပြုမည် (${total.toLocaleString()} MMK)`}
               </button>
             )}

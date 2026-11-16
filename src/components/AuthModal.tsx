@@ -17,6 +17,7 @@ interface AuthModalProps {
   onClose: () => void;
   usersCount: number;
   onAuthSuccess: (user: UserProfile, updatedUsers: UserProfile[]) => void;
+  lang?: "mm" | "en";
 }
 
 export default function AuthModal({
@@ -24,6 +25,7 @@ export default function AuthModal({
   onClose,
   usersCount,
   onAuthSuccess,
+  lang = "mm",
 }: AuthModalProps) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -116,11 +118,15 @@ export default function AuthModal({
         <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 px-6 py-5 text-white flex items-center justify-between">
           <div>
             <span className="text-xs uppercase tracking-widest text-amber-300 font-semibold flex items-center gap-1">
-              ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင်
+              {lang === "en" ? "Pont Pont Bag Shop" : "ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင်"}
             </span>
             <h3 className="text-lg font-bold mt-0.5">
               {mode === "login"
-                ? "အကောင့်ဝင်ရန် (Sign In)"
+                ? lang === "en"
+                  ? "Sign In"
+                  : "အကောင့်ဝင်ရန် (Sign In)"
+                : lang === "en"
+                ? "Create Account (Sign Up)"
                 : "အကောင့်သစ်ဖွင့်ရန် (Sign Up)"}
             </h3>
           </div>
@@ -138,10 +144,15 @@ export default function AuthModal({
             <div className="mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 text-xs flex items-start gap-2.5">
               <ShieldCheck className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold">ပထမဆုံး အကောင့်သစ်ဖွင့်သူ = Admin (ဆိုင်ရှင်)</p>
+                <p className="font-bold">
+                  {lang === "en"
+                    ? "First Sign Up = Admin (Shop Owner)"
+                    : "ပထမဆုံး အကောင့်သစ်ဖွင့်သူ = Admin (ဆိုင်ရှင်)"}
+                </p>
                 <p className="text-stone-600 mt-0.5">
-                  လက်ရှိတွင် အကောင့်ဖွင့်ထားသူ မရှိသေးပါသဖြင့် ပထမဆုံး Sign Up ပြုလုပ်သူသည်{" "}
-                  <strong>Admin</strong> အခွင့်အရေး အလိုအလျောက် ရရှိပါမည်။
+                  {lang === "en"
+                    ? "No accounts exist yet. The first user to Sign Up will automatically receive Admin privileges."
+                    : "လက်ရှိတွင် အကောင့်ဖွင့်ထားသူ မရှိသေးပါသဖြင့် ပထမဆုံး Sign Up ပြုလုပ်သူသည် Admin အခွင့်အရေး အလိုအလျောက် ရရှိပါမည်။"}
                 </p>
               </div>
             </div>
@@ -161,7 +172,7 @@ export default function AuthModal({
                   : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              အကောင့်ဝင်ရန် (Login)
+              {lang === "en" ? "Sign In (Login)" : "အကောင့်ဝင်ရန် (Login)"}
             </button>
             <button
               type="button"
@@ -175,7 +186,7 @@ export default function AuthModal({
                   : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              အကောင့်သစ်ဖွင့်ရန် (Sign Up)
+              {lang === "en" ? "Sign Up (Register)" : "အကောင့်သစ်ဖွင့်ရန် (Sign Up)"}
             </button>
           </div>
 
@@ -189,7 +200,7 @@ export default function AuthModal({
             {mode === "register" && (
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  အမည် (Full Name) *
+                  {lang === "en" ? "Full Name *" : "အမည် (Full Name) *"}
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -198,7 +209,9 @@ export default function AuthModal({
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="ဥပမာ - မပုံ့ / မသီရိဆွေ"
+                    placeholder={
+                      lang === "en" ? "e.g. Ma Thiri Swe" : "ဥပမာ - မပုံ့ / မသီရိဆွေ"
+                    }
                     className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-stone-300 focus:border-amber-700 focus:outline-none text-stone-900"
                   />
                 </div>
@@ -207,7 +220,7 @@ export default function AuthModal({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                အီးမေးလ် (Email Address) *
+                {lang === "en" ? "Email Address *" : "အီးမေးလ် (Email Address) *"}
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -226,7 +239,7 @@ export default function AuthModal({
               <>
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    ဖုန်းနံပါတ် (Phone Number) *
+                    {lang === "en" ? "Phone Number *" : "ဖုန်းနံပါတ် (Phone Number) *"}
                   </label>
                   <div className="relative">
                     <Phone className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -243,7 +256,7 @@ export default function AuthModal({
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    မြို့နယ် (City)
+                    {lang === "en" ? "City / Region" : "မြို့နယ် (City)"}
                   </label>
                   <select
                     value={city}
@@ -260,7 +273,7 @@ export default function AuthModal({
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    နေရပ်လိပ်စာ (Delivery Address)
+                    {lang === "en" ? "Delivery Address" : "နေရပ်လိပ်စာ (Delivery Address)"}
                   </label>
                   <div className="relative">
                     <MapPin className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -268,7 +281,11 @@ export default function AuthModal({
                       type="text"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      placeholder="အိမ်အမှတ်၊ လမ်း၊ မြို့နယ်"
+                      placeholder={
+                        lang === "en"
+                          ? "House No, Street, Township"
+                          : "အိမ်အမှတ်၊ လမ်း၊ မြို့နယ်"
+                      }
                       className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-stone-300 focus:border-amber-700 focus:outline-none text-stone-900"
                     />
                   </div>
@@ -278,7 +295,7 @@ export default function AuthModal({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                စကားဝှက် (Password) *
+                {lang === "en" ? "Password *" : "စကားဝှက် (Password) *"}
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
@@ -299,11 +316,19 @@ export default function AuthModal({
               className="w-full py-3 rounded-xl bg-stone-900 hover:bg-amber-900 disabled:bg-stone-400 text-white font-semibold text-sm transition shadow-md mt-2"
             >
               {loading
-                ? "ခေတ္တစောင့်ပေးပါ..."
+                ? lang === "en"
+                  ? "Please wait..."
+                  : "ခေတ္တစောင့်ပေးပါ..."
                 : mode === "login"
-                ? "အကောင့်ဝင်မည် (Sign In)"
+                ? lang === "en"
+                  ? "Sign In"
+                  : "အကောင့်ဝင်မည် (Sign In)"
                 : usersCount === 0
-                ? "ပထမဆုံး Admin အကောင့်အဖြစ် ဖွင့်မည် (Sign Up as Admin)"
+                ? lang === "en"
+                  ? "Sign Up as First Admin"
+                  : "ပထမဆုံး Admin အကောင့်အဖြစ် ဖွင့်မည် (Sign Up as Admin)"
+                : lang === "en"
+                ? "Create Account"
                 : "အကောင့်သစ်ဖွင့်မည် (Create Account)"}
             </button>
           </form>

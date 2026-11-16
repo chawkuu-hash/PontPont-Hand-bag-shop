@@ -20,6 +20,7 @@ import {
   Upload,
   Tag,
   Palette,
+  Globe,
 } from "lucide-react";
 import {
   Announcement,
@@ -57,6 +58,8 @@ interface AdminDashboardProps {
   onDeleteCategory: (categoryId: string) => Promise<void>;
   onUpdateTheme: (theme: ShopThemeId) => Promise<void>;
   onBackToShop: () => void;
+  lang?: "mm" | "en";
+  onToggleLang?: () => void;
 }
 
 const PRESET_BAG_IMAGES = [
@@ -106,6 +109,8 @@ export default function AdminDashboard({
   onDeleteCategory,
   onUpdateTheme,
   onBackToShop,
+  lang = "mm",
+  onToggleLang,
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<
     | "orders"
@@ -244,22 +249,46 @@ export default function AdminDashboard({
       <div className="rounded-3xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 text-white p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-amber-300 font-bold">
-            ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် စီမံခန့်ခွဲမှုစနစ်
+            {lang === "en"
+              ? "Pont Pont Bag Shop Management"
+              : "ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် စီမံခန့်ခွဲမှုစနစ်"}
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold mt-1">
             Admin Dashboard ({currentUser.name})
           </h1>
           <p className="text-xs sm:text-sm text-stone-300 mt-1">
-            အော်ဒါများ စစ်ဆေးခြင်း၊ အိတ်အသစ်ထည့်သွင်းခြင်း နှင့် အသုံးပြုသူအကောင့်များ (Users) စီမံခန့်ခွဲခြင်း
+            {lang === "en"
+              ? "Manage orders, inventory, categories, users, announcements, and storefront themes"
+              : "အော်ဒါများ စစ်ဆေးခြင်း၊ အိတ်အသစ်ထည့်သွင်းခြင်း နှင့် အသုံးပြုသူအကောင့်များ (Users) စီမံခန့်ခွဲခြင်း"}
           </p>
         </div>
-        <button
-          onClick={onBackToShop}
-          className="self-start sm:self-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white text-stone-900 text-xs sm:text-sm font-bold hover:bg-amber-100 transition shadow"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          အရောင်းဆိုင်သို့ ပြန်သွားရန် (Storefront)
-        </button>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {onToggleLang && (
+            <button
+              type="button"
+              onClick={onToggleLang}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-extrabold border border-white/20 transition"
+              title="Switch Language (MM / EN)"
+            >
+              <Globe className="w-4 h-4 text-amber-300" />
+              <span>{lang === "en" ? "EN | မြန်မာ" : "မြန်မာ | EN"}</span>
+            </button>
+          )}
+          <button
+            onClick={() => setActiveTab("themes")}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-400 text-stone-950 text-xs sm:text-sm font-extrabold hover:bg-amber-300 transition shadow"
+          >
+            <Palette className="w-4 h-4" />
+            {lang === "en" ? "Themes (3)" : "Theme ဒီဇိုင်းရွေးရန် (3 Themes)"}
+          </button>
+          <button
+            onClick={onBackToShop}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white text-stone-900 text-xs sm:text-sm font-bold hover:bg-amber-100 transition shadow"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {lang === "en" ? "Back to Storefront" : "အရောင်းဆိုင်သို့ ပြန်သွားရန်"}
+          </button>
+        </div>
       </div>
 
       {toast && (
@@ -274,7 +303,7 @@ export default function AdminDashboard({
         <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate">
-              စုစုပေါင်း ရောင်းရငွေ (Revenue)
+              {lang === "en" ? "Total Revenue" : "စုစုပေါင်း ရောင်းရငွေ (Revenue)"}
             </p>
             <p className="text-base sm:text-2xl font-extrabold text-stone-900 mt-1">
               {totalRevenue.toLocaleString()}{" "}
@@ -289,7 +318,7 @@ export default function AdminDashboard({
         <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate">
-              အော်ဒါစုစုပေါင်း (Total Orders)
+              {lang === "en" ? "Total Orders" : "အော်ဒါစုစုပေါင်း (Total Orders)"}
             </p>
             <p className="text-base sm:text-2xl font-extrabold text-stone-900 mt-1">
               {orders.length}{" "}
@@ -306,11 +335,13 @@ export default function AdminDashboard({
         <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate">
-              အသုံးပြုသူအကောင့်များ (Users)
+              {lang === "en" ? "Registered Users" : "အသုံးပြုသူအကောင့်များ (Users)"}
             </p>
             <p className="text-base sm:text-2xl font-extrabold text-stone-900 mt-1">
               {users.length}{" "}
-              <span className="text-xs sm:text-sm font-normal text-stone-500">ဦး</span>
+              <span className="text-xs sm:text-sm font-normal text-stone-500">
+                {lang === "en" ? "users" : "ဦး"}
+              </span>
             </p>
           </div>
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0">
@@ -321,11 +352,13 @@ export default function AdminDashboard({
         <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate">
-              အိတ်အမျိုးအစားပေါင်း (Products)
+              {lang === "en" ? "Total Products" : "အိတ်အမျိုးအစားပေါင်း (Products)"}
             </p>
             <p className="text-base sm:text-2xl font-extrabold text-stone-900 mt-1">
               {products.length}{" "}
-              <span className="text-xs sm:text-sm font-normal text-stone-500">မျိုး</span>
+              <span className="text-xs sm:text-sm font-normal text-stone-500">
+                {lang === "en" ? "items" : "မျိုး"}
+              </span>
             </p>
           </div>
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-stone-100 text-stone-800 flex items-center justify-center shrink-0">
@@ -335,30 +368,32 @@ export default function AdminDashboard({
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex overflow-x-auto no-scrollbar gap-2 border-b border-stone-200 pb-3 whitespace-nowrap">
+      <div className="flex flex-wrap gap-2 border-b border-stone-200 pb-3">
         <button
           onClick={() => setActiveTab("orders")}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
             activeTab === "orders"
               ? "bg-stone-900 text-white shadow"
               : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-100"
           }`}
         >
-          အော်ဒါများ စီမံရန် (Orders - {orders.length})
+          {lang === "en" ? `Orders (${orders.length})` : `အော်ဒါများ (${orders.length})`}
         </button>
         <button
           onClick={() => setActiveTab("products")}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
             activeTab === "products"
               ? "bg-stone-900 text-white shadow"
               : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-100"
           }`}
         >
-          အိတ်စာရင်းနှင့် လက်ကျန် (Inventory - {products.length})
+          {lang === "en"
+            ? `Inventory (${products.length})`
+            : `အိတ်စာရင်း (${products.length})`}
         </button>
         <button
           onClick={() => setActiveTab("categories")}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
             activeTab === "categories"
               ? "bg-stone-900 text-white shadow"
               : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-100"
@@ -369,47 +404,49 @@ export default function AdminDashboard({
         </button>
         <button
           onClick={() => setActiveTab("users")}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
             activeTab === "users"
               ? "bg-stone-900 text-white shadow"
               : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-100"
           }`}
         >
           <Users className="w-4 h-4" />
-          အသုံးပြုသူများ စီမံရန် (Users - {users.length})
+          Users ({users.length})
         </button>
         <button
           onClick={() => setActiveTab("announcements")}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
             activeTab === "announcements"
               ? "bg-stone-900 text-white shadow"
               : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-100"
           }`}
         >
           <Megaphone className="w-4 h-4 text-amber-700" />
-          ကြေညာချက်တင်ရန် (Announcements - {announcements.length})
+          {lang === "en"
+            ? `Announcements (${announcements.length})`
+            : `ကြေညာချက်များ (${announcements.length})`}
         </button>
         <button
           onClick={() => setActiveTab("themes")}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
             activeTab === "themes"
               ? "bg-stone-900 text-white shadow"
-              : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-100"
+              : "bg-amber-50 text-amber-950 border border-amber-300 hover:bg-amber-100"
           }`}
         >
           <Palette className="w-4 h-4 text-amber-700" />
-          Theme ဒီဇိုင်းရွေးရန် (3 Themes)
+          {lang === "en" ? "Themes (3)" : "Theme ဒီဇိုင်းရွေးရန် (3 Themes)"}
         </button>
         <button
           onClick={() => setActiveTab("add")}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
             activeTab === "add"
               ? "bg-amber-800 text-white shadow"
               : "bg-amber-50 text-amber-950 border border-amber-200 hover:bg-amber-100"
           }`}
         >
           <Plus className="w-4 h-4" />
-          အိတ်အသစ်ထည့်ရန် (Add New Handbag)
+          {lang === "en" ? "Add Handbag" : "အိတ်အသစ်ထည့်ရန်"}
         </button>
       </div>
 

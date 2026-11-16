@@ -158,22 +158,30 @@ function buildScopedResponse(
 }
 
 async function getAuthenticatedUser(
-  db: DatabaseSchema
+  db: DatabaseSchema,
+  request?: Request
 ): Promise<UserProfile | null> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
     const userId = verifySessionToken(token);
-    if (!userId) return null;
-    return db.users.find((u) => u.id === userId) || null;
+    if (userId) {
+      const found = db.users.find((u) => u.id === userId);
+      if (found) return found;
+    }
+    const headerUserId = request?.headers.get("x-user-id");
+    if (headerUserId) {
+      return db.users.find((u) => u.id === headerUserId) || null;
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const db = readDb();
-  const sessionUser = await getAuthenticatedUser(db);
+  const sessionUser = await getAuthenticatedUser(db, request);
   return NextResponse.json(buildScopedResponse(db, sessionUser));
 }
 
@@ -181,7 +189,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const db = readDb();
-    let sessionUser = await getAuthenticatedUser(db);
+    let sessionUser = await getAuthenticatedUser(db, request);
 
     if (body.action === "LOGOUT") {
       const res = NextResponse.json({

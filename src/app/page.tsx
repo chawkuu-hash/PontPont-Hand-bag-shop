@@ -22,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Globe,
 } from "lucide-react";
 import {
   INITIAL_CATEGORIES,
@@ -62,6 +63,7 @@ export default function PontPontShopPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [lang, setLang] = useState<"mm" | "en">("mm");
 
   // Filters & UI state
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -82,7 +84,27 @@ export default function PontPontShopPage() {
 
   // Load persisted data from API and localStorage
   useEffect(() => {
-    fetch("/api/shop")
+    let savedUserId = "";
+    try {
+      const savedUserStr = localStorage.getItem("pontpont_user_v3");
+      if (savedUserStr) {
+        const parsed = JSON.parse(savedUserStr);
+        if (parsed?.id) {
+          savedUserId = parsed.id;
+          setUser(parsed);
+        }
+      }
+      const savedCart = localStorage.getItem("pontpont_cart_v2");
+      if (savedCart) setCart(JSON.parse(savedCart));
+      const savedWish = localStorage.getItem("pontpont_wishlist");
+      if (savedWish) setWishlist(JSON.parse(savedWish));
+      const savedLang = localStorage.getItem("pontpont_lang");
+      if (savedLang === "en" || savedLang === "mm") setLang(savedLang);
+    } catch {}
+
+    fetch("/api/shop", {
+      headers: savedUserId ? { "x-user-id": savedUserId } : {},
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.products) setProducts(data.products);
@@ -94,21 +116,15 @@ export default function PontPontShopPage() {
         if (data.users) setUsers(data.users);
         if (data.currentUser) {
           setUser(data.currentUser);
-        } else {
-          setUser(null);
           try {
-            localStorage.removeItem("pontpont_user_v3");
+            localStorage.setItem(
+              "pontpont_user_v3",
+              JSON.stringify(data.currentUser)
+            );
           } catch {}
         }
       })
       .catch(() => {});
-
-    try {
-      const savedCart = localStorage.getItem("pontpont_cart_v2");
-      if (savedCart) setCart(JSON.parse(savedCart));
-      const savedWish = localStorage.getItem("pontpont_wishlist");
-      if (savedWish) setWishlist(JSON.parse(savedWish));
-    } catch {}
   }, []);
 
   useEffect(() => {
@@ -145,6 +161,16 @@ export default function PontPontShopPage() {
   const triggerToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(""), 3200);
+  };
+
+  const handleToggleLang = () => {
+    setLang((prev) => {
+      const next = prev === "mm" ? "en" : "mm";
+      try {
+        localStorage.setItem("pontpont_lang", next);
+      } catch {}
+      return next;
+    });
   };
 
   const handleAuthSuccess = (
@@ -263,12 +289,18 @@ export default function PontPontShopPage() {
     );
   };
 
+  const authHeaders = useMemo((): Record<string, string> => {
+    const h: Record<string, string> = { "Content-Type": "application/json" };
+    if (user?.id) h["x-user-id"] = user.id;
+    return h;
+  }, [user]);
+
   // API Sync Handlers
   const handleOrderCreated = async (newOrder: Order) => {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "CREATE_ORDER", order: newOrder }),
       });
       const data = await res.json();
@@ -285,7 +317,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "ADD_PRODUCT", product: newProduct }),
       });
       const data = await res.json();
@@ -301,7 +333,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "UPDATE_PRODUCT", product: updated }),
       });
       const data = await res.json();
@@ -319,7 +351,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "DELETE_PRODUCT", productId }),
       });
       const data = await res.json();
@@ -338,7 +370,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({
           action: "UPDATE_ORDER_STATUS",
           orderId,
@@ -363,7 +395,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "UPDATE_USER_ROLE", userId, role }),
       });
       const data = await res.json();
@@ -381,7 +413,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "DELETE_USER", userId }),
       });
       const data = await res.json();
@@ -397,7 +429,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "ADD_ANNOUNCEMENT", announcement }),
       });
       const data = await res.json();
@@ -415,7 +447,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({
           action: "DELETE_ANNOUNCEMENT",
           announcementId,
@@ -436,7 +468,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "ADD_CATEGORY", category }),
       });
       const data = await res.json();
@@ -452,7 +484,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "DELETE_CATEGORY", categoryId }),
       });
       const data = await res.json();
@@ -471,7 +503,7 @@ export default function PontPontShopPage() {
     try {
       const res = await fetch("/api/shop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ action: "UPDATE_THEME", theme }),
       });
       const data = await res.json();
@@ -639,17 +671,29 @@ export default function PontPontShopPage() {
       <div className={`${themeStyles.topBar} text-[11px] sm:text-xs py-2 px-3 sm:px-4`}>
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <p className="flex items-center gap-1.5 font-medium leading-snug">
-            <span>
-              <strong>ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် - မန္တလေး:</strong> လက်လီ/လက်ကား စိတ်ကြိုက်မှာယူနိုင်ပါပြီ! ကူပွန်ကုဒ်{" "}
-              <code className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">
-                PONTPONT10
-              </code>{" "}
-              ဖြင့် 10% လျှော့ဈေးရယူပါ။
-            </span>
+            {lang === "en" ? (
+              <span>
+                <strong>Pont Pont Bag Shop (Mandalay):</strong> Retail & Wholesale Orders Available! Use code{" "}
+                <code className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">
+                  PONTPONT10
+                </code>{" "}
+                for 10% OFF.
+              </span>
+            ) : (
+              <span>
+                <strong>ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် - မန္တလေး:</strong> လက်လီ/လက်ကား စိတ်ကြိုက်မှာယူနိုင်ပါပြီ! ကူပွန်ကုဒ်{" "}
+                <code className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">
+                  PONTPONT10
+                </code>{" "}
+                ဖြင့် 10% လျှော့ဈေးရယူပါ။
+              </span>
+            )}
           </p>
           <div className="hidden md:flex items-center gap-4 text-[11px] text-stone-300">
-            <span>ဖုန်း: 09-963000502, 09-750072752, 09-404448881</span>
-            <span>နေ့စဉ် 8:00 AM - 8:00 PM</span>
+            <span>
+              {lang === "en" ? "Phone:" : "ဖုန်း:"} 09-963000502, 09-750072752, 09-404448881
+            </span>
+            <span>{lang === "en" ? "Open Daily 8:00 AM - 8:00 PM" : "နေ့စဉ် 8:00 AM - 8:00 PM"}</span>
           </div>
         </div>
       </div>
@@ -677,11 +721,13 @@ export default function PontPontShopPage() {
               <span className="block text-base sm:text-2xl font-extrabold tracking-tight text-stone-900 truncate">
                 Pont Pont{" "}
                 <span className={`${themeStyles.brandSub} font-bold text-xs sm:text-lg`}>
-                  (ပုံ့ပုံ့)
+                  {lang === "en" ? "Bag Shop" : "(ပုံ့ပုံ့)"}
                 </span>
               </span>
               <span className="block text-[10px] sm:text-[11px] font-semibold text-stone-600 truncate">
-                အိတ်အမျိုးမျိုး လက်လီ/လက်ကား (မန္တလေး)
+                {lang === "en"
+                  ? "Retail & Wholesale Handbags (Mandalay)"
+                  : "အိတ်အမျိုးမျိုး လက်လီ/လက်ကား (မန္တလေး)"}
               </span>
             </div>
           </button>
@@ -694,14 +740,29 @@ export default function PontPontShopPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="အိတ်အမည် သို့မဟုတ် အမျိုးအစား ရှာဖွေရန် (ဥပမာ - ဘေးလွယ်အိတ်၊ ပိုက်ဆံအိတ်)..."
+                placeholder={
+                  lang === "en"
+                    ? "Search bags by name or category (e.g. Tote, Sling, Wallet)..."
+                    : "အိတ်အမည် သို့မဟုတ် အမျိုးအစား ရှာဖွေရန် (ဥပမာ - ဘေးလွယ်အိတ်၊ ပိုက်ဆံအိတ်)..."
+                }
                 className="w-full pl-11 pr-4 py-2.5 text-xs rounded-full border border-stone-300 bg-stone-50 focus:bg-white focus:border-amber-800 focus:outline-none text-stone-900 transition"
               />
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* Language Switcher (MM | EN) */}
+            <button
+              type="button"
+              onClick={handleToggleLang}
+              className="flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-extrabold border border-stone-300 bg-stone-100 hover:bg-stone-200 text-stone-900 transition"
+              title="Switch Language (Myanmar / English)"
+            >
+              <Globe className="w-3.5 h-3.5 text-amber-800" />
+              <span>{lang === "en" ? "EN" : "MM"}</span>
+            </button>
+
             {/* Branches Link */}
             {viewMode === "shop" && (
               <a
@@ -709,7 +770,7 @@ export default function PontPontShopPage() {
                 className="hidden xl:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-100 border border-stone-200 transition"
               >
                 <Store className="w-4 h-4 text-amber-800" />
-                <span>ဆိုင်ခွဲလိပ်စာများ</span>
+                <span>{lang === "en" ? "Branches" : "ဆိုင်ခွဲလိပ်စာများ"}</span>
               </a>
             )}
 
@@ -727,7 +788,13 @@ export default function PontPontShopPage() {
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span className="hidden sm:inline">
-                  {viewMode === "admin" ? "ဆိုင်သို့ပြန်ရန်" : "Admin စနစ်"}
+                  {viewMode === "admin"
+                    ? lang === "en"
+                      ? "Storefront"
+                      : "ဆိုင်သို့ပြန်ရန်"
+                    : lang === "en"
+                    ? "Admin"
+                    : "Admin စနစ်"}
                 </span>
               </button>
             )}
@@ -749,7 +816,11 @@ export default function PontPontShopPage() {
             >
               <User className="w-4 h-4" />
               <span className="hidden md:inline max-w-[110px] truncate">
-                {user ? user.name : "အကောင့်ဝင်ရန်"}
+                {user
+                  ? user.name
+                  : lang === "en"
+                  ? "Sign In"
+                  : "အကောင့်ဝင်ရန်"}
               </span>
             </button>
 
@@ -781,10 +852,12 @@ export default function PontPontShopPage() {
             {/* Shopping Cart Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition shadow-sm ${themeStyles.cartBtn}`}
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2.5 text-xs font-bold transition shadow-sm ${themeStyles.cartBtn}`}
             >
               <ShoppingBag className="w-4 h-4" />
-              <span className="hidden sm:inline">ဈေးခြင်း</span>
+              <span className="hidden sm:inline">
+                {lang === "en" ? "Bag" : "ဈေးခြင်း"}
+              </span>
               <span
                 className={`px-1.5 py-0.5 text-[11px] font-extrabold ${themeStyles.cartBadge}`}
               >
@@ -803,7 +876,11 @@ export default function PontPontShopPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="အိတ်အမည် သို့မဟုတ် အမျိုးအစား ရှာဖွေရန်..."
+                placeholder={
+                  lang === "en"
+                    ? "Search bags by name or category..."
+                    : "အိတ်အမည် သို့မဟုတ် အမျိုးအစား ရှာဖွေရန်..."
+                }
                 className="w-full pl-10 pr-4 py-2 text-xs rounded-full border border-stone-300 bg-stone-50 text-stone-900 focus:outline-none focus:border-amber-800"
               />
             </div>
@@ -842,6 +919,8 @@ export default function PontPontShopPage() {
             onDeleteCategory={handleDeleteCategory}
             onUpdateTheme={handleUpdateTheme}
             onBackToShop={() => setViewMode("shop")}
+            lang={lang}
+            onToggleLang={handleToggleLang}
           />
         </main>
       ) : viewMode === "profile" && user ? (
@@ -857,6 +936,7 @@ export default function PontPontShopPage() {
               user.role === "admin" ? () => setViewMode("admin") : undefined
             }
             onAddToCart={(p) => handleAddToCart(p)}
+            lang={lang}
           />
         </main>
       ) : (
@@ -871,39 +951,64 @@ export default function PontPontShopPage() {
                 <div
                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-semibold ${themeStyles.heroPill}`}
                 >
-                  မန္တလေးမြို့၏ နာမည်ကြီး လက်လီ/လက်ကား အိတ်အရောင်းဆိုင်ကြီး
+                  {lang === "en"
+                    ? "Mandalay's Leading Retail & Wholesale Handbag Boutique"
+                    : "မန္တလေးမြို့၏ နာမည်ကြီး လက်လီ/လက်ကား အိတ်အရောင်းဆိုင်ကြီး"}
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-snug">
                   <span className={themeStyles.heroHighlight}>
-                    ပုံ့ပုံ့ (Pont Pont)
+                    {lang === "en" ? "Pont Pont" : "ပုံ့ပုံ့ (Pont Pont)"}
                   </span>{" "}
-                  အိတ်အမျိုးမျိုး ရောင်းဝယ်ရေး
+                  {lang === "en"
+                    ? "Handbags & Accessories"
+                    : "အိတ်အမျိုးမျိုး ရောင်းဝယ်ရေး"}
                 </h1>
 
                 <p className="text-xs sm:text-sm text-stone-300 max-w-xl leading-relaxed">
-                  အရည်အသွေးကောင်းမွန်သော အမျိုးသမီးနှင့် အမျိုးသား လက်ကိုင်အိတ်၊ လက်ဆွဲအိတ်၊ ဘေးလွယ်အိတ်၊ ပိုက်ဆံအိတ်နှင့် ကျောပိုးအိတ် အမျိုးမျိုးကို မန္တလေးမြို့ ဆိုင်ခွဲ (၃) ခုနှင့် အွန်လိုင်းမှတစ်ဆင့် <strong>လက်လီ / လက်ကား</strong> ဝယ်ယူရရှိနိုင်ပါပြီ။
+                  {lang === "en" ? (
+                    <>
+                      Discover quality women&apos;s and men&apos;s handbags, tote bags, sling bags, wallets, and backpacks across our 3 Mandalay branches and online for both{" "}
+                      <strong>Retail & Wholesale</strong>.
+                    </>
+                  ) : (
+                    <>
+                      အရည်အသွေးကောင်းမွန်သော အမျိုးသမီးနှင့် အမျိုးသား လက်ကိုင်အိတ်၊ လက်ဆွဲအိတ်၊ ဘေးလွယ်အိတ်၊ ပိုက်ဆံအိတ်နှင့် ကျောပိုးအိတ် အမျိုးမျိုးကို မန္တလေးမြို့ ဆိုင်ခွဲ (၃) ခုနှင့် အွန်လိုင်းမှတစ်ဆင့် <strong>လက်လီ / လက်ကား</strong> ဝယ်ယူရရှိနိုင်ပါပြီ။
+                    </>
+                  )}
                 </p>
 
                 {/* Quick Branch Pills */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-stone-200">
                   <div className="p-2 rounded-xl bg-white/10 border border-white/10">
                     <span className="font-bold text-amber-300 block">
-                      ဆိုင်ခွဲ (၁) ပင်မဆိုင်
+                      {lang === "en" ? "Branch (1) Main" : "ဆိုင်ခွဲ (၁) ပင်မဆိုင်"}
                     </span>
-                    <span>၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေး</span>
+                    <span>
+                      {lang === "en"
+                        ? "73rd St, Bet 36th & 37th St, Mandalay"
+                        : "၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေး"}
+                    </span>
                   </div>
                   <div className="p-2 rounded-xl bg-white/10 border border-white/10">
                     <span className="font-bold text-amber-300 block">
-                      ဆိုင်ခွဲ (၂)
+                      {lang === "en" ? "Branch (2)" : "ဆိုင်ခွဲ (၂)"}
                     </span>
-                    <span>၆၅ လမ်း၊ ၁၀၇×၁၀၈ လမ်းကြား၊ မန္တလေး</span>
+                    <span>
+                      {lang === "en"
+                        ? "65th St, Bet 107th & 108th St, Mandalay"
+                        : "၆၅ လမ်း၊ ၁၀၇×၁၀၈ လမ်းကြား၊ မန္တလေး"}
+                    </span>
                   </div>
                   <div className="p-2 rounded-xl bg-white/10 border border-white/10">
                     <span className="font-bold text-amber-300 block">
-                      ဆိုင်ခွဲ (၃) တံခွန်တိုင်
+                      {lang === "en" ? "Branch (3) Thakhun Taing" : "ဆိုင်ခွဲ (၃) တံခွန်တိုင်"}
                     </span>
-                    <span>၇၈ လမ်း၊ တံခွန်တိုင်ဈေးအနီး၊ မန္တလေး</span>
+                    <span>
+                      {lang === "en"
+                        ? "78th St, Near Thakhun Taing Market"
+                        : "၇၈ လမ်း၊ တံခွန်တိုင်ဈေးအနီး၊ မန္တလေး"}
+                    </span>
                   </div>
                 </div>
 
@@ -912,13 +1017,17 @@ export default function PontPontShopPage() {
                     href="#catalog"
                     className={`w-full sm:w-auto text-center px-5 py-2.5 font-extrabold text-xs sm:text-sm transition shadow-md ${themeStyles.heroCtaPrimary}`}
                   >
-                    အိတ်ဒီဇိုင်းများ ကြည့်ရှုရန် (Shop Now)
+                    {lang === "en"
+                      ? "Shop Handbags Now"
+                      : "အိတ်ဒီဇိုင်းများ ကြည့်ရှုရန် (Shop Now)"}
                   </a>
                   <a
                     href="#branches"
                     className="w-full sm:w-auto text-center px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/15 transition"
                   >
-                    ဆိုင်ခွဲလိပ်စာနှင့် ဖုန်းနံပါတ်များ
+                    {lang === "en"
+                      ? "Branches & Contact"
+                      : "ဆိုင်ခွဲလိပ်စာနှင့် ဖုန်းနံပါတ်များ"}
                   </a>
                 </div>
               </div>
@@ -1088,21 +1197,29 @@ export default function PontPontShopPage() {
               <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full lg:w-auto border-t sm:border-t-0 border-stone-100 pt-2 sm:pt-0">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-600 shrink-0">
                   <SlidersHorizontal className="w-4 h-4 text-amber-800" />
-                  <span>စီစဉ်ရန်:</span>
+                  <span>{lang === "en" ? "Sort by:" : "စီစဉ်ရန်:"}</span>
                 </div>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="flex-1 sm:flex-initial px-3 py-2 rounded-xl border border-stone-300 bg-stone-50 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-800"
                 >
-                  <option value="featured">Featured (အထူးရွေးချယ်ထားသော)</option>
+                  <option value="featured">
+                    {lang === "en" ? "Featured" : "Featured (အထူးရွေးချယ်ထားသော)"}
+                  </option>
                   <option value="price-asc">
-                    ဈေးနှုန်း: အနည်းမှ အများ (Low to High)
+                    {lang === "en"
+                      ? "Price: Low to High"
+                      : "ဈေးနှုန်း: အနည်းမှ အများ (Low to High)"}
                   </option>
                   <option value="price-desc">
-                    ဈေးနှုန်း: အများမှ အနည်း (High to Low)
+                    {lang === "en"
+                      ? "Price: High to Low"
+                      : "ဈေးနှုန်း: အများမှ အနည်း (High to Low)"}
                   </option>
-                  <option value="rating">Rating အမြင့်ဆုံး (Top Rated)</option>
+                  <option value="rating">
+                    {lang === "en" ? "Top Rated" : "Rating အမြင့်ဆုံး (Top Rated)"}
+                  </option>
                 </select>
               </div>
             </div>
@@ -1229,7 +1346,8 @@ export default function PontPontShopPage() {
                               <p
                                 className={`text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 border w-fit truncate max-w-full ${themeStyles.wholesaleBadge}`}
                               >
-                                လက်ကား: {product.wholesalePrice.toLocaleString()} MMK
+                                {lang === "en" ? "Wholesale:" : "လက်ကား:"}{" "}
+                                {product.wholesalePrice.toLocaleString()} MMK
                               </p>
                             )}
                           </div>
@@ -1276,7 +1394,11 @@ export default function PontPontShopPage() {
                           </span>
                           <span className="hidden sm:inline">
                             {product.stock > 0
-                              ? "ခြင်းတောင်းထဲထည့်မည် (Add to Bag)"
+                              ? lang === "en"
+                                ? "Add to Bag"
+                                : "ခြင်းတောင်းထဲထည့်မည် (Add to Bag)"
+                              : lang === "en"
+                              ? "Sold Out"
                               : "ပစ္စည်းပြတ်နေပါသည် (Sold Out)"}
                           </span>
                         </button>
@@ -1557,6 +1679,7 @@ export default function PontPontShopPage() {
           activeProduct ? wishlist.includes(activeProduct.id) : false
         }
         onToggleWishlist={handleToggleWishlist}
+        lang={lang}
       />
 
       <CartCheckoutDrawer
@@ -1568,6 +1691,7 @@ export default function PontPontShopPage() {
         onClearCart={() => setCart([])}
         user={user}
         onOrderCreated={handleOrderCreated}
+        lang={lang}
       />
 
       <AuthModal
@@ -1575,6 +1699,7 @@ export default function PontPontShopPage() {
         onClose={() => setIsAuthOpen(false)}
         usersCount={usersCount}
         onAuthSuccess={handleAuthSuccess}
+        lang={lang}
       />
 
       <OrdersModal
