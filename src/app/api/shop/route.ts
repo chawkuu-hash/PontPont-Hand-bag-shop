@@ -5,7 +5,6 @@ import path from "path";
 import crypto from "crypto";
 import {
   INITIAL_PRODUCTS,
-  INITIAL_ORDERS,
   INITIAL_ANNOUNCEMENTS,
   INITIAL_CATEGORIES,
   CITIES,
@@ -15,8 +14,12 @@ import {
   Announcement,
   CategoryItem,
 } from "@/data/initialData";
+import {
+  DatabaseSchema,
+  readFullDbFromSqlite,
+  writeFullDbToSqlite,
+} from "@/data/sqliteDb";
 
-const DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
 const SECRET_PATH = path.join(process.cwd(), "src", "data", ".session_secret");
 const SESSION_COOKIE_NAME = "pontpont_session";
 
@@ -101,67 +104,24 @@ function sanitizeImageUrl(url?: string): string | undefined {
   return undefined;
 }
 
-interface DatabaseSchema {
-  products: Product[];
-  orders: Order[];
-  users: UserProfile[];
-  announcements: Announcement[];
-  categories: CategoryItem[];
-}
-
 function readDb(): DatabaseSchema {
-  try {
-    if (fs.existsSync(DB_PATH)) {
-      const raw = fs.readFileSync(DB_PATH, "utf-8");
-      const parsed = JSON.parse(raw);
-      const db: DatabaseSchema = {
-        products: parsed.products || INITIAL_PRODUCTS,
-        orders: parsed.orders || INITIAL_ORDERS,
-        users: parsed.users || [],
-        announcements: parsed.announcements || INITIAL_ANNOUNCEMENTS,
-        categories: parsed.categories || INITIAL_CATEGORIES,
-      };
-      // Automatically upgrade any plaintext passwords in db.json to scrypt hashes
-      let migrated = false;
-      db.users = db.users.map((u) => {
-        if (u.password && !u.password.startsWith("scrypt$")) {
-          migrated = true;
-          return { ...u, password: hashPassword(u.password) };
-        }
-        return u;
-      });
-      if (migrated) {
-        writeDb(db);
-      }
-      return db;
+  const db = readFullDbFromSqlite();
+  let migrated = false;
+  db.users = db.users.map((u) => {
+    if (u.password && !u.password.startsWith("scrypt$")) {
+      migrated = true;
+      return { ...u, password: hashPassword(u.password) };
     }
-  } catch (err) {
-    console.error("Error reading db.json:", err);
+    return u;
+  });
+  if (migrated) {
+    writeFullDbToSqlite(db);
   }
-  const initialData: DatabaseSchema = {
-    products: INITIAL_PRODUCTS,
-    orders: INITIAL_ORDERS,
-    users: [],
-    announcements: INITIAL_ANNOUNCEMENTS,
-    categories: INITIAL_CATEGORIES,
-  };
-  writeDb(initialData);
-  return initialData;
+  return db;
 }
 
 function writeDb(data: DatabaseSchema) {
-  try {
-    const dir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), {
-      encoding: "utf-8",
-      mode: 0o600,
-    });
-  } catch (err) {
-    console.error("Error writing db.json:", err);
-  }
+  writeFullDbToSqlite(data);
 }
 
 function sanitizeUser(u: UserProfile): UserProfile {

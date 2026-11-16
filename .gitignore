@@ -43,3 +43,5 @@ next-env.d.ts
 # local database
 src/data/db.json
 src/data/.session_secret
+src/data/*.sqlite*
+
