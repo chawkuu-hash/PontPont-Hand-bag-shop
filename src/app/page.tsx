@@ -503,11 +503,11 @@ export default function PontPontShopPage() {
   const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-stone-900 flex flex-col">
+    <div className="min-h-screen bg-[#FAF7F2] text-stone-900 flex flex-col pb-16 md:pb-0">
       {/* Top Announcement Bar */}
-      <div className="bg-stone-900 text-amber-100 text-xs py-2.5 px-4">
+      <div className="bg-stone-900 text-amber-100 text-[11px] sm:text-xs py-2 px-3 sm:px-4">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <p className="flex items-center gap-1.5 font-medium">
+          <p className="flex items-center gap-1.5 font-medium leading-snug">
             <span>
               <strong>ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် - မန္တလေး:</strong> လက်လီ/လက်ကား စိတ်ကြိုက်မှာယူနိုင်ပါပြီ! ကူပွန်ကုဒ်{" "}
               <code className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">
@@ -525,7 +525,7 @@ export default function PontPontShopPage() {
 
       {/* Main Sticky Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo */}
           <button
             onClick={() => {
@@ -533,20 +533,20 @@ export default function PontPontShopPage() {
               setSelectedCategory("All");
               setShowWishlistOnly(false);
             }}
-            className="flex items-center gap-3 text-left group"
+            className="flex items-center gap-2 sm:gap-3 text-left group min-w-0"
           >
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-800 to-stone-900 text-amber-100 flex items-center justify-center font-serif font-extrabold text-xl shadow-md group-hover:scale-105 transition">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-800 to-stone-900 text-amber-100 flex items-center justify-center font-serif font-extrabold text-base sm:text-xl shadow-md shrink-0">
               P
             </div>
-            <div>
-              <span className="block text-xl sm:text-2xl font-extrabold tracking-tight text-stone-900">
+            <div className="min-w-0">
+              <span className="block text-base sm:text-2xl font-extrabold tracking-tight text-stone-900 truncate">
                 Pont Pont{" "}
-                <span className="text-amber-800 font-bold text-base sm:text-lg">
+                <span className="text-amber-800 font-bold text-xs sm:text-lg">
                   (ပုံ့ပုံ့)
                 </span>
               </span>
-              <span className="block text-[11px] font-semibold text-stone-600">
-                အိတ်အမျိုးမျိုး လက်လီ/လက်ကား ရောင်းဝယ်ရေး (မန္တလေး)
+              <span className="block text-[10px] sm:text-[11px] font-semibold text-stone-600 truncate">
+                အိတ်အမျိုးမျိုး လက်လီ/လက်ကား (မန္တလေး)
               </span>
             </div>
           </button>
@@ -762,16 +762,16 @@ export default function PontPontShopPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 pt-1">
+                <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
                   <a
                     href="#catalog"
-                    className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-extrabold text-xs sm:text-sm transition shadow-md"
+                    className="w-full sm:w-auto text-center px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-extrabold text-xs sm:text-sm transition shadow-md"
                   >
                     အိတ်ဒီဇိုင်းများ ကြည့်ရှုရန် (Shop Now)
                   </a>
                   <a
                     href="#branches"
-                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/15 transition"
+                    className="w-full sm:w-auto text-center px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/15 transition"
                   >
                     ဆိုင်ခွဲလိပ်စာနှင့် ဖုန်းနံပါတ်များ
                   </a>
@@ -907,11 +907,11 @@ export default function PontPontShopPage() {
           {/* Catalog & Category Filtering Section */}
           <section
             id="catalog"
-            className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+            className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-5 sm:space-y-8"
           >
             {/* Category Filter Pills & Sort Controls */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-stone-200/90 shadow-xs">
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-xs">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5 lg:pb-0">
                 {categories.map((cat) => {
                   const active =
                     selectedCategory === cat.id && !showWishlistOnly;
@@ -922,7 +922,7 @@ export default function PontPontShopPage() {
                         setShowWishlistOnly(false);
                         setSelectedCategory(cat.id);
                       }}
-                      className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition ${
+                      className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold whitespace-nowrap transition ${
                         active
                           ? "bg-stone-900 text-white shadow-sm"
                           : "bg-stone-100 text-stone-700 hover:bg-stone-200"
@@ -934,15 +934,15 @@ export default function PontPontShopPage() {
                 })}
               </div>
 
-              <div className="flex items-center gap-3 self-end lg:self-auto">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-600">
+              <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full lg:w-auto border-t sm:border-t-0 border-stone-100 pt-2 sm:pt-0">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-600 shrink-0">
                   <SlidersHorizontal className="w-4 h-4 text-amber-800" />
                   <span>စီစဉ်ရန်:</span>
                 </div>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3.5 py-2 rounded-xl border border-stone-300 bg-stone-50 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-800"
+                  className="flex-1 sm:flex-initial px-3 py-2 rounded-xl border border-stone-300 bg-stone-50 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-800"
                 >
                   <option value="featured">Featured (အထူးရွေးချယ်ထားသော)</option>
                   <option value="price-asc">
@@ -992,7 +992,7 @@ export default function PontPontShopPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 {filteredProducts.map((product) => {
                   const chosenColor =
                     selectedColorsMap[product.id] ||
@@ -1003,11 +1003,11 @@ export default function PontPontShopPage() {
                   return (
                     <div
                       key={product.id}
-                      className="group bg-white rounded-3xl border border-stone-200/90 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                      className="group bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
                     >
                       <div>
                         {/* Image Container */}
-                        <div className="relative h-64 bg-stone-100 overflow-hidden">
+                        <div className="relative h-40 sm:h-64 bg-stone-100 overflow-hidden">
                           <img
                             src={product.image}
                             alt={product.nameEn}
@@ -1016,19 +1016,19 @@ export default function PontPontShopPage() {
                           />
 
                           {product.badge && (
-                            <span className="absolute top-3.5 left-3.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-stone-900/90 text-amber-300 backdrop-blur-xs">
+                            <span className="absolute top-2.5 left-2.5 sm:top-3.5 sm:left-3.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-stone-900/90 text-amber-300 backdrop-blur-xs">
                               {product.badge}
                             </span>
                           )}
 
-                          <div className="absolute top-3.5 right-3.5 flex flex-col gap-2">
+                          <div className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 flex flex-col gap-1.5 sm:gap-2">
                             <button
                               onClick={() => handleToggleWishlist(product.id)}
-                              className="p-2 rounded-full bg-white/90 hover:bg-white text-stone-700 shadow-md transition"
+                              className="p-1.5 sm:p-2 rounded-full bg-white/90 hover:bg-white text-stone-700 shadow-md transition"
                               title="Wishlist"
                             >
                               <Heart
-                                className={`w-4 h-4 ${
+                                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
                                   wishlisted
                                     ? "fill-rose-500 text-rose-500"
                                     : ""
@@ -1037,48 +1037,48 @@ export default function PontPontShopPage() {
                             </button>
                             <button
                               onClick={() => setActiveProduct(product)}
-                              className="p-2 rounded-full bg-white/90 hover:bg-white text-stone-700 shadow-md transition"
+                              className="p-1.5 sm:p-2 rounded-full bg-white/90 hover:bg-white text-stone-700 shadow-md transition"
                               title="Quick View"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </button>
                           </div>
                         </div>
 
                         {/* Card Details */}
-                        <div className="p-5">
-                          <div className="flex items-center justify-between text-[11px] font-bold text-amber-800 uppercase tracking-wider">
-                            <span>{product.category}</span>
+                        <div className="p-3 sm:p-5">
+                          <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-bold text-amber-800 uppercase tracking-wider">
+                            <span className="truncate">{product.category}</span>
                           </div>
 
                           <h3
                             onClick={() => setActiveProduct(product)}
-                            className="font-bold text-stone-900 text-sm mt-1 line-clamp-1 cursor-pointer hover:text-amber-900"
+                            className="font-bold text-stone-900 text-xs sm:text-sm mt-1 line-clamp-2 sm:line-clamp-1 cursor-pointer hover:text-amber-900 min-h-[2rem] sm:min-h-0"
                           >
                             {product.nameEn}
                           </h3>
 
                           {/* Price */}
-                          <div className="mt-3 space-y-1">
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-lg font-extrabold text-stone-900">
+                          <div className="mt-2 sm:mt-3 space-y-1">
+                            <div className="flex flex-wrap items-baseline gap-1 sm:gap-2">
+                              <span className="text-sm sm:text-lg font-extrabold text-stone-900">
                                 {product.price.toLocaleString()} MMK
                               </span>
                               {product.originalPrice && (
-                                <span className="text-xs text-stone-400 line-through">
-                                  {product.originalPrice.toLocaleString()} MMK
+                                <span className="text-[10px] sm:text-xs text-stone-400 line-through">
+                                  {product.originalPrice.toLocaleString()}
                                 </span>
                               )}
                             </div>
                             {product.wholesalePrice && (
-                              <p className="text-[11px] font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/80 w-fit">
-                                လက်ကားဈေး: {product.wholesalePrice.toLocaleString()} MMK
+                              <p className="text-[10px] sm:text-[11px] font-bold text-amber-900 bg-amber-50 px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg border border-amber-200/80 w-fit truncate max-w-full">
+                                လက်ကား: {product.wholesalePrice.toLocaleString()} MMK
                               </p>
                             )}
                           </div>
 
                           {/* Color Swatches */}
-                          <div className="mt-3 flex items-center gap-1.5">
+                          <div className="mt-2.5 sm:mt-3 flex items-center gap-1 sm:gap-1.5">
                             {product.colors.map((c) => (
                               <button
                                 key={c.name}
@@ -1090,7 +1090,7 @@ export default function PontPontShopPage() {
                                   }))
                                 }
                                 title={c.name}
-                                className={`w-5 h-5 rounded-full border transition ${
+                                className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border transition shrink-0 ${
                                   chosenColor === c.name
                                     ? "ring-2 ring-amber-800 ring-offset-1 scale-110"
                                     : "border-stone-300 opacity-80 hover:opacity-100"
@@ -1098,7 +1098,7 @@ export default function PontPontShopPage() {
                                 style={{ backgroundColor: c.hex }}
                               />
                             ))}
-                            <span className="text-[11px] text-stone-500 ml-1 truncate">
+                            <span className="hidden sm:inline text-[11px] text-stone-500 ml-1 truncate">
                               {chosenColor}
                             </span>
                           </div>
@@ -1106,17 +1106,22 @@ export default function PontPontShopPage() {
                       </div>
 
                       {/* Card Footer */}
-                      <div className="px-5 pb-5 pt-2">
+                      <div className="px-3 pb-3 sm:px-5 sm:pb-5 pt-1">
                         <button
                           type="button"
                           disabled={product.stock <= 0}
                           onClick={() => handleAddToCart(product, chosenColor, 1)}
-                          className="w-full py-2.5 px-4 rounded-2xl bg-stone-900 hover:bg-amber-900 disabled:bg-stone-300 text-white text-xs font-bold flex items-center justify-center gap-2 transition shadow-sm"
+                          className="w-full py-2 sm:py-2.5 px-2.5 sm:px-4 rounded-xl sm:rounded-2xl bg-stone-900 hover:bg-amber-900 disabled:bg-stone-300 text-white text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 sm:gap-2 transition shadow-sm"
                         >
-                          <ShoppingBag className="w-3.5 h-3.5 text-amber-300" />
-                          {product.stock > 0
-                            ? "ခြင်းတောင်းထဲထည့်မည် (Add to Bag)"
-                            : "ပစ္စည်းပြတ်နေပါသည် (Sold Out)"}
+                          <ShoppingBag className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                          <span className="sm:hidden">
+                            {product.stock > 0 ? "Add to Bag" : "Sold Out"}
+                          </span>
+                          <span className="hidden sm:inline">
+                            {product.stock > 0
+                              ? "ခြင်းတောင်းထဲထည့်မည် (Add to Bag)"
+                              : "ပစ္စည်းပြတ်နေပါသည် (Sold Out)"}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -1305,6 +1310,86 @@ export default function PontPontShopPage() {
           © 2026 Pont Pont Bag Shop (ပုံ့ပုံ့ အိတ်အမျိုးမျိုး ရောင်းဝယ်ရေး - မန္တလေး). All rights reserved.
         </div>
       </footer>
+
+      {/* Sticky Mobile Bottom Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 py-1.5 flex items-center justify-around shadow-lg">
+        <button
+          onClick={() => {
+            setViewMode("shop");
+            setShowWishlistOnly(false);
+          }}
+          className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl text-[10px] font-bold transition ${
+            viewMode === "shop" && !showWishlistOnly
+              ? "text-amber-900"
+              : "text-stone-500"
+          }`}
+        >
+          <Store className="w-4 h-4" />
+          <span>Shop</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setViewMode("shop");
+            setShowWishlistOnly((w) => !w);
+          }}
+          className={`relative flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl text-[10px] font-bold transition ${
+            showWishlistOnly ? "text-rose-600" : "text-stone-500"
+          }`}
+        >
+          <Heart
+            className={`w-4 h-4 ${
+              showWishlistOnly ? "fill-rose-500 text-rose-500" : ""
+            }`}
+          />
+          <span>Wishlist</span>
+          {wishlist.length > 0 && (
+            <span className="absolute top-0 right-1 w-3.5 h-3.5 rounded-full bg-rose-500 text-white text-[9px] flex items-center justify-center">
+              {wishlist.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => setIsCartOpen(true)}
+          className="relative flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl text-[10px] font-bold text-stone-700"
+        >
+          <ShoppingBag className="w-4 h-4 text-amber-800" />
+          <span>Bag ({totalCartItems})</span>
+        </button>
+
+        <button
+          onClick={() => {
+            if (user) {
+              setViewMode("profile");
+            } else {
+              setIsAuthOpen(true);
+            }
+          }}
+          className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl text-[10px] font-bold transition ${
+            viewMode === "profile" ? "text-amber-900" : "text-stone-500"
+          }`}
+        >
+          <User className="w-4 h-4" />
+          <span className="max-w-[60px] truncate">
+            {user ? user.name.split(" ")[0] : "Login"}
+          </span>
+        </button>
+
+        {user?.role === "admin" && (
+          <button
+            onClick={() =>
+              setViewMode((v) => (v === "admin" ? "shop" : "admin"))
+            }
+            className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl text-[10px] font-bold transition ${
+              viewMode === "admin" ? "text-amber-900" : "text-stone-500"
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Admin</span>
+          </button>
+        )}
+      </nav>
 
       {/* Modals & Drawers */}
       <ProductDetailModal

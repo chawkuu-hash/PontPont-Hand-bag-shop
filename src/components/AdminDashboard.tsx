@@ -257,72 +257,72 @@ export default function AdminDashboard({
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-stone-500">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate">
               စုစုပေါင်း ရောင်းရငွေ (Revenue)
             </p>
-            <p className="text-2xl font-extrabold text-stone-900 mt-1">
+            <p className="text-base sm:text-2xl font-extrabold text-stone-900 mt-1">
               {totalRevenue.toLocaleString()}{" "}
-              <span className="text-sm font-bold text-amber-900">MMK</span>
+              <span className="text-xs sm:text-sm font-bold text-amber-900">MMK</span>
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
-            <TrendingUp className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+            <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-stone-500">
+        <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate">
               အော်ဒါစုစုပေါင်း (Total Orders)
             </p>
-            <p className="text-2xl font-extrabold text-stone-900 mt-1">
+            <p className="text-base sm:text-2xl font-extrabold text-stone-900 mt-1">
               {orders.length}{" "}
-              <span className="text-sm font-normal text-stone-500">
-                ခု (Pending: {pendingOrdersCount})
+              <span className="text-[11px] sm:text-sm font-normal text-stone-500">
+                (Pending: {pendingOrdersCount})
               </span>
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center">
-            <Package className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
+            <Package className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-stone-500">
+        <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate">
               အသုံးပြုသူအကောင့်များ (Users)
             </p>
-            <p className="text-2xl font-extrabold text-stone-900 mt-1">
+            <p className="text-base sm:text-2xl font-extrabold text-stone-900 mt-1">
               {users.length}{" "}
-              <span className="text-sm font-normal text-stone-500">ဦး</span>
+              <span className="text-xs sm:text-sm font-normal text-stone-500">ဦး</span>
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center">
-            <Users className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-stone-500">
+        <div className="p-3.5 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs font-semibold text-stone-500 truncate">
               အိတ်အမျိုးအစားပေါင်း (Products)
             </p>
-            <p className="text-2xl font-extrabold text-stone-900 mt-1">
+            <p className="text-base sm:text-2xl font-extrabold text-stone-900 mt-1">
               {products.length}{" "}
-              <span className="text-sm font-normal text-stone-500">မျိုး</span>
+              <span className="text-xs sm:text-sm font-normal text-stone-500">မျိုး</span>
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-stone-100 text-stone-800 flex items-center justify-center">
-            <ShoppingBag className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-stone-100 text-stone-800 flex items-center justify-center shrink-0">
+            <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-stone-200 pb-3">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 border-b border-stone-200 pb-3 whitespace-nowrap">
         <button
           onClick={() => setActiveTab("orders")}
           className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${

@@ -161,7 +161,7 @@ export default function CartCheckoutDrawer({
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
       <div className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden">
         {/* Top Bar */}
-        <div className="px-6 py-5 bg-stone-900 text-white flex items-center justify-between border-b border-stone-800">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-stone-900 text-white flex items-center justify-between border-b border-stone-800">
           <div className="flex items-center gap-2.5">
             <ShoppingBag className="w-5 h-5 text-amber-400" />
             <div>
@@ -184,7 +184,7 @@ export default function CartCheckoutDrawer({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {step === "cart" && (
             <>
               {cart.length === 0 ? (
@@ -500,19 +500,19 @@ export default function CartCheckoutDrawer({
                         : "bg-amber-50/50 border-amber-200"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <span className="text-[11px] uppercase font-bold tracking-wider text-stone-500">
                           {paymentMethod} Account (ပုံ့ပုံ့ အိတ်ဆိုင် အကောင့်)
                         </span>
-                        <p className="text-base font-extrabold text-stone-900 mt-0.5">
+                        <p className="text-sm sm:text-base font-extrabold text-stone-900 mt-0.5">
                           09-963000502 / 09-750072752
                         </p>
                         <p className="text-xs text-stone-600 font-medium">
                           Account Name: Ma Pont Pont (ပုံ့ပုံ့ အိတ်ဆိုင် - မန္တလေး)
                         </p>
                       </div>
-                      <div className="flex flex-col items-end gap-1.5">
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1.5">
                         <button
                           type="button"
                           onClick={handleCopyNumber}
@@ -621,7 +621,7 @@ export default function CartCheckoutDrawer({
 
         {/* Footer Totals & Action */}
         {cart.length > 0 && step !== "success" && (
-          <div className="p-6 bg-stone-50 border-t border-stone-200 space-y-3">
+          <div className="p-4 sm:p-6 bg-stone-50 border-t border-stone-200 space-y-3">
             <div className="space-y-1.5 text-xs text-stone-600">
               <div className="flex justify-between">
                 <span>ပစ္စည်းတန်ဖိုး (Subtotal):</span>

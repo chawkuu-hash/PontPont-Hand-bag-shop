@@ -43,17 +43,17 @@ export default function ProductDetailModal({
   if (!product) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-3xl rounded-3xl bg-white shadow-2xl border border-stone-200 overflow-hidden grid grid-cols-1 md:grid-cols-2 max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/65 backdrop-blur-sm p-0 sm:p-4">
+      <div className="relative w-full max-w-3xl rounded-t-3xl sm:rounded-3xl bg-white shadow-2xl border border-stone-200 overflow-y-auto md:overflow-hidden grid grid-cols-1 md:grid-cols-2 max-h-[92vh]">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-stone-700 hover:bg-stone-900 hover:text-white transition shadow-md"
+          className="fixed sm:absolute right-4 top-4 z-20 rounded-full bg-white/90 p-2 text-stone-700 hover:bg-stone-900 hover:text-white transition shadow-md"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Product Image */}
-        <div className="relative bg-stone-100 h-72 md:h-auto overflow-hidden">
+        <div className="relative bg-stone-100 h-60 sm:h-72 md:h-auto overflow-hidden shrink-0">
           <img
             src={product.image}
             alt={product.nameEn}
@@ -67,7 +67,7 @@ export default function ProductDetailModal({
         </div>
 
         {/* Product Info */}
-        <div className="p-6 md:p-7 overflow-y-auto flex flex-col justify-between space-y-5">
+        <div className="p-5 sm:p-6 md:p-7 md:overflow-y-auto flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between text-xs text-amber-800 font-semibold uppercase tracking-wider mb-1">
               <span>{product.category}</span>
