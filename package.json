@@ -1,14 +1,15 @@
 {
-  "name": "pontpont-temp",
+  "name": "pontpont-hand-bag-shop",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -H 0.0.0.0",
     "lint": "eslint"
   },
   "dependencies": {
+    "lucide-react": "^1.73.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"
