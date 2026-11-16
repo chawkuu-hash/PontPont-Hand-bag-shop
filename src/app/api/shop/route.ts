@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import {
   INITIAL_PRODUCTS,
   INITIAL_ORDERS,
   INITIAL_ANNOUNCEMENTS,
   INITIAL_CATEGORIES,
+  CITIES,
   Product,
   Order,
   UserProfile,
@@ -14,6 +17,89 @@ import {
 } from "@/data/initialData";
 
 const DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
+const SECRET_PATH = path.join(process.cwd(), "src", "data", ".session_secret");
+const SESSION_COOKIE_NAME = "pontpont_session";
+
+// Simple in-memory brute-force rate limiter for LOGIN
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+
+function getSessionSecret(): string {
+  try {
+    if (fs.existsSync(SECRET_PATH)) {
+      return fs.readFileSync(SECRET_PATH, "utf-8").trim();
+    }
+    const secret = crypto.randomBytes(32).toString("hex");
+    fs.mkdirSync(path.dirname(SECRET_PATH), { recursive: true });
+    fs.writeFileSync(SECRET_PATH, secret, { mode: 0o600 });
+    return secret;
+  } catch {
+    return "pontpont-fallback-hmac-secret-key-2026";
+  }
+}
+
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const derived = crypto.scryptSync(password, salt, 64).toString("hex");
+  return `scrypt$${salt}$${derived}`;
+}
+
+function verifyPassword(password: string, stored?: string): boolean {
+  if (!stored) return false;
+  if (!stored.startsWith("scrypt$")) {
+    // Legacy plaintext fallback before migration
+    return stored === password;
+  }
+  const parts = stored.split("$");
+  if (parts.length !== 3) return false;
+  const [, salt, hashHex] = parts;
+  const derived = crypto.scryptSync(password, salt, 64);
+  const storedBuf = Buffer.from(hashHex, "hex");
+  if (derived.length !== storedBuf.length) return false;
+  return crypto.timingSafeEqual(derived, storedBuf);
+}
+
+function createSessionToken(userId: string): string {
+  const payload = `${userId}.${Date.now()}`;
+  const sig = crypto
+    .createHmac("sha256", getSessionSecret())
+    .update(payload)
+    .digest("hex");
+  return `${payload}.${sig}`;
+}
+
+function verifySessionToken(token?: string): string | null {
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  const [userId, timestampStr, sig] = parts;
+  const payload = `${userId}.${timestampStr}`;
+  const expectedSig = crypto
+    .createHmac("sha256", getSessionSecret())
+    .update(payload)
+    .digest("hex");
+  const sigBuf = Buffer.from(sig, "hex");
+  const expectedBuf = Buffer.from(expectedSig, "hex");
+  if (
+    sigBuf.length !== expectedBuf.length ||
+    !crypto.timingSafeEqual(sigBuf, expectedBuf)
+  ) {
+    return null;
+  }
+  return userId;
+}
+
+function sanitizeImageUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  const trimmed = String(url).trim();
+  if (
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("data:image/")
+  ) {
+    return trimmed;
+  }
+  return undefined;
+}
 
 interface DatabaseSchema {
   products: Product[];
@@ -28,13 +114,26 @@ function readDb(): DatabaseSchema {
     if (fs.existsSync(DB_PATH)) {
       const raw = fs.readFileSync(DB_PATH, "utf-8");
       const parsed = JSON.parse(raw);
-      return {
+      const db: DatabaseSchema = {
         products: parsed.products || INITIAL_PRODUCTS,
         orders: parsed.orders || INITIAL_ORDERS,
         users: parsed.users || [],
         announcements: parsed.announcements || INITIAL_ANNOUNCEMENTS,
         categories: parsed.categories || INITIAL_CATEGORIES,
       };
+      // Automatically upgrade any plaintext passwords in db.json to scrypt hashes
+      let migrated = false;
+      db.users = db.users.map((u) => {
+        if (u.password && !u.password.startsWith("scrypt$")) {
+          migrated = true;
+          return { ...u, password: hashPassword(u.password) };
+        }
+        return u;
+      });
+      if (migrated) {
+        writeDb(db);
+      }
+      return db;
     }
   } catch (err) {
     console.error("Error reading db.json:", err);
@@ -56,7 +155,10 @@ function writeDb(data: DatabaseSchema) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), {
+      encoding: "utf-8",
+      mode: 0o600,
+    });
   } catch (err) {
     console.error("Error writing db.json:", err);
   }
@@ -67,31 +169,79 @@ function sanitizeUser(u: UserProfile): UserProfile {
   return safe;
 }
 
-function sanitizeDb(db: DatabaseSchema) {
+function buildScopedResponse(
+  db: DatabaseSchema,
+  sessionUser: UserProfile | null
+) {
+  const isAdmin = sessionUser?.role === "admin";
+  const scopedOrders = isAdmin
+    ? db.orders
+    : sessionUser
+    ? db.orders.filter(
+        (o) =>
+          (o.userEmail &&
+            o.userEmail.toLowerCase() === sessionUser.email.toLowerCase()) ||
+          o.phone.trim() === sessionUser.phone.trim()
+      )
+    : [];
+
   return {
     products: db.products,
-    orders: db.orders,
-    users: db.users.map(sanitizeUser),
-    announcements: db.announcements || INITIAL_ANNOUNCEMENTS,
     categories: db.categories || INITIAL_CATEGORIES,
+    announcements: db.announcements || INITIAL_ANNOUNCEMENTS,
+    orders: scopedOrders,
+    users: isAdmin ? db.users.map(sanitizeUser) : [],
+    usersCount: db.users.length,
+    currentUser: sessionUser ? sanitizeUser(sessionUser) : null,
   };
+}
+
+async function getAuthenticatedUser(
+  db: DatabaseSchema
+): Promise<UserProfile | null> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const userId = verifySessionToken(token);
+    if (!userId) return null;
+    return db.users.find((u) => u.id === userId) || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function GET() {
   const db = readDb();
-  return NextResponse.json(sanitizeDb(db));
+  const sessionUser = await getAuthenticatedUser(db);
+  return NextResponse.json(buildScopedResponse(db, sessionUser));
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const db = readDb();
+    let sessionUser = await getAuthenticatedUser(db);
+
+    if (body.action === "LOGOUT") {
+      const res = NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, null),
+      });
+      res.cookies.delete(SESSION_COOKIE_NAME);
+      return res;
+    }
 
     if (body.action === "REGISTER") {
       const { name, email, password, phone, city, address } = body;
       if (!name || !email || !password || !phone) {
         return NextResponse.json(
           { error: "လိုအပ်သော အချက်အလက်များ အားလုံး ဖြည့်စွက်ပေးပါ။" },
+          { status: 400 }
+        );
+      }
+      if (String(password).length < 6) {
+        return NextResponse.json(
+          { error: "စကားဝှက်သည် အနည်းဆုံး (၆) လုံး ရှိရပါမည်။" },
           { status: 400 }
         );
       }
@@ -113,26 +263,51 @@ export async function POST(request: Request) {
       const isFirstUser = db.users.length === 0;
       const newUser: UserProfile = {
         id: "usr-" + Date.now(),
-        name: String(name).trim(),
-        email: normalizedEmail,
-        password: String(password),
-        phone: String(phone).trim(),
+        name: String(name).trim().slice(0, 80),
+        email: normalizedEmail.slice(0, 120),
+        password: hashPassword(String(password)),
+        phone: String(phone).trim().slice(0, 30),
         city: city || "Mandalay (မန္တလေး - မြို့တွင်း)",
-        address: String(address || city || "").trim(),
+        address: String(address || city || "")
+          .trim()
+          .slice(0, 250),
         role: isFirstUser ? "admin" : "customer",
         createdAt: new Date().toISOString(),
       };
 
       db.users.push(newUser);
       writeDb(db);
-      return NextResponse.json({
+
+      const token = createSessionToken(newUser.id);
+      const res = NextResponse.json({
         ok: true,
         user: sanitizeUser(newUser),
-        db: sanitizeDb(db),
+        db: buildScopedResponse(db, newUser),
       });
+      res.cookies.set(SESSION_COOKIE_NAME, token, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      });
+      return res;
     }
 
     if (body.action === "LOGIN") {
+      const clientIp =
+        request.headers.get("x-forwarded-for") || "local-client";
+      const now = Date.now();
+      const rate = loginAttempts.get(clientIp);
+      if (rate && now < rate.resetAt && rate.count >= 10) {
+        return NextResponse.json(
+          {
+            error:
+              "စကားဝှက် မှားယွင်းမှု များနေပါသဖြင့် ၅ မိနစ်ခန့် စောင့်ဆိုင်းပြီးမှ ပြန်လည်ကြိုးစားပါ။",
+          },
+          { status: 429 }
+        );
+      }
+
       const { email, password } = body;
       const normalizedEmail = String(email || "")
         .trim()
@@ -140,9 +315,14 @@ export async function POST(request: Request) {
       const found = db.users.find(
         (u) =>
           u.email.toLowerCase() === normalizedEmail &&
-          u.password === String(password)
+          verifyPassword(String(password || ""), u.password)
       );
       if (!found) {
+        const currentCount = rate && now < rate.resetAt ? rate.count + 1 : 1;
+        loginAttempts.set(clientIp, {
+          count: currentCount,
+          resetAt: now + 5 * 60 * 1000,
+        });
         return NextResponse.json(
           {
             error:
@@ -151,15 +331,34 @@ export async function POST(request: Request) {
           { status: 401 }
         );
       }
-      return NextResponse.json({
+
+      loginAttempts.delete(clientIp);
+      const token = createSessionToken(found.id);
+      const res = NextResponse.json({
         ok: true,
         user: sanitizeUser(found),
-        db: sanitizeDb(db),
+        db: buildScopedResponse(db, found),
       });
+      res.cookies.set(SESSION_COOKIE_NAME, token, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      return res;
     }
 
     if (body.action === "UPDATE_PROFILE") {
       const { userId, name, phone, city, address, newPassword } = body;
+      if (
+        !sessionUser ||
+        (sessionUser.id !== userId && sessionUser.role !== "admin")
+      ) {
+        return NextResponse.json(
+          { error: "Unauthorized profile update" },
+          { status: 403 }
+        );
+      }
       const idx = db.users.findIndex((u) => u.id === userId);
       if (idx === -1) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -167,13 +366,16 @@ export async function POST(request: Request) {
       const existing = db.users[idx];
       const updatedUser: UserProfile = {
         ...existing,
-        name: name ? String(name).trim() : existing.name,
-        phone: phone ? String(phone).trim() : existing.phone,
+        name: name ? String(name).trim().slice(0, 80) : existing.name,
+        phone: phone ? String(phone).trim().slice(0, 30) : existing.phone,
         city: city || existing.city,
-        address: address !== undefined ? String(address).trim() : existing.address,
+        address:
+          address !== undefined
+            ? String(address).trim().slice(0, 250)
+            : existing.address,
         password:
-          newPassword && String(newPassword).trim().length > 0
-            ? String(newPassword)
+          newPassword && String(newPassword).trim().length >= 6
+            ? hashPassword(String(newPassword))
             : existing.password,
       };
       db.users[idx] = updatedUser;
@@ -181,76 +383,209 @@ export async function POST(request: Request) {
       return NextResponse.json({
         ok: true,
         user: sanitizeUser(updatedUser),
-        db: sanitizeDb(db),
+        db: buildScopedResponse(db, updatedUser),
       });
+    }
+
+    if (body.action === "CREATE_ORDER") {
+      const incoming: Order = body.order;
+      if (
+        !incoming ||
+        !Array.isArray(incoming.items) ||
+        incoming.items.length === 0
+      ) {
+        return NextResponse.json({ error: "Invalid order" }, { status: 400 });
+      }
+
+      // Server-side price calculation to prevent price tampering
+      let calculatedSubtotal = 0;
+      const verifiedItems = [];
+
+      for (const item of incoming.items) {
+        const qty = Math.max(1, Math.min(99, Math.floor(Number(item.quantity) || 1)));
+        const product = db.products.find((p) => p.id === item.productId);
+        const unitPrice = product ? product.price : Math.max(0, Number(item.price) || 0);
+        calculatedSubtotal += unitPrice * qty;
+
+        if (product) {
+          product.stock = Math.max(0, product.stock - qty);
+        }
+
+        verifiedItems.push({
+          productId: item.productId,
+          nameEn: product ? product.nameEn : String(item.nameEn || ""),
+          nameMm: product ? product.nameMm : String(item.nameMm || ""),
+          price: unitPrice,
+          quantity: qty,
+          selectedColor: String(item.selectedColor || "Default").slice(0, 40),
+          image: product ? product.image : sanitizeImageUrl(item.image) || "",
+        });
+      }
+
+      const discount =
+        incoming.discount && incoming.discount > 0
+          ? Math.round(calculatedSubtotal * 0.1)
+          : 0;
+      const cityObj =
+        CITIES.find((c) => c.name === incoming.city) || CITIES[0];
+      const deliveryFee =
+        calculatedSubtotal - discount >= 100000 ? 0 : cityObj.fee;
+      const calculatedTotal = calculatedSubtotal - discount + deliveryFee;
+
+      const safeOrder: Order = {
+        id: `PP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        customerName: String(incoming.customerName || "")
+          .trim()
+          .slice(0, 80),
+        phone: String(incoming.phone || "")
+          .trim()
+          .slice(0, 30),
+        city: cityObj.name,
+        address: String(incoming.address || "")
+          .trim()
+          .slice(0, 250),
+        note: incoming.note
+          ? String(incoming.note).trim().slice(0, 200)
+          : undefined,
+        paymentMethod: ["KPay", "WavePay", "COD"].includes(
+          incoming.paymentMethod
+        )
+          ? incoming.paymentMethod
+          : "COD",
+        transactionRef: incoming.transactionRef
+          ? String(incoming.transactionRef).trim().slice(0, 20)
+          : undefined,
+        items: verifiedItems,
+        subtotal: calculatedSubtotal,
+        discount,
+        deliveryFee,
+        total: calculatedTotal,
+        status: "Pending",
+        createdAt: new Date().toISOString(),
+        userEmail: sessionUser?.email || incoming.userEmail,
+      };
+
+      db.orders = [safeOrder, ...db.orders];
+      writeDb(db);
+      return NextResponse.json({
+        ok: true,
+        order: safeOrder,
+        db: buildScopedResponse(db, sessionUser),
+      });
+    }
+
+    // All remaining actions strictly require Admin role!
+    if (!sessionUser || sessionUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Forbidden: Admin privileges required." },
+        { status: 403 }
+      );
     }
 
     if (body.action === "UPDATE_USER_ROLE") {
       const { userId, role } = body;
-      db.users = db.users.map((u) =>
-        u.id === userId ? { ...u, role } : u
-      );
-      writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      if (userId === sessionUser.id) {
+        return NextResponse.json(
+          { error: "Cannot change your own admin role" },
+          { status: 400 }
+        );
+      }
+      if (role === "admin" || role === "customer") {
+        db.users = db.users.map((u) =>
+          u.id === userId ? { ...u, role } : u
+        );
+        writeDb(db);
+      }
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "DELETE_USER") {
       const { userId } = body;
+      if (userId === sessionUser.id) {
+        return NextResponse.json(
+          { error: "Cannot delete your own admin account" },
+          { status: 400 }
+        );
+      }
       db.users = db.users.filter((u) => u.id !== userId);
       writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
-    }
-
-    if (body.action === "CREATE_ORDER") {
-      const newOrder: Order = body.order;
-      db.orders = [newOrder, ...db.orders];
-      for (const item of newOrder.items) {
-        const product = db.products.find((p) => p.id === item.productId);
-        if (product) {
-          product.stock = Math.max(0, product.stock - item.quantity);
-        }
-      }
-      writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "UPDATE_ORDER_STATUS") {
       const { orderId, status } = body;
-      db.orders = db.orders.map((o) =>
-        o.id === orderId ? { ...o, status } : o
-      );
-      writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      const allowedStatuses = [
+        "Pending",
+        "Confirmed",
+        "Shipped",
+        "Delivered",
+        "Cancelled",
+      ];
+      if (allowedStatuses.includes(status)) {
+        db.orders = db.orders.map((o) =>
+          o.id === orderId ? { ...o, status } : o
+        );
+        writeDb(db);
+      }
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "ADD_PRODUCT") {
       const newProduct: Product = body.product;
+      newProduct.price = Math.max(0, Number(newProduct.price) || 0);
+      newProduct.stock = Math.max(0, Math.floor(Number(newProduct.stock) || 0));
+      newProduct.image =
+        sanitizeImageUrl(newProduct.image) || INITIAL_PRODUCTS[0].image;
       db.products = [newProduct, ...db.products];
       writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "UPDATE_PRODUCT") {
       const updated: Product = body.product;
+      updated.price = Math.max(0, Number(updated.price) || 0);
+      updated.stock = Math.max(0, Math.floor(Number(updated.stock) || 0));
       db.products = db.products.map((p) =>
         p.id === updated.id ? updated : p
       );
       writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "DELETE_PRODUCT") {
       const { productId } = body;
       db.products = db.products.filter((p) => p.id !== productId);
       writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "ADD_ANNOUNCEMENT") {
       const newAnn: Announcement = body.announcement;
+      newAnn.image = sanitizeImageUrl(newAnn.image);
       db.announcements = [newAnn, ...(db.announcements || [])];
       writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "DELETE_ANNOUNCEMENT") {
@@ -259,7 +594,10 @@ export async function POST(request: Request) {
         (a) => a.id !== announcementId
       );
       writeDb(db);
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "ADD_CATEGORY") {
@@ -273,7 +611,10 @@ export async function POST(request: Request) {
         db.categories = [...(db.categories || INITIAL_CATEGORIES), newCat];
         writeDb(db);
       }
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     if (body.action === "DELETE_CATEGORY") {
@@ -284,7 +625,10 @@ export async function POST(request: Request) {
         );
         writeDb(db);
       }
-      return NextResponse.json({ ok: true, db: sanitizeDb(db) });
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });

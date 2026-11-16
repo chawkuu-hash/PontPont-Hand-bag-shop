@@ -47,6 +47,7 @@ export default function PontPontShopPage() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [usersCount, setUsersCount] = useState<number>(1);
   const [categories, setCategories] =
     useState<CategoryItem[]>(INITIAL_CATEGORIES);
   const [announcements, setAnnouncements] = useState<Announcement[]>(
@@ -85,27 +86,14 @@ export default function PontPontShopPage() {
         if (data.orders) setOrders(data.orders);
         if (data.announcements) setAnnouncements(data.announcements);
         if (data.categories) setCategories(data.categories);
-        if (data.users) {
-          setUsers(data.users);
-          // Sync logged-in user with latest DB role/profile if exists
+        if (typeof data.usersCount === "number") setUsersCount(data.usersCount);
+        if (data.users) setUsers(data.users);
+        if (data.currentUser) {
+          setUser(data.currentUser);
+        } else {
+          setUser(null);
           try {
-            const savedUserStr = localStorage.getItem("pontpont_user_v3");
-            if (savedUserStr) {
-              const parsed = JSON.parse(savedUserStr);
-              const matched = data.users.find(
-                (u: UserProfile) => u.id === parsed.id
-              );
-              if (matched) {
-                setUser(matched);
-                localStorage.setItem(
-                  "pontpont_user_v3",
-                  JSON.stringify(matched)
-                );
-              } else {
-                localStorage.removeItem("pontpont_user_v3");
-                setUser(null);
-              }
-            }
+            localStorage.removeItem("pontpont_user_v3");
           } catch {}
         }
       })
@@ -161,9 +149,16 @@ export default function PontPontShopPage() {
   ) => {
     setUser(loggedInUser);
     setUsers(updatedUsers);
-    try {
-      localStorage.setItem("pontpont_user_v3", JSON.stringify(loggedInUser));
-    } catch {}
+    setUsersCount((c) => Math.max(c, updatedUsers.length || 1));
+    // Refresh scoped orders & admin data with the newly set HttpOnly session cookie
+    fetch("/api/shop")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.orders) setOrders(d.orders);
+        if (d.users) setUsers(d.users);
+        if (typeof d.usersCount === "number") setUsersCount(d.usersCount);
+      })
+      .catch(() => {});
     if (loggedInUser.role === "admin") {
       triggerToast(
         `မင်္ဂလာပါ ${loggedInUser.name}! Admin (ဆိုင်ရှင်) အကောင့်ဖြင့် ဝင်ရောက်ပြီးပါပြီ။`
@@ -179,13 +174,19 @@ export default function PontPontShopPage() {
   ) => {
     setUser(updatedUser);
     if (allUsers.length > 0) setUsers(allUsers);
-    try {
-      localStorage.setItem("pontpont_user_v3", JSON.stringify(updatedUser));
-    } catch {}
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/shop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "LOGOUT" }),
+      });
+    } catch {}
     setUser(null);
+    setUsers([]);
+    setOrders([]);
     setViewMode("shop");
     try {
       localStorage.removeItem("pontpont_user_v3");
@@ -1416,7 +1417,7 @@ export default function PontPontShopPage() {
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
-        usersCount={users.length}
+        usersCount={usersCount}
         onAuthSuccess={handleAuthSuccess}
       />
 
