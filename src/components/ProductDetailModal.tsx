@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   X,
-  Star,
   ShoppingBag,
   Heart,
   CheckCircle2,
@@ -72,10 +71,6 @@ export default function ProductDetailModal({
           <div>
             <div className="flex items-center justify-between text-xs text-amber-800 font-semibold uppercase tracking-wider mb-1">
               <span>{product.category}</span>
-              <span className="flex items-center gap-1 text-amber-600">
-                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                {product.rating} ({product.reviewsCount} reviews)
-              </span>
             </div>
 
             <h2 className="text-xl font-bold text-stone-900 leading-snug">

@@ -10,7 +10,6 @@ import {
   Clock,
   CheckCircle2,
   ArrowLeft,
-  Sparkles,
   Smartphone,
   MapPin,
   Phone,
@@ -232,7 +231,7 @@ export default function AdminDashboard({
       <div className="rounded-3xl bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 text-white p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-amber-300 font-bold">
-            <Sparkles className="w-3.5 h-3.5" /> ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် စီမံခန့်ခွဲမှုစနစ်
+            ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် စီမံခန့်ခွဲမှုစနစ်
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold mt-1">
             Admin Dashboard ({currentUser.name})

@@ -9,7 +9,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Sparkles,
 } from "lucide-react";
 import { UserProfile, CITIES } from "@/data/initialData";
 
@@ -117,7 +116,7 @@ export default function AuthModal({
         <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 px-6 py-5 text-white flex items-center justify-between">
           <div>
             <span className="text-xs uppercase tracking-widest text-amber-300 font-semibold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" /> ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင်
+              ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင်
             </span>
             <h3 className="text-lg font-bold mt-0.5">
               {mode === "login"

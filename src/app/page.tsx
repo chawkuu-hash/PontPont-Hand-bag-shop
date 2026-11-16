@@ -7,8 +7,6 @@ import {
   Heart,
   User,
   ShieldCheck,
-  Sparkles,
-  Star,
   Truck,
   Smartphone,
   Package,
@@ -510,7 +508,6 @@ export default function PontPontShopPage() {
       <div className="bg-stone-900 text-amber-100 text-xs py-2.5 px-4">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <p className="flex items-center gap-1.5 font-medium">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span>
               <strong>ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် - မန္တလေး:</strong> လက်လီ/လက်ကား စိတ်ကြိုက်မှာယူနိုင်ပါပြီ! ကူပွန်ကုဒ်{" "}
               <code className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">
@@ -731,7 +728,6 @@ export default function PontPontShopPage() {
               {/* Left Side: Compact Shop Info */}
               <div className="lg:col-span-7 space-y-3.5">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-300/30 text-amber-300 text-[11px] font-semibold">
-                  <Sparkles className="w-3 h-3" />
                   မန္တလေးမြို့၏ နာမည်ကြီး လက်လီ/လက်ကား အိတ်အရောင်းဆိုင်ကြီး
                 </div>
 
@@ -1053,10 +1049,6 @@ export default function PontPontShopPage() {
                         <div className="p-5">
                           <div className="flex items-center justify-between text-[11px] font-bold text-amber-800 uppercase tracking-wider">
                             <span>{product.category}</span>
-                            <span className="flex items-center gap-1 text-amber-600">
-                              <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                              {product.rating}
-                            </span>
                           </div>
 
                           <h3
