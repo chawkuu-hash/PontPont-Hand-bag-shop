@@ -589,6 +589,13 @@ export default function PontPontShopPage() {
           "text-rose-800 bg-rose-50 border-rose-200 rounded-full",
         addBtn:
           "rounded-full bg-rose-600 hover:bg-rose-700 text-white shadow-sm",
+        branchCard:
+          "rounded-[2rem] bg-[#FFF5F7] border-2 border-rose-200/80 shadow-sm",
+        branchIcon: "rounded-full bg-rose-600 text-white",
+        branchMeta: "text-rose-700 border-rose-200/70",
+        highlightCard:
+          "rounded-[2rem] bg-rose-50/70 border-2 border-rose-200/70",
+        highlightIcon: "rounded-full bg-rose-600 text-white",
       };
     }
     if (currentTheme === "minimal-noir") {
@@ -628,6 +635,14 @@ export default function PontPontShopPage() {
           "text-emerald-950 bg-emerald-100 border-zinc-900 rounded-none",
         addBtn:
           "rounded-none bg-zinc-950 hover:bg-emerald-600 text-white uppercase tracking-wider",
+        branchCard:
+          "rounded-none bg-[#F4F6F8] border-2 border-zinc-950 shadow-[4px_4px_0px_#18181b]",
+        branchIcon:
+          "rounded-none bg-zinc-950 text-emerald-400 border border-emerald-400",
+        branchMeta: "text-emerald-800 border-zinc-300",
+        highlightCard:
+          "rounded-none bg-white border-2 border-zinc-950 shadow-[4px_4px_0px_#10b981]",
+        highlightIcon: "rounded-none bg-zinc-950 text-emerald-400",
       };
     }
     return {
@@ -660,6 +675,11 @@ export default function PontPontShopPage() {
         "text-amber-900 bg-amber-50 border-amber-200/80 rounded-md sm:rounded-lg",
       addBtn:
         "rounded-xl sm:rounded-2xl bg-stone-900 hover:bg-amber-900 text-white",
+      branchCard: "rounded-3xl bg-[#FAF7F2] border border-stone-200/90",
+      branchIcon: "rounded-2xl bg-amber-900 text-amber-100",
+      branchMeta: "text-amber-900 border-stone-200/70",
+      highlightCard: "rounded-3xl bg-stone-50 border border-stone-200/80",
+      highlightIcon: "rounded-2xl bg-amber-900 text-amber-100",
     };
   }, [currentTheme]);
 
@@ -1120,7 +1140,9 @@ export default function PontPontShopPage() {
                           </p>
                           <div className="pt-1 flex items-center justify-between">
                             <span className="text-[11px] font-bold text-amber-300 underline">
-                              အပြည့်အစုံဖတ်ရန် (Read More) →
+                              {lang === "en"
+                                ? "Read Full Announcement →"
+                                : "အပြည့်အစုံဖတ်ရန် (Read More) →"}
                             </span>
                             {/* Dots indicator */}
                             {announcements.length > 1 && (
@@ -1151,10 +1173,14 @@ export default function PontPontShopPage() {
                   <div className="rounded-3xl border border-white/15 bg-white/5 p-6 text-center h-60 flex flex-col items-center justify-center">
                     <Megaphone className="w-8 h-8 text-amber-300 mb-2" />
                     <p className="text-sm font-bold text-white">
-                      ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင်မှ ကြိုဆိုပါသည်
+                      {lang === "en"
+                        ? "Welcome to Pont Pont Bag Shop"
+                        : "ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင်မှ ကြိုဆိုပါသည်"}
                     </p>
                     <p className="text-xs text-stone-400 mt-1">
-                      လက်ရှိတွင် အသိပေးကြေညာချက်အသစ် မရှိသေးပါ။
+                      {lang === "en"
+                        ? "No new announcements at this time."
+                        : "လက်ရှိတွင် အသိပေးကြေညာချက်အသစ် မရှိသေးပါ။"}
                     </p>
                   </div>
                 )}
@@ -1227,13 +1253,15 @@ export default function PontPontShopPage() {
             {showWishlistOnly && (
               <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-semibold">
                 <span>
-                  သိမ်းဆည်းထားသော အိတ်များ (My Wishlist - {filteredProducts.length})
+                  {lang === "en"
+                    ? `My Wishlist (${filteredProducts.length})`
+                    : `သိမ်းဆည်းထားသော အိတ်များ (My Wishlist - ${filteredProducts.length})`}
                 </span>
                 <button
                   onClick={() => setShowWishlistOnly(false)}
                   className="underline font-bold"
                 >
-                  အိတ်အားလုံး ပြန်ကြည့်မည်
+                  {lang === "en" ? "Show All Bags" : "အိတ်အားလုံး ပြန်ကြည့်မည်"}
                 </button>
               </div>
             )}
@@ -1243,10 +1271,14 @@ export default function PontPontShopPage() {
               <div className="bg-white rounded-3xl p-12 text-center border border-stone-200 space-y-3">
                 <ShoppingBag className="w-12 h-12 text-stone-400 mx-auto" />
                 <h3 className="text-lg font-bold text-stone-800">
-                  ရှာဖွေထားသော အိတ်အမျိုးအစား မတွေ့ရှိပါ
+                  {lang === "en"
+                    ? "No matching handbags found"
+                    : "ရှာဖွေထားသော အိတ်အမျိုးအစား မတွေ့ရှိပါ"}
                 </h3>
                 <p className="text-xs text-stone-500">
-                  အခြား စကားလုံး သို့မဟုတ် Category တစ်ခုကို ပြောင်းလဲရွေးချယ်ကြည့်ပါ။
+                  {lang === "en"
+                    ? "Try a different search keyword or select another category."
+                    : "အခြား စကားလုံး သို့မဟုတ် Category တစ်ခုကို ပြောင်းလဲရွေးချယ်ကြည့်ပါ။"}
                 </p>
                 <button
                   onClick={() => {
@@ -1256,7 +1288,7 @@ export default function PontPontShopPage() {
                   }}
                   className="px-5 py-2.5 rounded-xl bg-stone-900 text-white text-xs font-bold"
                 >
-                  အိတ်အားလုံး ပြန်ကြည့်ရန်
+                  {lang === "en" ? "View All Handbags" : "အိတ်အားလုံး ပြန်ကြည့်ရန်"}
                 </button>
               </div>
             ) : (
@@ -1417,14 +1449,20 @@ export default function PontPontShopPage() {
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
               <div className="text-center max-w-2xl mx-auto">
-                <span className="text-xs font-bold uppercase tracking-widest text-amber-800">
+                <span
+                  className={`text-xs font-bold uppercase tracking-widest ${themeStyles.cardCategory}`}
+                >
                   Mandalay Retail & Wholesale Branches
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-1">
-                  ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် — မန္တလေး ဆိုင်ခွဲလိပ်စာများ
+                  {lang === "en"
+                    ? "Pont Pont Bag Shop — Mandalay Branch Locations"
+                    : "ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင် — မန္တလေး ဆိုင်ခွဲလိပ်စာများ"}
                 </h2>
                 <p className="text-xs sm:text-sm text-stone-600 mt-2">
-                  ဆိုင်သို့ လူကိုယ်တိုင် လာရောက်ကြည့်ရှုဝယ်ယူနိုင်သလို အွန်လိုင်းနှင့် ဖုန်း/Viber မှတစ်ဆင့် မြန်မာနိုင်ငံအနှံ့ လက်လီ/လက်ကား မှာယူနိုင်ပါသည်။
+                  {lang === "en"
+                    ? "Visit any of our 3 Mandalay showrooms in person or order online and via Phone/Viber for nationwide retail & wholesale delivery."
+                    : "ဆိုင်သို့ လူကိုယ်တိုင် လာရောက်ကြည့်ရှုဝယ်ယူနိုင်သလို အွန်လိုင်းနှင့် ဖုန်း/Viber မှတစ်ဆင့် မြန်မာနိုင်ငံအနှံ့ လက်လီ/လက်ကား မှာယူနိုင်ပါသည်။"}
                 </p>
               </div>
 
@@ -1432,25 +1470,33 @@ export default function PontPontShopPage() {
                 {SHOP_INFO.branches.map((branch, idx) => (
                   <div
                     key={idx}
-                    className="p-6 rounded-3xl bg-[#FAF7F2] border border-stone-200/90 space-y-3"
+                    className={`p-6 space-y-3 ${themeStyles.branchCard}`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-amber-900 text-amber-100 flex items-center justify-center font-bold text-sm shrink-0">
+                      <div
+                        className={`w-10 h-10 flex items-center justify-center font-bold text-sm shrink-0 ${themeStyles.branchIcon}`}
+                      >
                         {idx + 1}
                       </div>
                       <h3 className="font-extrabold text-stone-900 text-base">
-                        {branch.name}
+                        {lang === "en" ? branch.nameEn : branch.name}
                       </h3>
                     </div>
                     <p className="text-sm font-semibold text-stone-800 leading-relaxed">
-                      {branch.addressMm}
+                      {lang === "en" ? branch.addressEn : branch.addressMm}
                     </p>
-                    <p className="text-xs text-stone-500">{branch.addressEn}</p>
-                    <div className="pt-2 border-t border-stone-200/70 flex items-center justify-between text-xs text-amber-900 font-semibold">
+                    <p className="text-xs text-stone-500">
+                      {lang === "en" ? branch.addressMm : branch.addressEn}
+                    </p>
+                    <div
+                      className={`pt-2 border-t flex items-center justify-between text-xs font-semibold ${themeStyles.branchMeta}`}
+                    >
                       <span className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" /> 8:00 AM - 8:00 PM
                       </span>
-                      <span>လက်လီ / လက်ကား</span>
+                      <span>
+                        {lang === "en" ? "Retail & Wholesale" : "လက်လီ / လက်ကား"}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -1458,44 +1504,68 @@ export default function PontPontShopPage() {
 
               {/* Highlights */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-                <div className="p-5 rounded-3xl bg-stone-50 border border-stone-200/80 flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-2xl bg-amber-900 text-amber-100 flex items-center justify-center shrink-0">
+                <div
+                  className={`p-5 flex items-start gap-4 ${themeStyles.highlightCard}`}
+                >
+                  <div
+                    className={`w-11 h-11 flex items-center justify-center shrink-0 ${themeStyles.highlightIcon}`}
+                  >
                     <Smartphone className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-bold text-stone-900 text-sm">
-                      KPay / WavePay & COD စနစ်
+                      {lang === "en"
+                        ? "KPay / WavePay & Cash on Delivery"
+                        : "KPay / WavePay & COD စနစ်"}
                     </h4>
                     <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                      KBZPay၊ WavePay (09-963000502) ဖြင့် ငွေပေးချေနိုင်သလို မန္တလေးမြို့တွင်း အိမ်အရောက်ငွေချေနှင့် နယ်ဝေး ကားဂိတ်တင် စနစ်များ ရှိပါသည်။
+                      {lang === "en"
+                        ? "Pay easily via KBZPay or WavePay (09-963000502), Cash on Delivery within Mandalay, or highway bus gate delivery nationwide."
+                        : "KBZPay၊ WavePay (09-963000502) ဖြင့် ငွေပေးချေနိုင်သလို မန္တလေးမြို့တွင်း အိမ်အရောက်ငွေချေနှင့် နယ်ဝေး ကားဂိတ်တင် စနစ်များ ရှိပါသည်။"}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-3xl bg-stone-50 border border-stone-200/80 flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-2xl bg-amber-900 text-amber-100 flex items-center justify-center shrink-0">
+                <div
+                  className={`p-5 flex items-start gap-4 ${themeStyles.highlightCard}`}
+                >
+                  <div
+                    className={`w-11 h-11 flex items-center justify-center shrink-0 ${themeStyles.highlightIcon}`}
+                  >
                     <Truck className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-bold text-stone-900 text-sm">
-                      လက်လီ / လက်ကား အမြန်ပို့ဆောင်မှု
+                      {lang === "en"
+                        ? "Fast Retail & Wholesale Delivery"
+                        : "လက်လီ / လက်ကား အမြန်ပို့ဆောင်မှု"}
                     </h4>
                     <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                      နယ်ပြန်ရောင်းလိုသူများအတွက် လက်ကားဈေးနှုန်း သက်သာစွာဖြင့် မြန်မာနိုင်ငံအနှံ့ အမြန်ချောနှင့် ကားဂိတ်များသို့ နေ့ချင်းပို့ဆောင်ပေးပါသည်။
+                      {lang === "en"
+                        ? "Special wholesale pricing for resellers (5+ bags) with same-day dispatch from Mandalay to express couriers and highway bus gates."
+                        : "နယ်ပြန်ရောင်းလိုသူများအတွက် လက်ကားဈေးနှုန်း သက်သာစွာဖြင့် မြန်မာနိုင်ငံအနှံ့ အမြန်ချောနှင့် ကားဂိတ်များသို့ နေ့ချင်းပို့ဆောင်ပေးပါသည်။"}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-3xl bg-stone-50 border border-stone-200/80 flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-2xl bg-amber-900 text-amber-100 flex items-center justify-center shrink-0">
+                <div
+                  className={`p-5 flex items-start gap-4 ${themeStyles.highlightCard}`}
+                >
+                  <div
+                    className={`w-11 h-11 flex items-center justify-center shrink-0 ${themeStyles.highlightIcon}`}
+                  >
                     <PhoneCall className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-bold text-stone-900 text-sm">
-                      တိုက်ရိုက် ဆက်သွယ်မှာယူရန်
+                      {lang === "en"
+                        ? "Direct Contact & Viber Order"
+                        : "တိုက်ရိုက် ဆက်သွယ်မှာယူရန်"}
                     </h4>
                     <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                      ဖုန်း - 09-963000502, 09-750072752, 09-404448881 သို့မဟုတ် Viber မှတစ်ဆင့်လည်း တိုက်ရိုက် ဆက်သွယ်မေးမြန်းနိုင်ပါသည်။
+                      {lang === "en"
+                        ? "Call 09-963000502, 09-750072752, 09-404448881 or message us directly on Viber for inquiries and bulk orders."
+                        : "ဖုန်း - 09-963000502, 09-750072752, 09-404448881 သို့မဟုတ် Viber မှတစ်ဆင့်လည်း တိုက်ရိုက် ဆက်သွယ်မေးမြန်းနိုင်ပါသည်။"}
                     </p>
                   </div>
                 </div>
@@ -1515,21 +1585,29 @@ export default function PontPontShopPage() {
               </div>
               <div>
                 <span className="text-lg font-extrabold text-white block">
-                  Pont Pont Bag Shop (ပုံ့ပုံ့)
+                  {lang === "en"
+                    ? "Pont Pont Bag Shop"
+                    : "Pont Pont Bag Shop (ပုံ့ပုံ့)"}
                 </span>
                 <span className="text-[11px] text-amber-400">
-                  အိတ်အမျိုးမျိုး လက်လီ/လက်ကား ရောင်းဝယ်ရေး (မန္တလေး)
+                  {lang === "en"
+                    ? "Retail & Wholesale Handbags (Mandalay)"
+                    : "အိတ်အမျိုးမျိုး လက်လီ/လက်ကား ရောင်းဝယ်ရေး (မန္တလေး)"}
                 </span>
               </div>
             </div>
             <p className="text-stone-400 leading-relaxed">
-              အရည်အသွေးကောင်းမွန်သော အမျိုးသမီးနှင့် အမျိုးသား လက်ကိုင်အိတ်၊ လက်ဆွဲအိတ်၊ ဘေးလွယ်အိတ်၊ ပိုက်ဆံအိတ်နှင့် ကျောပိုးအိတ်မျိုးစုံ လက်လီ/လက်ကား ရောင်းဝယ်ရေး။
+              {lang === "en"
+                ? "Quality women's and men's handbags, tote bags, crossbody sling bags, wallets, and backpacks available for retail and wholesale."
+                : "အရည်အသွေးကောင်းမွန်သော အမျိုးသမီးနှင့် အမျိုးသား လက်ကိုင်အိတ်၊ လက်ဆွဲအိတ်၊ ဘေးလွယ်အိတ်၊ ပိုက်ဆံအိတ်နှင့် ကျောပိုးအိတ်မျိုးစုံ လက်လီ/လက်ကား ရောင်းဝယ်ရေး။"}
             </p>
           </div>
 
           <div className="space-y-2">
             <h4 className="text-sm font-bold text-white mb-2">
-              ဆက်သွယ်ရန် (Contact & Branches)
+              {lang === "en"
+                ? "Contact & Branches"
+                : "ဆက်သွယ်ရန် (Contact & Branches)"}
             </h4>
             <p className="flex items-center gap-2">
               <PhoneCall className="w-4 h-4 text-amber-400 shrink-0" />
@@ -1542,25 +1620,34 @@ export default function PontPontShopPage() {
             <p className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <span>
-                ပင်မဆိုင်: ၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေးမြို့ (ဆိုင်ခွဲ ၂: ၆၅ လမ်း၊ ၁၀၇×၁၀၈ ကြား / ဆိုင်ခွဲ ၃: ၇၈ လမ်း၊ တံခွန်တိုင်ဈေးအနီး)
+                {lang === "en"
+                  ? "Main: 73rd St (Bet 36th & 37th St) | Branch 2: 65th St (Bet 107th & 108th St) | Branch 3: 78th St, Near Thakhun Taing Market, Mandalay"
+                  : "ပင်မဆိုင်: ၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေးမြို့ (ဆိုင်ခွဲ ၂: ၆၅ လမ်း၊ ၁၀၇×၁၀၈ ကြား / ဆိုင်ခွဲ ၃: ၇၈ လမ်း၊ တံခွန်တိုင်ဈေးအနီး)"}
               </span>
             </p>
             <p className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>{SHOP_INFO.hours}</span>
+              <span>
+                {lang === "en"
+                  ? "Open Daily: 8:00 AM to 8:00 PM"
+                  : SHOP_INFO.hours}
+              </span>
             </p>
           </div>
 
           <div className="space-y-2">
             <h4 className="text-sm font-bold text-white mb-2">
-              အမြန်လင့်ခ်များ (Quick Links)
+              {lang === "en" ? "Quick Links" : "အမြန်လင့်ခ်များ (Quick Links)"}
             </h4>
             <div className="flex flex-col gap-1.5 items-start">
               <button
                 onClick={() => setViewMode("shop")}
                 className="hover:text-amber-300"
               >
-                • အိတ်ဒီဇိုင်းများ ကြည့်ရန် (Product Catalog)
+                •{" "}
+                {lang === "en"
+                  ? "Product Catalog"
+                  : "အိတ်ဒီဇိုင်းများ ကြည့်ရန် (Product Catalog)"}
               </button>
               <button
                 onClick={() => {
@@ -1572,21 +1659,33 @@ export default function PontPontShopPage() {
                 }}
                 className="hover:text-amber-300"
               >
-                • {user ? "ကိုယ်ရေးအချက်အလက်နှင့် အော်ဒါမှတ်တမ်း (My Profile)" : "အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန် (Login / Sign Up)"}
+                •{" "}
+                {user
+                  ? lang === "en"
+                    ? "My Profile & Orders"
+                    : "ကိုယ်ရေးအချက်အလက်နှင့် အော်ဒါမှတ်တမ်း (My Profile)"
+                  : lang === "en"
+                  ? "Sign In / Sign Up"
+                  : "အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန် (Login / Sign Up)"}
               </button>
               {user?.role === "admin" && (
                 <button
                   onClick={() => setViewMode("admin")}
                   className="hover:text-amber-300 font-semibold text-amber-400"
                 >
-                  • ဆိုင်စီမံခန့်ခွဲမှုစနစ် (Admin Dashboard)
+                  •{" "}
+                  {lang === "en"
+                    ? "Admin Dashboard"
+                    : "ဆိုင်စီမံခန့်ခွဲမှုစနစ် (Admin Dashboard)"}
                 </button>
               )}
             </div>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-stone-800 text-center text-[11px] text-stone-500">
-          © 2026 Pont Pont Bag Shop (ပုံ့ပုံ့ အိတ်အမျိုးမျိုး ရောင်းဝယ်ရေး - မန္တလေး). All rights reserved.
+          {lang === "en"
+            ? "© 2026 Pont Pont Bag Shop (Mandalay, Myanmar). All rights reserved."
+            : "© 2026 Pont Pont Bag Shop (ပုံ့ပုံ့ အိတ်အမျိုးမျိုး ရောင်းဝယ်ရေး - မန္တလေး). All rights reserved."}
         </div>
       </footer>
 
@@ -1746,7 +1845,7 @@ export default function PontPontShopPage() {
                   onClick={() => setActiveAnnouncement(null)}
                   className="px-5 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-amber-900 transition"
                 >
-                  ပိတ်မည် (Close)
+                  {lang === "en" ? "Close" : "ပိတ်မည် (Close)"}
                 </button>
               </div>
             </div>

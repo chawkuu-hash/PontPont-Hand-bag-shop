@@ -83,10 +83,18 @@ export default function CartCheckoutDrawer({
   const handleApplyPromo = () => {
     if (promoInput.trim().toUpperCase() === "PONTPONT10") {
       setPromoApplied(true);
-      setPromoMessage("10% Discount ကူပွန် အသုံးပြုပြီးပါပြီ!");
+      setPromoMessage(
+        lang === "en"
+          ? "10% Discount coupon applied!"
+          : "10% Discount ကူပွန် အသုံးပြုပြီးပါပြီ!"
+      );
     } else {
       setPromoApplied(false);
-      setPromoMessage("ကူပွန်ကုဒ် မှားယွင်းနေပါသည် (Try: PONTPONT10)");
+      setPromoMessage(
+        lang === "en"
+          ? "Invalid promo code (Try: PONTPONT10)"
+          : "ကူပွန်ကုဒ် မှားယွင်းနေပါသည် (Try: PONTPONT10)"
+      );
     }
   };
 
@@ -102,7 +110,9 @@ export default function CartCheckoutDrawer({
 
     if (!customerName.trim() || !phone.trim() || !address.trim()) {
       setFormError(
-        "ကျေးဇူးပြု၍ အမည်၊ ဖုန်းနံပါတ် နှင့် ပို့ဆောင်ရမည့်လိပ်စာ အပြည့်အစုံ ဖြည့်စွက်ပေးပါ။"
+        lang === "en"
+          ? "Please fill in your Name, Phone Number, and full Delivery Address."
+          : "ကျေးဇူးပြု၍ အမည်၊ ဖုန်းနံပါတ် နှင့် ပို့ဆောင်ရမည့်လိပ်စာ အပြည့်အစုံ ဖြည့်စွက်ပေးပါ။"
       );
       return;
     }
@@ -112,7 +122,9 @@ export default function CartCheckoutDrawer({
       transactionRef.trim().length < 4
     ) {
       setFormError(
-        `${paymentMethod} ဖြင့် ငွေလွှဲထားသော ပြေစာနံပါတ် နောက်ဆုံး (၆) လုံး ထည့်သွင်းပေးပါ။`
+        lang === "en"
+          ? `Please enter the last 6 digits of your ${paymentMethod} transaction ID.`
+          : `${paymentMethod} ဖြင့် ငွေလွှဲထားသော ပြေစာနံပါတ် နောက်ဆုံး (၆) လုံး ထည့်သွင်းပေးပါ။`
       );
       return;
     }
@@ -206,16 +218,22 @@ export default function CartCheckoutDrawer({
                     <ShoppingBag className="w-10 h-10" />
                   </div>
                   <h4 className="text-lg font-bold text-stone-800">
-                    ဈေးခြင်းတောင်းထဲတွင် ပစ္စည်းမရှိသေးပါ
+                    {lang === "en"
+                      ? "Your shopping bag is empty"
+                      : "ဈေးခြင်းတောင်းထဲတွင် ပစ္စည်းမရှိသေးပါ"}
                   </h4>
                   <p className="text-sm text-stone-500 mt-1 max-w-xs">
-                    PontPont ၏ လှပသေသပ်သော လက်ကိုင်အိတ်ဒီဇိုင်းများကို စိတ်ကြိုက်ရွေးချယ်ထည့်သွင်းနိုင်ပါသည်။
+                    {lang === "en"
+                      ? "Explore our collection and add your favorite Pont Pont handbags to your bag."
+                      : "PontPont ၏ လှပသေသပ်သော လက်ကိုင်အိတ်ဒီဇိုင်းများကို စိတ်ကြိုက်ရွေးချယ်ထည့်သွင်းနိုင်ပါသည်။"}
                   </p>
                   <button
                     onClick={onClose}
                     className="mt-6 px-6 py-2.5 rounded-full bg-stone-900 text-white text-sm font-semibold hover:bg-amber-900 transition"
                   >
-                    အိတ်များကြည့်ရှုရန် (Browse Handbags)
+                    {lang === "en"
+                      ? "Browse Handbags"
+                      : "အိတ်များကြည့်ရှုရန် (Browse Handbags)"}
                   </button>
                 </div>
               ) : (
@@ -225,7 +243,17 @@ export default function CartCheckoutDrawer({
                     <Truck className="w-5 h-5 text-amber-700 shrink-0" />
                     {subtotal - discount >= 100000 ? (
                       <span className="font-semibold text-emerald-800">
-                        ဂုဏ်ယူပါတယ်! ၁ သိန်းကျပ်ပြည့်သဖြင့် အိမ်အရောက် ပို့ဆောင်ခ အခမဲ့ (Free Delivery) ရရှိပါပြီ။
+                        {lang === "en"
+                          ? "Congrats! Your order qualifies for Free Delivery nationwide."
+                          : "ဂုဏ်ယူပါတယ်! ၁ သိန်းကျပ်ပြည့်သဖြင့် အိမ်အရောက် ပို့ဆောင်ခ အခမဲ့ (Free Delivery) ရရှိပါပြီ။"}
+                      </span>
+                    ) : lang === "en" ? (
+                      <span>
+                        Add{" "}
+                        <strong>
+                          {(100000 - (subtotal - discount)).toLocaleString()} MMK
+                        </strong>{" "}
+                        more for Free Delivery!
                       </span>
                     ) : (
                       <span>
@@ -272,7 +300,7 @@ export default function CartCheckoutDrawer({
                           </div>
 
                           <p className="text-xs text-stone-500 mt-1">
-                            အရောင် (Color):{" "}
+                            {lang === "en" ? "Color:" : "အရောင် (Color):"}{" "}
                             <span className="font-semibold text-stone-700">
                               {item.selectedColor}
                             </span>
@@ -324,7 +352,10 @@ export default function CartCheckoutDrawer({
                   <div className="p-4 rounded-2xl bg-stone-100/80 border border-stone-200/80">
                     <label className="text-xs font-semibold text-stone-700 flex items-center gap-1.5 mb-2">
                       <Tag className="w-3.5 h-3.5 text-amber-800" />
-                      လျှော့ဈေးကူပွန် (Promo Code: <code className="text-amber-900 font-bold">PONTPONT10</code>)
+                      {lang === "en"
+                        ? "Promo Code (Try:"
+                        : "လျှော့ဈေးကူပွန် (Promo Code:"}{" "}
+                      <code className="text-amber-900 font-bold">PONTPONT10</code>)
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -364,7 +395,8 @@ export default function CartCheckoutDrawer({
                 onClick={() => setStep("cart")}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-900 hover:underline"
               >
-                <ArrowLeft className="w-3.5 h-3.5" /> ဈေးခြင်းတောင်းသို့ ပြန်သွားရန်
+                <ArrowLeft className="w-3.5 h-3.5" />{" "}
+                {lang === "en" ? "Back to Shopping Bag" : "ဈေးခြင်းတောင်းသို့ ပြန်သွားရန်"}
               </button>
 
               {formError && (
@@ -376,19 +408,23 @@ export default function CartCheckoutDrawer({
               {/* Shipping Info */}
               <div className="space-y-3.5">
                 <h4 className="text-sm font-bold text-stone-900 border-b border-stone-200 pb-2">
-                  ၁။ ပို့ဆောင်ရမည့် လိပ်စာအချက်အလက် (Delivery Details)
+                  {lang === "en"
+                    ? "1. Delivery Details"
+                    : "၁။ ပို့ဆောင်ရမည့် လိပ်စာအချက်အလက် (Delivery Details)"}
                 </h4>
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    ဝယ်ယူသူအမည် (Customer Name) *
+                    {lang === "en" ? "Customer Name *" : "ဝယ်ယူသူအမည် (Customer Name) *"}
                   </label>
                   <input
                     type="text"
                     required
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="ဥပမာ - မသီရိဆွေ"
+                    placeholder={
+                      lang === "en" ? "e.g. Ma Thiri Swe" : "ဥပမာ - မသီရိဆွေ"
+                    }
                     className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-stone-300 text-stone-900 focus:border-amber-800 focus:outline-none"
                   />
                 </div>
@@ -396,7 +432,9 @@ export default function CartCheckoutDrawer({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      ဖုန်းနံပါတ် (Phone Number) *
+                      {lang === "en"
+                        ? "Phone Number *"
+                        : "ဖုန်းနံပါတ် (Phone Number) *"}
                     </label>
                     <input
                       type="tel"
@@ -410,7 +448,9 @@ export default function CartCheckoutDrawer({
 
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      မြို့နယ် (City / Region) *
+                      {lang === "en"
+                        ? "City / Region *"
+                        : "မြို့နယ် (City / Region) *"}
                     </label>
                     <select
                       value={city}
@@ -428,27 +468,39 @@ export default function CartCheckoutDrawer({
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    အိမ်အမှတ်၊ လမ်း၊ ရပ်ကွက်၊ မြို့နယ် အပြည့်အစုံ (Full Address) *
+                    {lang === "en"
+                      ? "Full Delivery Address *"
+                      : "အိမ်အမှတ်၊ လမ်း၊ ရပ်ကွက်၊ မြို့နယ် အပြည့်အစုံ (Full Address) *"}
                   </label>
                   <textarea
                     rows={2}
                     required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="အိမ်အမှတ်၊ လမ်းအမည်၊ မြို့နယ် အပြည့်အစုံ ရေးပေးပါ..."
+                    placeholder={
+                      lang === "en"
+                        ? "Enter house no, street, ward, township..."
+                        : "အိမ်အမှတ်၊ လမ်းအမည်၊ မြို့နယ် အပြည့်အစုံ ရေးပေးပါ..."
+                    }
                     className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-stone-300 text-stone-900 focus:border-amber-800 focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    မှတ်ချက် (Order Note - Optional)
+                    {lang === "en"
+                      ? "Order Note (Optional)"
+                      : "မှတ်ချက် (Order Note - Optional)"}
                   </label>
                   <input
                     type="text"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    placeholder="ဥပမာ - မွေးနေ့လက်ဆောင်ကတ် ထည့်ပေးပါ / ဖုန်းကြိုဆက်ပေးပါ"
+                    placeholder={
+                      lang === "en"
+                        ? "e.g. Call before delivery / Gift wrap please"
+                        : "ဥပမာ - မွေးနေ့လက်ဆောင်ကတ် ထည့်ပေးပါ / ဖုန်းကြိုဆက်ပေးပါ"
+                    }
                     className="w-full px-3.5 py-2 text-sm rounded-xl border border-stone-300 text-stone-900 focus:border-amber-800 focus:outline-none"
                   />
                 </div>
@@ -457,7 +509,9 @@ export default function CartCheckoutDrawer({
               {/* Payment Method */}
               <div className="space-y-3.5 pt-2">
                 <h4 className="text-sm font-bold text-stone-900 border-b border-stone-200 pb-2">
-                  ၂။ ငွေပေးချေမှုပုံစံ ရွေးချယ်ရန် (Payment Method)
+                  {lang === "en"
+                    ? "2. Payment Method"
+                    : "၂။ ငွေပေးချေမှုပုံစံ ရွေးချယ်ရန် (Payment Method)"}
                 </h4>
 
                 <div className="grid grid-cols-3 gap-2.5">
@@ -472,7 +526,9 @@ export default function CartCheckoutDrawer({
                   >
                     <Smartphone className="w-5 h-5 text-blue-600" />
                     <span className="text-xs font-bold">KBZPay</span>
-                    <span className="text-[10px] text-stone-500">KPay ငွေလွှဲ</span>
+                    <span className="text-[10px] text-stone-500">
+                      {lang === "en" ? "KPay Transfer" : "KPay ငွေလွှဲ"}
+                    </span>
                   </button>
 
                   <button
@@ -486,7 +542,9 @@ export default function CartCheckoutDrawer({
                   >
                     <Smartphone className="w-5 h-5 text-amber-600" />
                     <span className="text-xs font-bold">WavePay</span>
-                    <span className="text-[10px] text-stone-500">Wave ငွေလွှဲ</span>
+                    <span className="text-[10px] text-stone-500">
+                      {lang === "en" ? "Wave Transfer" : "Wave ငွေလွှဲ"}
+                    </span>
                   </button>
 
                   <button
@@ -500,7 +558,9 @@ export default function CartCheckoutDrawer({
                   >
                     <Banknote className="w-5 h-5 text-emerald-600" />
                     <span className="text-xs font-bold">Cash (COD)</span>
-                    <span className="text-[10px] text-stone-500">အိမ်အရောက်ငွေချေ</span>
+                    <span className="text-[10px] text-stone-500">
+                      {lang === "en" ? "Pay on Delivery" : "အိမ်အရောက်ငွေချေ"}
+                    </span>
                   </button>
                 </div>
 
@@ -516,13 +576,17 @@ export default function CartCheckoutDrawer({
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <span className="text-[11px] uppercase font-bold tracking-wider text-stone-500">
-                          {paymentMethod} Account (ပုံ့ပုံ့ အိတ်ဆိုင် အကောင့်)
+                          {lang === "en"
+                            ? `${paymentMethod} Account (Pont Pont Bag Shop)`
+                            : `${paymentMethod} Account (ပုံ့ပုံ့ အိတ်ဆိုင် အကောင့်)`}
                         </span>
                         <p className="text-sm sm:text-base font-extrabold text-stone-900 mt-0.5">
                           09-963000502 / 09-750072752
                         </p>
                         <p className="text-xs text-stone-600 font-medium">
-                          Account Name: Ma Pont Pont (ပုံ့ပုံ့ အိတ်ဆိုင် - မန္တလေး)
+                          {lang === "en"
+                            ? "Account Name: Ma Pont Pont (Mandalay)"
+                            : "Account Name: Ma Pont Pont (ပုံ့ပုံ့ အိတ်ဆိုင် - မန္တလေး)"}
                         </p>
                       </div>
                       <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1.5">
@@ -551,7 +615,9 @@ export default function CartCheckoutDrawer({
 
                     <div>
                       <label className="block text-xs font-semibold text-stone-800 mb-1">
-                        {paymentMethod} ပြေစာနံပါတ် နောက်ဆုံး (၆) လုံး (Last 6 Digits of Transaction ID) *
+                        {lang === "en"
+                          ? `Last 6 Digits of ${paymentMethod} Transaction ID *`
+                          : `${paymentMethod} ပြေစာနံပါတ် နောက်ဆုံး (၆) လုံး (Last 6 Digits of Transaction ID) *`}
                       </label>
                       <input
                         type="text"
@@ -559,7 +625,7 @@ export default function CartCheckoutDrawer({
                         maxLength={12}
                         value={transactionRef}
                         onChange={(e) => setTransactionRef(e.target.value)}
-                        placeholder="ဥပမာ - 893412"
+                        placeholder={lang === "en" ? "e.g. 893412" : "ဥပမာ - 893412"}
                         className="w-full px-3.5 py-2 text-sm rounded-xl border border-stone-300 bg-white text-stone-900 focus:border-stone-800 focus:outline-none font-mono"
                       />
                     </div>
@@ -568,7 +634,9 @@ export default function CartCheckoutDrawer({
 
                 {paymentMethod === "COD" && (
                   <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs text-emerald-950">
-                    ပစ္စည်းလက်ခံရရှိသည့်အချိန်မှသာ ပို့ဆောင်သူထံ ငွေသားဖြင့် တိုက်ရိုက်ပေးချေနိုင်ပါသည် (Cash on Delivery)။
+                    {lang === "en"
+                      ? "Pay in cash directly to the delivery rider when you receive your handbags (Cash on Delivery)."
+                      : "ပစ္စည်းလက်ခံရရှိသည့်အချိန်မှသာ ပို့ဆောင်သူထံ ငွေသားဖြင့် တိုက်ရိုက်ပေးချေနိုင်ပါသည် (Cash on Delivery)။"}
                   </div>
                 )}
               </div>
@@ -586,26 +654,36 @@ export default function CartCheckoutDrawer({
                   Order ID: {completedOrder.id}
                 </span>
                 <h4 className="text-xl font-extrabold text-stone-900 mt-3">
-                  ဝယ်ယူအားပေးမှုအတွက် ကျေးဇူးအထူးတင်ရှိပါသည်!
+                  {lang === "en"
+                    ? "Thank you for your order!"
+                    : "ဝယ်ယူအားပေးမှုအတွက် ကျေးဇူးအထူးတင်ရှိပါသည်!"}
                 </h4>
                 <p className="text-xs text-stone-500 mt-1">
-                  PontPont Hand-bag Shop မှ လူကြီးမင်း၏ အော်ဒါကို လက်ခံရရှိပါပြီ။ မကြာမီ ဖုန်းဆက်အတည်ပြုပေးပါမည်။
+                  {lang === "en"
+                    ? "Pont Pont Bag Shop has received your order. We will contact you shortly by phone to confirm."
+                    : "ပုံ့ပုံ့ (Pont Pont) အိတ်ဆိုင်မှ လူကြီးမင်း၏ အော်ဒါကို လက်ခံရရှိပါပြီ။ မကြာမီ ဖုန်းဆက်အတည်ပြုပေးပါမည်။"}
                 </p>
               </div>
 
               <div className="text-left bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-2 text-xs text-stone-700">
                 <div className="flex justify-between py-1 border-b border-stone-200">
-                  <span className="text-stone-500">ဝယ်ယူသူ (Customer):</span>
+                  <span className="text-stone-500">
+                    {lang === "en" ? "Customer:" : "ဝယ်ယူသူ (Customer):"}
+                  </span>
                   <span className="font-bold text-stone-900">
                     {completedOrder.customerName} ({completedOrder.phone})
                   </span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-stone-200">
-                  <span className="text-stone-500">ပို့ဆောင်မည့်မြို့ (City):</span>
+                  <span className="text-stone-500">
+                    {lang === "en" ? "City:" : "ပို့ဆောင်မည့်မြို့ (City):"}
+                  </span>
                   <span className="font-semibold">{completedOrder.city}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-stone-200">
-                  <span className="text-stone-500">ငွေပေးချေမှု (Payment):</span>
+                  <span className="text-stone-500">
+                    {lang === "en" ? "Payment:" : "ငွေပေးချေမှု (Payment):"}
+                  </span>
                   <span className="font-bold text-amber-900">
                     {completedOrder.paymentMethod}
                     {completedOrder.transactionRef
@@ -614,7 +692,9 @@ export default function CartCheckoutDrawer({
                   </span>
                 </div>
                 <div className="flex justify-between py-1 text-sm">
-                  <span className="font-bold text-stone-800">စုစုပေါင်းကျသင့်ငွေ:</span>
+                  <span className="font-bold text-stone-800">
+                    {lang === "en" ? "Total Amount:" : "စုစုပေါင်းကျသင့်ငွေ:"}
+                  </span>
                   <span className="font-extrabold text-stone-900">
                     {completedOrder.total.toLocaleString()} MMK
                   </span>
@@ -626,7 +706,9 @@ export default function CartCheckoutDrawer({
                 onClick={resetAndClose}
                 className="w-full py-3.5 rounded-2xl bg-stone-900 hover:bg-amber-900 text-white font-semibold text-sm transition"
               >
-                ဆိုင်သို့ပြန်သွားမည် (Continue Shopping)
+                {lang === "en"
+                  ? "Continue Shopping"
+                  : "ဆိုင်သို့ပြန်သွားမည် (Continue Shopping)"}
               </button>
             </div>
           )}
@@ -637,27 +719,39 @@ export default function CartCheckoutDrawer({
           <div className="p-4 sm:p-6 bg-stone-50 border-t border-stone-200 space-y-3">
             <div className="space-y-1.5 text-xs text-stone-600">
               <div className="flex justify-between">
-                <span>ပစ္စည်းတန်ဖိုး (Subtotal):</span>
+                <span>
+                  {lang === "en" ? "Subtotal:" : "ပစ္စည်းတန်ဖိုး (Subtotal):"}
+                </span>
                 <span className="font-semibold text-stone-900">
                   {subtotal.toLocaleString()} MMK
                 </span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-700 font-medium">
-                  <span>လျှော့ဈေး (Promo 10%):</span>
+                  <span>
+                    {lang === "en"
+                      ? "Discount (Promo 10%):"
+                      : "လျှော့ဈေး (Promo 10%):"}
+                  </span>
                   <span>-{discount.toLocaleString()} MMK</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span>ပို့ဆောင်ခ (Delivery - {city.split(" ")[0]}):</span>
+                <span>
+                  {lang === "en"
+                    ? `Delivery (${city.split(" ")[0]}):`
+                    : `ပို့ဆောင်ခ (Delivery - ${city.split(" ")[0]}):`}
+                </span>
                 <span className="font-semibold text-stone-900">
                   {deliveryFee === 0
-                    ? "FREE (အခမဲ့)"
+                    ? lang === "en"
+                      ? "FREE"
+                      : "FREE (အခမဲ့)"
                     : `${deliveryFee.toLocaleString()} MMK`}
                 </span>
               </div>
               <div className="flex justify-between text-base font-extrabold text-stone-900 pt-2 border-t border-stone-200">
-                <span>စုစုပေါင်း (Total):</span>
+                <span>{lang === "en" ? "Total:" : "စုစုပေါင်း (Total):"}</span>
                 <span className="text-amber-900">
                   {total.toLocaleString()} MMK
                 </span>

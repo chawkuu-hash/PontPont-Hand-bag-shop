@@ -470,7 +470,7 @@ export default function AdminDashboard({
 
                 <div className="flex items-center gap-2">
                   <label className="text-xs font-semibold text-stone-600">
-                    Status ပြောင်းရန်:
+                    {lang === "en" ? "Status:" : "Status ပြောင်းရန်:"}
                   </label>
                   <select
                     value={order.status}
@@ -480,16 +480,28 @@ export default function AdminDashboard({
                         e.target.value as Order["status"]
                       );
                       showNotice(
-                        `Order ${order.id} အခြေအနေကို ${e.target.value} သို့ ပြောင်းလဲပြီးပါပြီ။`
+                        lang === "en"
+                          ? `Order ${order.id} updated to ${e.target.value}.`
+                          : `Order ${order.id} အခြေအနေကို ${e.target.value} သို့ ပြောင်းလဲပြီးပါပြီ။`
                       );
                     }}
                     className="px-3 py-1.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-900 bg-stone-50 focus:outline-none focus:border-amber-800"
                   >
-                    <option value="Pending">Pending (စစ်ဆေးဆဲ)</option>
-                    <option value="Confirmed">Confirmed (အတည်ပြုပြီး)</option>
-                    <option value="Shipped">Shipped (ပို့ဆောင်နေပြီ)</option>
-                    <option value="Delivered">Delivered (ပို့ဆောင်ပြီး)</option>
-                    <option value="Cancelled">Cancelled (ပယ်ဖျက်)</option>
+                    <option value="Pending">
+                      {lang === "en" ? "Pending" : "Pending (စစ်ဆေးဆဲ)"}
+                    </option>
+                    <option value="Confirmed">
+                      {lang === "en" ? "Confirmed" : "Confirmed (အတည်ပြုပြီး)"}
+                    </option>
+                    <option value="Shipped">
+                      {lang === "en" ? "Shipped" : "Shipped (ပို့ဆောင်နေပြီ)"}
+                    </option>
+                    <option value="Delivered">
+                      {lang === "en" ? "Delivered" : "Delivered (ပို့ဆောင်ပြီး)"}
+                    </option>
+                    <option value="Cancelled">
+                      {lang === "en" ? "Cancelled" : "Cancelled (ပယ်ဖျက်)"}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -512,7 +524,7 @@ export default function AdminDashboard({
                   </p>
                   {order.note && (
                     <p className="text-amber-900 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 mt-1">
-                      မှတ်ချက်: {order.note}
+                      {lang === "en" ? "Note:" : "မှတ်ချက်:"} {order.note}
                     </p>
                   )}
                 </div>
@@ -520,7 +532,7 @@ export default function AdminDashboard({
                 {/* Items Ordered */}
                 <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/60 space-y-2">
                   <p className="font-bold text-stone-700">
-                    မှာယူထားသော အိတ်များ:
+                    {lang === "en" ? "Ordered Items:" : "မှာယူထားသော အိတ်များ:"}
                   </p>
                   {order.items.map((item, i) => (
                     <div
@@ -541,7 +553,9 @@ export default function AdminDashboard({
                 <div className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/70 flex flex-col justify-between">
                   <div className="space-y-1">
                     <span className="text-[11px] uppercase font-bold text-stone-500">
-                      ငွေပေးချေမှုစနစ် (Payment)
+                      {lang === "en"
+                        ? "Payment Method"
+                        : "ငွေပေးချေမှုစနစ် (Payment)"}
                     </span>
                     <p className="text-sm font-extrabold text-stone-900 flex items-center gap-1.5">
                       <Smartphone className="w-4 h-4 text-amber-800" />
@@ -549,12 +563,15 @@ export default function AdminDashboard({
                     </p>
                     {order.transactionRef && (
                       <p className="text-xs font-mono bg-white px-2.5 py-1 rounded-lg border border-amber-200 text-amber-950">
-                        ပြေစာနံပါတ်: <strong>#{order.transactionRef}</strong>
+                        {lang === "en" ? "Ref ID:" : "ပြေစာနံပါတ်:"}{" "}
+                        <strong>#{order.transactionRef}</strong>
                       </p>
                     )}
                   </div>
                   <div className="pt-2 border-t border-amber-200/60 flex justify-between items-baseline">
-                    <span className="font-bold text-stone-700">စုစုပေါင်း:</span>
+                    <span className="font-bold text-stone-700">
+                      {lang === "en" ? "Total:" : "စုစုပေါင်း:"}
+                    </span>
                     <span className="text-base font-extrabold text-amber-950">
                       {order.total.toLocaleString()} MMK
                     </span>
@@ -608,7 +625,8 @@ export default function AdminDashboard({
                     </span>
                     {p.wholesalePrice && (
                       <span className="text-[11px] text-amber-800 font-semibold ml-2">
-                        (လက်ကား: {p.wholesalePrice.toLocaleString()})
+                        ({lang === "en" ? "Wholesale:" : "လက်ကား:"}{" "}
+                        {p.wholesalePrice.toLocaleString()})
                       </span>
                     )}
                   </div>
@@ -657,7 +675,9 @@ export default function AdminDashboard({
           >
             <h3 className="text-base font-extrabold text-stone-900 border-b border-stone-200 pb-3 flex items-center gap-2">
               <Tag className="w-5 h-5 text-amber-800" />
-              Category အသစ်ထည့်ရန် (Add New Category)
+              {lang === "en"
+                ? "Add New Category"
+                : "Category အသစ်ထည့်ရန် (Add New Category)"}
             </h3>
 
             <div>
@@ -682,7 +702,11 @@ export default function AdminDashboard({
                 type="text"
                 value={newCatId}
                 onChange={(e) => setNewCatId(e.target.value)}
-                placeholder="e.g. Travel, Men, Pouch (အလွတ်ထားပါက အပေါ်အမည်အတိုင်း သုံးပါမည်)"
+                placeholder={
+                  lang === "en"
+                    ? "e.g. Travel, Men, Pouch (optional)"
+                    : "e.g. Travel, Men, Pouch (အလွတ်ထားပါက အပေါ်အမည်အတိုင်း သုံးပါမည်)"
+                }
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-stone-300 text-stone-900 focus:border-amber-800 focus:outline-none"
               />
             </div>
@@ -691,17 +715,23 @@ export default function AdminDashboard({
               type="submit"
               className="w-full py-3 rounded-2xl bg-stone-900 hover:bg-amber-900 text-white font-bold text-sm transition shadow-md"
             >
-              Category အသစ် ထည့်သွင်းမည် (Add Category)
+              {lang === "en"
+                ? "Add Category"
+                : "Category အသစ် ထည့်သွင်းမည် (Add Category)"}
             </button>
           </form>
 
           <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-stone-200 pb-3">
               <h3 className="text-base font-extrabold text-stone-900">
-                လက်ရှိ Category စာရင်း (Active Categories)
+                {lang === "en"
+                  ? "Active Categories"
+                  : "လက်ရှိ Category စာရင်း (Active Categories)"}
               </h3>
               <span className="text-xs text-stone-500">
-                Storefront နှင့် Add Handbag တွင် အသုံးပြုနေသော အမျိုးအစားများ
+                {lang === "en"
+                  ? "Used in Storefront & Add Handbag"
+                  : "Storefront နှင့် Add Handbag တွင် အသုံးပြုနေသော အမျိုးအစားများ"}
               </span>
             </div>
 
@@ -725,14 +755,20 @@ export default function AdminDashboard({
                           {cat.labelEn}
                         </h4>
                         <p className="text-xs text-stone-500">
-                          အိတ်အရေအတွက်: {count} မျိုး
+                          {lang === "en"
+                            ? `Products: ${count}`
+                            : `အိတ်အရေအတွက်: ${count} မျိုး`}
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => {
                           onDeleteCategory(cat.id);
-                          showNotice(`Category "${cat.labelEn}" ကို ဖျက်ပြီးပါပြီ။`);
+                          showNotice(
+                            lang === "en"
+                              ? `Category "${cat.labelEn}" deleted.`
+                              : `Category "${cat.labelEn}" ကို ဖျက်ပြီးပါပြီ။`
+                          );
                         }}
                         className="p-2 rounded-xl text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition"
                         title="Delete Category"
@@ -754,20 +790,28 @@ export default function AdminDashboard({
             <div>
               <h3 className="text-base font-extrabold text-stone-900 flex items-center gap-2">
                 <Users className="w-5 h-5 text-amber-800" />
-                အသုံးပြုသူအကောင့်များ စီမံခန့်ခွဲခြင်း (User Management)
+                {lang === "en"
+                  ? "User Management"
+                  : "အသုံးပြုသူအကောင့်များ စီမံခန့်ခွဲခြင်း (User Management)"}
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
-                ပထမဆုံး Sign Up ပြုလုပ်သူသည် Admin ဖြစ်ပြီး ကျန်အသုံးပြုသူများကိုလည်း Admin သို့မဟုတ် Customer အဖြစ် ပြောင်းလဲသတ်မှတ်နိုင်ပါသည်။
+                {lang === "en"
+                  ? "The first Sign-Up user is automatically Admin. Manage roles (Admin / Customer) below."
+                  : "ပထမဆုံး Sign Up ပြုလုပ်သူသည် Admin ဖြစ်ပြီး ကျန်အသုံးပြုသူများကိုလည်း Admin သို့မဟုတ် Customer အဖြစ် ပြောင်းလဲသတ်မှတ်နိုင်ပါသည်။"}
               </p>
             </div>
             <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold">
-              စုစုပေါင်း အကောင့် ({users.length}) ခု
+              {lang === "en"
+                ? `Total Accounts: ${users.length}`
+                : `စုစုပေါင်း အကောင့် (${users.length}) ခု`}
             </span>
           </div>
 
           {users.length === 0 ? (
             <div className="p-12 text-center text-sm text-stone-500">
-              အကောင့်ဖွင့်ထားသူ မရှိသေးပါ။
+              {lang === "en"
+                ? "No registered users yet."
+                : "အကောင့်ဖွင့်ထားသူ မရှိသေးပါ။"}
             </div>
           ) : (
             <div className="divide-y divide-stone-200">
@@ -807,7 +851,7 @@ export default function AdminDashboard({
                           )}
                           {isSelf && (
                             <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                              လက်ရှိအကောင့် (You)
+                              {lang === "en" ? "You" : "လက်ရှိအကောင့် (You)"}
                             </span>
                           )}
                         </div>
@@ -828,8 +872,9 @@ export default function AdminDashboard({
                         </div>
 
                         <p className="text-[11px] text-stone-400">
-                          အော်ဒါအရေအတွက်: <strong>{userOrdersCount} ခု</strong> •
-                          အကောင့်ဖွင့်သည့်ရက်:{" "}
+                          {lang === "en" ? "Orders:" : "အော်ဒါအရေအတွက်:"}{" "}
+                          <strong>{userOrdersCount}</strong> •{" "}
+                          {lang === "en" ? "Joined:" : "အကောင့်ဖွင့်သည့်ရက်:"}{" "}
                           {u.createdAt
                             ? new Date(u.createdAt).toLocaleString()
                             : "-"}
@@ -849,15 +894,21 @@ export default function AdminDashboard({
                               | "customer";
                             onUpdateUserRole(u.id, newRole);
                             showNotice(
-                              `${u.name} ၏ အဆင့်ကို ${
-                                newRole === "admin" ? "Admin" : "Customer"
-                              } သို့ ပြောင်းလဲပြီးပါပြီ။`
+                              lang === "en"
+                                ? `${u.name} role updated to ${newRole}.`
+                                : `${u.name} ၏ အဆင့်ကို ${
+                                    newRole === "admin" ? "Admin" : "Customer"
+                                  } သို့ ပြောင်းလဲပြီးပါပြီ။`
                             );
                           }}
                           className="px-3 py-1.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-900 bg-white disabled:bg-stone-100 disabled:text-stone-500"
                         >
-                          <option value="admin">Admin (ဆိုင်ရှင်)</option>
-                          <option value="customer">Customer (ဝယ်ယူသူ)</option>
+                          <option value="admin">
+                            {lang === "en" ? "Admin" : "Admin (ဆိုင်ရှင်)"}
+                          </option>
+                          <option value="customer">
+                            {lang === "en" ? "Customer" : "Customer (ဝယ်ယူသူ)"}
+                          </option>
                         </select>
                       </div>
 
@@ -866,7 +917,9 @@ export default function AdminDashboard({
                           onClick={() => {
                             onDeleteUser(u.id);
                             showNotice(
-                              `${u.name} ၏ အကောင့်ကို ဖျက်သိမ်းပြီးပါပြီ။`
+                              lang === "en"
+                                ? `Deleted user ${u.name}.`
+                                : `${u.name} ၏ အကောင့်ကို ဖျက်သိမ်းပြီးပါပြီ။`
                             );
                           }}
                           className="p-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition"
@@ -894,26 +947,36 @@ export default function AdminDashboard({
           >
             <h3 className="text-base font-extrabold text-stone-900 border-b border-stone-200 pb-3 flex items-center gap-2">
               <Megaphone className="w-5 h-5 text-amber-800" />
-              ကြော်ငြာနှင့် အသိပေးချက်အသစ် တင်ရန် (New Post)
+              {lang === "en"
+                ? "Publish New Announcement"
+                : "ကြော်ငြာနှင့် အသိပေးချက်အသစ် တင်ရန် (New Post)"}
             </h3>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                ခေါင်းစဉ် (Announcement Title) *
+                {lang === "en"
+                  ? "Announcement Title *"
+                  : "ခေါင်းစဉ် (Announcement Title) *"}
               </label>
               <input
                 type="text"
                 required
                 value={annTitle}
                 onChange={(e) => setAnnTitle(e.target.value)}
-                placeholder="ဥပမာ - သီတင်းကျွတ် အထူးလျှော့ဈေး 15% OFF!"
+                placeholder={
+                  lang === "en"
+                    ? "e.g. Holiday Special 15% OFF!"
+                    : "ဥပမာ - သီတင်းကျွတ် အထူးလျှော့ဈေး 15% OFF!"
+                }
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-stone-300 text-stone-900 focus:border-amber-800 focus:outline-none"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                အမျိုးအစား (Tag / Category)
+                {lang === "en"
+                  ? "Tag / Category"
+                  : "အမျိုးအစား (Tag / Category)"}
               </label>
               <select
                 value={annTag}
@@ -922,30 +985,54 @@ export default function AdminDashboard({
                 }
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-stone-300 text-stone-900 bg-white focus:border-amber-800 focus:outline-none"
               >
-                <option value="Promotion">Promotion (ကြော်ငြာ / လျှော့ဈေး)</option>
-                <option value="New Arrival">New Arrival (ပစ္စည်းအသစ်ရောက်ရှိခြင်း)</option>
-                <option value="Wholesale">Wholesale (လက်ကားအသိပေးချက်)</option>
-                <option value="Notice">Notice (အရေးကြီး အသိပေးချက်)</option>
+                <option value="Promotion">
+                  {lang === "en"
+                    ? "Promotion / Discount"
+                    : "Promotion (ကြော်ငြာ / လျှော့ဈေး)"}
+                </option>
+                <option value="New Arrival">
+                  {lang === "en"
+                    ? "New Arrival"
+                    : "New Arrival (ပစ္စည်းအသစ်ရောက်ရှိခြင်း)"}
+                </option>
+                <option value="Wholesale">
+                  {lang === "en"
+                    ? "Wholesale Notice"
+                    : "Wholesale (လက်ကားအသိပေးချက်)"}
+                </option>
+                <option value="Notice">
+                  {lang === "en"
+                    ? "Important Notice"
+                    : "Notice (အရေးကြီး အသိပေးချက်)"}
+                </option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                အကြောင်းအရာ အပြည့်အစုံ (Content / Message) *
+                {lang === "en"
+                  ? "Content / Message *"
+                  : "အကြောင်းအရာ အပြည့်အစုံ (Content / Message) *"}
               </label>
               <textarea
                 rows={4}
                 required
                 value={annContent}
                 onChange={(e) => setAnnContent(e.target.value)}
-                placeholder="ကြော်ငြာ သို့မဟုတ် အသိပေးချက် အကြောင်းအရာ အပြည့်အစုံကို ရေးသားပါ..."
+                placeholder={
+                  lang === "en"
+                    ? "Write your announcement details..."
+                    : "ကြော်ငြာ သို့မဟုတ် အသိပေးချက် အကြောင်းအရာ အပြည့်အစုံကို ရေးသားပါ..."
+                }
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-stone-300 text-stone-900 focus:border-amber-800 focus:outline-none"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                ဓာတ်ပုံ (Image - ဖုန်း/ကွန်ပျူတာမှ တင်ရန် သို့မဟုတ် URL ထည့်ရန်)
+                {lang === "en"
+                  ? "Image (Upload Photo or Enter URL)"
+                  : "ဓာတ်ပုံ (Image - ဖုန်း/ကွန်ပျူတာမှ တင်ရန် သို့မဟုတ် URL ထည့်ရန်)"}
               </label>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {PRESET_BAG_IMAGES.map((preset) => (
@@ -967,14 +1054,14 @@ export default function AdminDashboard({
                   onClick={() => setAnnImage("")}
                   className="text-[11px] px-2.5 py-1 rounded-lg border border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100"
                 >
-                  ပုံမထည့်ပါ (Text Only)
+                  {lang === "en" ? "Text Only" : "ပုံမထည့်ပါ (Text Only)"}
                 </button>
               </div>
 
               <div className="flex items-center gap-2 mb-2">
                 <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-200 text-xs font-bold transition">
                   <Upload className="w-3.5 h-3.5" />
-                  ပုံရွေးတင်ရန် (Upload Photo)
+                  {lang === "en" ? "Upload Photo" : "ပုံရွေးတင်ရန် (Upload Photo)"}
                   <input
                     type="file"
                     accept="image/*"
@@ -995,7 +1082,11 @@ export default function AdminDashboard({
                 type="text"
                 value={annImage}
                 onChange={(e) => setAnnImage(e.target.value)}
-                placeholder="https://... (သို့မဟုတ် ပုံမပါလိုပါက အလွတ်ထားပါ)"
+                placeholder={
+                  lang === "en"
+                    ? "https://... (leave blank for text only)"
+                    : "https://... (သို့မဟုတ် ပုံမပါလိုပါက အလွတ်ထားပါ)"
+                }
                 className="w-full px-3.5 py-2 text-xs rounded-xl border border-stone-300 text-stone-900"
               />
             </div>
@@ -1004,7 +1095,9 @@ export default function AdminDashboard({
               type="submit"
               className="w-full py-3 rounded-2xl bg-stone-900 hover:bg-amber-900 text-white font-bold text-sm transition shadow-md"
             >
-              ကြေညာချက် တင်မည် (Publish Announcement)
+              {lang === "en"
+                ? "Publish Announcement"
+                : "ကြေညာချက် တင်မည် (Publish Announcement)"}
             </button>
           </form>
 
@@ -1013,16 +1106,22 @@ export default function AdminDashboard({
             <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between border-b border-stone-200 pb-3">
                 <h3 className="text-base font-extrabold text-stone-900">
-                  တင်ထားသော ကြေညာချက်များ ({announcements.length})
+                  {lang === "en"
+                    ? `Published Announcements (${announcements.length})`
+                    : `တင်ထားသော ကြေညာချက်များ (${announcements.length})`}
                 </h3>
                 <span className="text-xs text-stone-500">
-                  ပင်မစာမျက်နှာ ညာဘက်ခြမ်း Slider တွင် ပြသနေပါသည်
+                  {lang === "en"
+                    ? "Displayed in Hero Slider"
+                    : "ပင်မစာမျက်နှာ ညာဘက်ခြမ်း Slider တွင် ပြသနေပါသည်"}
                 </span>
               </div>
 
               {announcements.length === 0 ? (
                 <div className="text-center py-10 text-xs text-stone-500">
-                  လက်ရှိတွင် တင်ထားသော ကြေညာချက် မရှိသေးပါ။
+                  {lang === "en"
+                    ? "No announcements published yet."
+                    : "လက်ရှိတွင် တင်ထားသော ကြေညာချက် မရှိသေးပါ။"}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -1054,7 +1153,11 @@ export default function AdminDashboard({
                           <button
                             onClick={() => {
                               onDeleteAnnouncement(ann.id);
-                              showNotice("ကြေညာချက်ကို ဖျက်သိမ်းပြီးပါပြီ။");
+                              showNotice(
+                                lang === "en"
+                                  ? "Announcement deleted."
+                                  : "ကြေညာချက်ကို ဖျက်သိမ်းပြီးပါပြီ။"
+                              );
                             }}
                             className="p-1.5 text-stone-400 hover:text-rose-600 transition shrink-0"
                             title="Delete Announcement"
@@ -1081,10 +1184,14 @@ export default function AdminDashboard({
           <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs">
             <h3 className="text-lg font-extrabold text-stone-900 flex items-center gap-2">
               <Palette className="w-5 h-5 text-amber-800" />
-              Website Theme ဒီဇိုင်းပုံစံ (၃) မျိုး ရွေးချယ်ရန်
+              {lang === "en"
+                ? "Select Storefront Theme (3 Styles)"
+                : "Website Theme ဒီဇိုင်းပုံစံ (၃) မျိုး ရွေးချယ်ရန်"}
             </h3>
             <p className="text-xs sm:text-sm text-stone-600 mt-1">
-              သင်ရွေးချယ်လိုက်သော Theme ဒီဇိုင်းသည် အရောင်းဆိုင်တစ်ခုလုံး၏ အရောင်၊ ကတ်ပုံစံ၊ ခလုတ်ဒီဇိုင်းနှင့် မျက်နှာပြင်အပြင်အဆင်ကို ဝယ်ယူသူအားလုံးအတွက် ချက်ချင်း ပြောင်းလဲပေးသွားပါမည်။
+              {lang === "en"
+                ? "Choosing a theme immediately updates the storefront color palette, card shape, buttons, and layout for all visitors."
+                : "သင်ရွေးချယ်လိုက်သော Theme ဒီဇိုင်းသည် အရောင်းဆိုင်တစ်ခုလုံး၏ အရောင်၊ ကတ်ပုံစံ၊ ခလုတ်ဒီဇိုင်းနှင့် မျက်နှာပြင်အပြင်အဆင်ကို ဝယ်ယူသူအားလုံးအတွက် ချက်ချင်း ပြောင်းလဲပေးသွားပါမည်။"}
             </p>
           </div>
 
@@ -1115,7 +1222,8 @@ export default function AdminDashboard({
                         </span>
                         {isSelected && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold shadow">
-                            <CheckCircle2 className="w-3 h-3" /> လက်ရှိသုံးနေသည်
+                            <CheckCircle2 className="w-3 h-3" />{" "}
+                            {lang === "en" ? "Active" : "လက်ရှိသုံးနေသည်"}
                           </span>
                         )}
                       </div>
@@ -1171,10 +1279,10 @@ export default function AdminDashboard({
                         {t.nameEn}
                       </h4>
                       <p className="text-xs font-bold text-amber-900">
-                        {t.nameMm}
+                        {lang === "en" ? t.styleSummary : t.nameMm}
                       </p>
                       <p className="text-xs text-stone-600 leading-relaxed">
-                        {t.descriptionMm}
+                        {lang === "en" ? t.descriptionEn : t.descriptionMm}
                       </p>
                     </div>
                   </div>
@@ -1185,7 +1293,9 @@ export default function AdminDashboard({
                       onClick={() => {
                         onUpdateTheme(t.id);
                         showNotice(
-                          `"${t.nameEn}" ဒီဇိုင်းသို့ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ!`
+                          lang === "en"
+                            ? `Switched storefront theme to "${t.nameEn}"!`
+                            : `"${t.nameEn}" ဒီဇိုင်းသို့ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ!`
                         );
                       }}
                       className={`w-full py-3 rounded-2xl text-xs font-extrabold transition ${
@@ -1195,7 +1305,11 @@ export default function AdminDashboard({
                       }`}
                     >
                       {isSelected
-                        ? "✓ လက်ရှိ အသုံးပြုနေသော Theme"
+                        ? lang === "en"
+                          ? "✓ Currently Active Theme"
+                          : "✓ လက်ရှိ အသုံးပြုနေသော Theme"
+                        : lang === "en"
+                        ? "Apply This Theme"
                         : "ဤ Theme ဒီဇိုင်းကို အသုံးပြုမည် (Apply Theme)"}
                     </button>
                   </div>
@@ -1213,7 +1327,9 @@ export default function AdminDashboard({
           className="max-w-2xl bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-4"
         >
           <h3 className="text-lg font-extrabold text-stone-900 border-b border-stone-200 pb-3">
-            ပုံ့ပုံ့ (Pont Pont) အိတ်ဒီဇိုင်းအသစ် ထည့်သွင်းရန် (Add New Handbag)
+            {lang === "en"
+              ? "Add New Handbag"
+              : "ပုံ့ပုံ့ (Pont Pont) အိတ်ဒီဇိုင်းအသစ် ထည့်သွင်းရန် (Add New Handbag)"}
           </h3>
 
           <div>
@@ -1252,7 +1368,9 @@ export default function AdminDashboard({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                လက်လီဈေး (Retail Price MMK) *
+                {lang === "en"
+                  ? "Retail Price (MMK) *"
+                  : "လက်လီဈေး (Retail Price MMK) *"}
               </label>
               <input
                 type="number"
@@ -1265,7 +1383,9 @@ export default function AdminDashboard({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                လက်ကားဈေး (Wholesale MMK)
+                {lang === "en"
+                  ? "Wholesale Price (MMK)"
+                  : "လက်ကားဈေး (Wholesale MMK)"}
               </label>
               <input
                 type="number"
@@ -1279,7 +1399,9 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                မူရင်းဈေး (Original Price MMK)
+                {lang === "en"
+                  ? "Original Price (MMK)"
+                  : "မူရင်းဈေး (Original Price MMK)"}
               </label>
               <input
                 type="number"
@@ -1291,7 +1413,9 @@ export default function AdminDashboard({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                လက်ကျန်အရေအတွက် (Stock) *
+                {lang === "en"
+                  ? "Stock Quantity *"
+                  : "လက်ကျန်အရေအတွက် (Stock) *"}
               </label>
               <input
                 type="number"
@@ -1304,7 +1428,7 @@ export default function AdminDashboard({
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                အထူးတံဆိပ် (Badge)
+                {lang === "en" ? "Badge" : "အထူးတံဆိပ် (Badge)"}
               </label>
               <select
                 value={badge}
@@ -1314,7 +1438,9 @@ export default function AdminDashboard({
                 <option value="New Arrival">New Arrival</option>
                 <option value="Best Seller">Best Seller</option>
                 <option value="Wholesale Hot">
-                  Wholesale Hot (လက်ကားရောင်းအားကောင်း)
+                  {lang === "en"
+                    ? "Wholesale Hot"
+                    : "Wholesale Hot (လက်ကားရောင်းအားကောင်း)"}
                 </option>
                 <option value="Sale">Sale</option>
                 <option value="">None</option>
@@ -1324,7 +1450,9 @@ export default function AdminDashboard({
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 mb-1">
-              ဓာတ်ပုံရွေးချယ်ရန် သို့မဟုတ် Image URL ထည့်ရန်
+              {lang === "en"
+                ? "Select Preset Photo or Enter Image URL"
+                : "ဓာတ်ပုံရွေးချယ်ရန် သို့မဟုတ် Image URL ထည့်ရန်"}
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
               {PRESET_BAG_IMAGES.map((preset) => (
@@ -1353,7 +1481,7 @@ export default function AdminDashboard({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                သားရေအမျိုးအစား (Material)
+                {lang === "en" ? "Material" : "သားရေအမျိုးအစား (Material)"}
               </label>
               <input
                 type="text"
@@ -1364,7 +1492,7 @@ export default function AdminDashboard({
             </div>
             <div>
               <label className="block text-xs font-semibold text-stone-700 mb-1">
-                အရွယ်အစား (Dimensions)
+                {lang === "en" ? "Dimensions" : "အရွယ်အစား (Dimensions)"}
               </label>
               <input
                 type="text"
@@ -1377,7 +1505,9 @@ export default function AdminDashboard({
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 mb-1">
-              အိတ်အကြောင်း အသေးစိတ် (မြန်မာဘာသာဖြင့်)
+              {lang === "en"
+                ? "Description (Myanmar)"
+                : "အိတ်အကြောင်း အသေးစိတ် (မြန်မာဘာသာဖြင့်)"}
             </label>
             <textarea
               rows={2}
@@ -1403,7 +1533,9 @@ export default function AdminDashboard({
             type="submit"
             className="w-full py-3.5 rounded-2xl bg-stone-900 hover:bg-amber-900 text-white font-bold text-sm transition shadow-lg"
           >
-            အိတ်အသစ် စာရင်းသွင်းမည် (Save & Publish Handbag)
+            {lang === "en"
+              ? "Save & Publish Handbag"
+              : "အိတ်အသစ် စာရင်းသွင်းမည် (Save & Publish Handbag)"}
           </button>
         </form>
       )}

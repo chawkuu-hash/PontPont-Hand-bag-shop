@@ -5,6 +5,7 @@ export interface ShopThemeOption {
   nameEn: string;
   nameMm: string;
   descriptionMm: string;
+  descriptionEn: string;
   styleSummary: string;
   previewBg: string;
   previewHero: string;
@@ -18,6 +19,8 @@ export const SHOP_THEMES: ShopThemeOption[] = [
     nameMm: "ရွှေအိုရောင် ဇိမ်ခံဒီဇိုင်း (Classic Boutique)",
     descriptionMm:
       "နွေးထွေးသော ရွှေအိုရောင်နှင့် အညိုရင့်ရောင် ပေါင်းစပ်ထားပြီး ထောင့်ဝိုင်းကတ်ဒီဇိုင်းများဖြင့် တည်ငြိမ်အထက်တန်းကျသော ပုံစံ။",
+    descriptionEn:
+      "Warm ivory and espresso gold palette with soft rounded boutique cards for timeless elegance.",
     styleSummary: "Rounded Cards • Warm Ivory & Espresso Gold",
     previewBg: "#FAF7F2",
     previewHero: "linear-gradient(135deg, #1c1917, #451a03)",
@@ -29,6 +32,8 @@ export const SHOP_THEMES: ShopThemeOption[] = [
     nameMm: "ပန်းနုရောင် ဖက်ရှင်ဒီဇိုင်း (Soft Feminine)",
     descriptionMm:
       "နူးညံ့လှပသော ပန်းနုရောင်၊ Rose-Gold နှင့် ကွေးညွတ်သော Arch ပုံစံ အိတ်ဓာတ်ပုံဘောင်များဖြင့် မိန်းကလေးအကြိုက် ချစ်စရာ ဖက်ရှင်ဆိုင်ပုံစံ။",
+    descriptionEn:
+      "Soft blush pink and rose-berry palette with feminine arch-framed product cards and pill buttons.",
     styleSummary: "Arch Frame Cards • Blush Pink & Rose Berry",
     previewBg: "#FFF5F7",
     previewHero: "linear-gradient(135deg, #881337, #be185d, #4c0519)",
@@ -40,6 +45,8 @@ export const SHOP_THEMES: ShopThemeOption[] = [
     nameMm: "ခေတ်မီ အနက်နှင့် မြစိမ်းရောင် ဒီဇိုင်း (Sharp Editorial)",
     descriptionMm:
       "ထောင့်ချိုးပြတ်သားသော ဘောင်အထူ (Bold 2px Border + Hard Shadow) ကတ်ဒီဇိုင်း၊ အနက်ရောင်နှင့် မြစိမ်းရောင် ပေါင်းစပ်ထားသော ခေတ်မီ Magazine စတိုင်။",
+    descriptionEn:
+      "High-contrast jet black and emerald palette with sharp 2px brutalist borders and offset shadows.",
     styleSummary: "Sharp Brutalist Cards • Jet Black & Emerald",
     previewBg: "#F4F6F8",
     previewHero: "linear-gradient(135deg, #09090b, #064e3b)",
@@ -176,16 +183,19 @@ export const SHOP_INFO = {
   branches: [
     {
       name: "ဆိုင်ခွဲ (၁) - ပင်မဆိုင်",
+      nameEn: "Branch (1) - Main Store",
       addressMm: "၇၃ လမ်း၊ ၃၆ လမ်းနှင့် ၃၇ လမ်းကြား၊ မန္တလေးမြို့",
       addressEn: "73rd Street, Between 36th & 37th Streets, Mandalay",
     },
     {
       name: "ဆိုင်ခွဲ (၂)",
+      nameEn: "Branch (2) - 65th Street",
       addressMm: "၆၅ လမ်း၊ ၁၀၇ လမ်းနှင့် ၁၀၈ လမ်းကြား၊ မန္တလေးမြို့",
       addressEn: "65th Street, Between 107th & 108th Streets, Mandalay",
     },
     {
       name: "ဆိုင်ခွဲ (၃) - တံခွန်တိုင်",
+      nameEn: "Branch (3) - Thakhun Taing",
       addressMm: "၇၈ လမ်း (ရန်ကုန်-မန္တလေး လမ်းမကြီး)၊ တံခွန်တိုင်ဈေးအနီး၊ ပြည်ကြီးတံခွန်မြို့နယ်၊ မန္တလေးမြို့",
       addressEn: "78th Street, Near Thakhun Taing Market/Roundabout, Pyigyitagun Tsp, Mandalay",
     },
