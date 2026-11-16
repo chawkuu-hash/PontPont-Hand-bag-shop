@@ -11,6 +11,7 @@ import {
   UserProfile,
   Announcement,
   CategoryItem,
+  ShopThemeId,
 } from "@/data/initialData";
 
 const DATA_DIR = path.join(process.cwd(), "src", "data");
@@ -23,12 +24,21 @@ export interface DatabaseSchema {
   users: UserProfile[];
   announcements: Announcement[];
   categories: CategoryItem[];
+  theme?: ShopThemeId;
 }
 
 let dbInstance: Database.Database | null = null;
 
 export function getSqliteDb(): Database.Database {
-  if (dbInstance) return dbInstance;
+  if (dbInstance) {
+    dbInstance.exec(`
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+    `);
+    return dbInstance;
+  }
 
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -108,6 +118,11 @@ export function getSqliteDb(): Database.Database {
       image TEXT,
       createdAt TEXT NOT NULL,
       authorName TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
     );
   `);
 
@@ -243,6 +258,22 @@ export function readFullDbFromSqlite(): DatabaseSchema {
     users: userRows,
     orders,
     announcements,
+    theme: (() => {
+      try {
+        const row = db
+          .prepare("SELECT value FROM settings WHERE key = 'theme'")
+          .get() as { value: string } | undefined;
+        if (
+          row &&
+          (row.value === "luxury-gold" ||
+            row.value === "rose-paris" ||
+            row.value === "minimal-noir")
+        ) {
+          return row.value as ShopThemeId;
+        }
+      } catch {}
+      return "luxury-gold" as ShopThemeId;
+    })(),
   };
 }
 
@@ -353,6 +384,12 @@ export function writeFullDbToSqlite(data: DatabaseSchema) {
         a.authorName ?? null
       );
     });
+
+    if (data.theme) {
+      db.prepare(
+        "INSERT OR REPLACE INTO settings (key, value) VALUES ('theme', ?)"
+      ).run(data.theme);
+    }
   });
 
   tx();

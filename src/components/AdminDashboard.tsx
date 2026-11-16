@@ -19,12 +19,15 @@ import {
   Megaphone,
   Upload,
   Tag,
+  Palette,
 } from "lucide-react";
 import {
   Announcement,
   CategoryItem,
   Order,
   Product,
+  SHOP_THEMES,
+  ShopThemeId,
   UserProfile,
 } from "@/data/initialData";
 
@@ -35,6 +38,7 @@ interface AdminDashboardProps {
   orders: Order[];
   announcements: Announcement[];
   categories: CategoryItem[];
+  currentTheme: ShopThemeId;
   onAddProduct: (product: Product) => Promise<void>;
   onUpdateProduct: (product: Product) => Promise<void>;
   onDeleteProduct: (productId: string) => Promise<void>;
@@ -51,6 +55,7 @@ interface AdminDashboardProps {
   onDeleteAnnouncement: (announcementId: string) => Promise<void>;
   onAddCategory: (category: CategoryItem) => Promise<void>;
   onDeleteCategory: (categoryId: string) => Promise<void>;
+  onUpdateTheme: (theme: ShopThemeId) => Promise<void>;
   onBackToShop: () => void;
 }
 
@@ -88,6 +93,7 @@ export default function AdminDashboard({
   orders,
   announcements,
   categories,
+  currentTheme,
   onAddProduct,
   onUpdateProduct,
   onDeleteProduct,
@@ -98,10 +104,17 @@ export default function AdminDashboard({
   onDeleteAnnouncement,
   onAddCategory,
   onDeleteCategory,
+  onUpdateTheme,
   onBackToShop,
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<
-    "orders" | "products" | "categories" | "users" | "announcements" | "add"
+    | "orders"
+    | "products"
+    | "categories"
+    | "users"
+    | "announcements"
+    | "themes"
+    | "add"
   >("orders");
 
   // New Category Form State
@@ -375,6 +388,17 @@ export default function AdminDashboard({
         >
           <Megaphone className="w-4 h-4 text-amber-700" />
           ကြေညာချက်တင်ရန် (Announcements - {announcements.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("themes")}
+          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
+            activeTab === "themes"
+              ? "bg-stone-900 text-white shadow"
+              : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-100"
+          }`}
+        >
+          <Palette className="w-4 h-4 text-amber-700" />
+          Theme ဒီဇိုင်းရွေးရန် (3 Themes)
         </button>
         <button
           onClick={() => setActiveTab("add")}
@@ -1010,6 +1034,137 @@ export default function AdminDashboard({
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 3.8: Theme Switcher */}
+      {activeTab === "themes" && (
+        <div className="space-y-6">
+          <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs">
+            <h3 className="text-lg font-extrabold text-stone-900 flex items-center gap-2">
+              <Palette className="w-5 h-5 text-amber-800" />
+              Website Theme ဒီဇိုင်းပုံစံ (၃) မျိုး ရွေးချယ်ရန်
+            </h3>
+            <p className="text-xs sm:text-sm text-stone-600 mt-1">
+              သင်ရွေးချယ်လိုက်သော Theme ဒီဇိုင်းသည် အရောင်းဆိုင်တစ်ခုလုံး၏ အရောင်၊ ကတ်ပုံစံ၊ ခလုတ်ဒီဇိုင်းနှင့် မျက်နှာပြင်အပြင်အဆင်ကို ဝယ်ယူသူအားလုံးအတွက် ချက်ချင်း ပြောင်းလဲပေးသွားပါမည်။
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {SHOP_THEMES.map((t) => {
+              const isSelected = currentTheme === t.id;
+              return (
+                <div
+                  key={t.id}
+                  className={`rounded-3xl bg-white border-2 overflow-hidden transition flex flex-col justify-between ${
+                    isSelected
+                      ? "border-amber-700 ring-4 ring-amber-700/15 shadow-xl"
+                      : "border-stone-200 hover:border-stone-300 shadow-xs"
+                  }`}
+                >
+                  <div>
+                    {/* Visual Mockup Preview Header */}
+                    <div
+                      className="p-5 h-44 flex flex-col justify-between relative overflow-hidden"
+                      style={{ background: t.previewHero }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span
+                          className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider text-stone-950"
+                          style={{ backgroundColor: t.previewAccent }}
+                        >
+                          {t.styleSummary.split("•")[0]}
+                        </span>
+                        {isSelected && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold shadow">
+                            <CheckCircle2 className="w-3 h-3" /> လက်ရှိသုံးနေသည်
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Mini Card Shape Preview inside Hero */}
+                      <div className="grid grid-cols-2 gap-2.5 pt-2">
+                        <div
+                          className={`p-2.5 bg-white/95 text-stone-900 text-[10px] font-bold ${
+                            t.id === "luxury-gold"
+                              ? "rounded-2xl shadow"
+                              : t.id === "rose-paris"
+                              ? "rounded-t-2xl rounded-b-xl border-2 border-rose-300 shadow-sm"
+                              : "rounded-none border-2 border-zinc-950 shadow-[3px_3px_0px_#10b981]"
+                          }`}
+                        >
+                          <div
+                            className={`h-8 mb-1.5 ${
+                              t.id === "luxury-gold"
+                                ? "rounded-lg bg-amber-100"
+                                : t.id === "rose-paris"
+                                ? "rounded-t-full bg-rose-100"
+                                : "rounded-none bg-emerald-100 border border-zinc-900"
+                            }`}
+                          />
+                          Pont Pont Bag
+                        </div>
+                        <div
+                          className={`p-2.5 bg-white/95 text-stone-900 text-[10px] font-bold ${
+                            t.id === "luxury-gold"
+                              ? "rounded-2xl shadow"
+                              : t.id === "rose-paris"
+                              ? "rounded-t-2xl rounded-b-xl border-2 border-rose-300 shadow-sm"
+                              : "rounded-none border-2 border-zinc-950 shadow-[3px_3px_0px_#10b981]"
+                          }`}
+                        >
+                          <div
+                            className={`h-8 mb-1.5 ${
+                              t.id === "luxury-gold"
+                                ? "rounded-lg bg-stone-200"
+                                : t.id === "rose-paris"
+                                ? "rounded-t-full bg-pink-100"
+                                : "rounded-none bg-zinc-200 border border-zinc-900"
+                            }`}
+                          />
+                          38,000 MMK
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Theme Details */}
+                    <div className="p-5 space-y-2">
+                      <h4 className="text-base font-extrabold text-stone-900">
+                        {t.nameEn}
+                      </h4>
+                      <p className="text-xs font-bold text-amber-900">
+                        {t.nameMm}
+                      </p>
+                      <p className="text-xs text-stone-600 leading-relaxed">
+                        {t.descriptionMm}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 pt-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onUpdateTheme(t.id);
+                        showNotice(
+                          `"${t.nameEn}" ဒီဇိုင်းသို့ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ!`
+                        );
+                      }}
+                      className={`w-full py-3 rounded-2xl text-xs font-extrabold transition ${
+                        isSelected
+                          ? "bg-emerald-700 text-white cursor-default"
+                          : "bg-stone-900 hover:bg-amber-900 text-white shadow-md"
+                      }`}
+                    >
+                      {isSelected
+                        ? "✓ လက်ရှိ အသုံးပြုနေသော Theme"
+                        : "ဤ Theme ဒီဇိုင်းကို အသုံးပြုမည် (Apply Theme)"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

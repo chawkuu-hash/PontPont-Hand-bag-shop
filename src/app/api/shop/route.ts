@@ -153,6 +153,7 @@ function buildScopedResponse(
     users: isAdmin ? db.users.map(sanitizeUser) : [],
     usersCount: db.users.length,
     currentUser: sessionUser ? sanitizeUser(sessionUser) : null,
+    theme: db.theme || "luxury-gold",
   };
 }
 
@@ -583,6 +584,22 @@ export async function POST(request: Request) {
         db.categories = (db.categories || INITIAL_CATEGORIES).filter(
           (c) => c.id !== categoryId
         );
+        writeDb(db);
+      }
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
+    }
+
+    if (body.action === "UPDATE_THEME") {
+      const { theme } = body;
+      if (
+        theme === "luxury-gold" ||
+        theme === "rose-paris" ||
+        theme === "minimal-noir"
+      ) {
+        db.theme = theme;
         writeDb(db);
       }
       return NextResponse.json({

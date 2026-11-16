@@ -1,3 +1,52 @@
+export type ShopThemeId = "luxury-gold" | "rose-paris" | "minimal-noir";
+
+export interface ShopThemeOption {
+  id: ShopThemeId;
+  nameEn: string;
+  nameMm: string;
+  descriptionMm: string;
+  styleSummary: string;
+  previewBg: string;
+  previewHero: string;
+  previewAccent: string;
+}
+
+export const SHOP_THEMES: ShopThemeOption[] = [
+  {
+    id: "luxury-gold",
+    nameEn: "1. Classic Luxury Gold",
+    nameMm: "ရွှေအိုရောင် ဇိမ်ခံဒီဇိုင်း (Classic Boutique)",
+    descriptionMm:
+      "နွေးထွေးသော ရွှေအိုရောင်နှင့် အညိုရင့်ရောင် ပေါင်းစပ်ထားပြီး ထောင့်ဝိုင်းကတ်ဒီဇိုင်းများဖြင့် တည်ငြိမ်အထက်တန်းကျသော ပုံစံ။",
+    styleSummary: "Rounded Cards • Warm Ivory & Espresso Gold",
+    previewBg: "#FAF7F2",
+    previewHero: "linear-gradient(135deg, #1c1917, #451a03)",
+    previewAccent: "#fbbf24",
+  },
+  {
+    id: "rose-paris",
+    nameEn: "2. Parisian Rose & Pastel",
+    nameMm: "ပန်းနုရောင် ဖက်ရှင်ဒီဇိုင်း (Soft Feminine)",
+    descriptionMm:
+      "နူးညံ့လှပသော ပန်းနုရောင်၊ Rose-Gold နှင့် ကွေးညွတ်သော Arch ပုံစံ အိတ်ဓာတ်ပုံဘောင်များဖြင့် မိန်းကလေးအကြိုက် ချစ်စရာ ဖက်ရှင်ဆိုင်ပုံစံ။",
+    styleSummary: "Arch Frame Cards • Blush Pink & Rose Berry",
+    previewBg: "#FFF5F7",
+    previewHero: "linear-gradient(135deg, #881337, #be185d, #4c0519)",
+    previewAccent: "#f43f5e",
+  },
+  {
+    id: "minimal-noir",
+    nameEn: "3. Modern Editorial Noir & Emerald",
+    nameMm: "ခေတ်မီ အနက်နှင့် မြစိမ်းရောင် ဒီဇိုင်း (Sharp Editorial)",
+    descriptionMm:
+      "ထောင့်ချိုးပြတ်သားသော ဘောင်အထူ (Bold 2px Border + Hard Shadow) ကတ်ဒီဇိုင်း၊ အနက်ရောင်နှင့် မြစိမ်းရောင် ပေါင်းစပ်ထားသော ခေတ်မီ Magazine စတိုင်။",
+    styleSummary: "Sharp Brutalist Cards • Jet Black & Emerald",
+    previewBg: "#F4F6F8",
+    previewHero: "linear-gradient(135deg, #09090b, #064e3b)",
+    previewAccent: "#10b981",
+  },
+];
+
 export interface CategoryItem {
   id: string;
   labelEn: string;

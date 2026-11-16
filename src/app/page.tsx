@@ -35,6 +35,7 @@ import {
   UserProfile,
   Announcement,
   CategoryItem,
+  ShopThemeId,
 } from "@/data/initialData";
 import AuthModal from "@/components/AuthModal";
 import ProductDetailModal from "@/components/ProductDetailModal";
@@ -50,6 +51,8 @@ export default function PontPontShopPage() {
   const [usersCount, setUsersCount] = useState<number>(1);
   const [categories, setCategories] =
     useState<CategoryItem[]>(INITIAL_CATEGORIES);
+  const [currentTheme, setCurrentTheme] =
+    useState<ShopThemeId>("luxury-gold");
   const [announcements, setAnnouncements] = useState<Announcement[]>(
     INITIAL_ANNOUNCEMENTS
   );
@@ -86,6 +89,7 @@ export default function PontPontShopPage() {
         if (data.orders) setOrders(data.orders);
         if (data.announcements) setAnnouncements(data.announcements);
         if (data.categories) setCategories(data.categories);
+        if (data.theme) setCurrentTheme(data.theme);
         if (typeof data.usersCount === "number") setUsersCount(data.usersCount);
         if (data.users) setUsers(data.users);
         if (data.currentUser) {
@@ -462,6 +466,21 @@ export default function PontPontShopPage() {
     if (selectedCategory === categoryId) setSelectedCategory("All");
   };
 
+  const handleUpdateTheme = async (theme: ShopThemeId) => {
+    setCurrentTheme(theme);
+    try {
+      const res = await fetch("/api/shop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "UPDATE_THEME", theme }),
+      });
+      const data = await res.json();
+      if (data.db?.theme) {
+        setCurrentTheme(data.db.theme);
+      }
+    } catch {}
+  };
+
   // Filtered and sorted products
   const filteredProducts = useMemo(() => {
     return products
@@ -503,10 +522,121 @@ export default function PontPontShopPage() {
 
   const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Dynamic Theme Style Classes for the 3 distinct themes
+  const themeStyles = useMemo(() => {
+    if (currentTheme === "rose-paris") {
+      return {
+        pageBg: "bg-[#FFF5F7] text-stone-900",
+        topBar: "bg-rose-950 text-pink-100",
+        header: "bg-white/95 border-rose-200/80",
+        logoBox:
+          "rounded-full bg-gradient-to-br from-rose-500 to-pink-700 text-white shadow-rose-200",
+        brandSub: "text-rose-600",
+        cartBtn: "rounded-full bg-rose-600 hover:bg-rose-700 text-white",
+        cartBadge: "bg-white text-rose-700",
+        heroSection:
+          "bg-gradient-to-br from-rose-900 via-pink-800 to-rose-950 text-white",
+        heroPill: "bg-pink-400/20 border-pink-300/40 text-pink-200",
+        heroHighlight: "text-pink-200",
+        heroCtaPrimary:
+          "rounded-full bg-pink-300 hover:bg-pink-200 text-rose-950",
+        sliderCard:
+          "rounded-[2rem] border-2 border-pink-300/50 bg-rose-950/90 shadow-2xl",
+        sliderTag: "bg-pink-300 text-rose-950",
+        filterBar:
+          "bg-white/95 rounded-3xl sm:rounded-full border-2 border-rose-200 shadow-md shadow-rose-100/50",
+        catActive: "rounded-full bg-rose-600 text-white shadow-sm",
+        catInactive:
+          "rounded-full bg-rose-50 text-rose-900 hover:bg-rose-100 border border-rose-200/60",
+        card: "bg-white rounded-[2rem] border-2 border-rose-200/80 shadow-md shadow-rose-100/50 hover:shadow-xl hover:-translate-y-1",
+        cardImgWrap:
+          "relative h-40 sm:h-60 bg-rose-50 m-2 sm:m-2.5 rounded-t-[2.5rem] rounded-b-2xl overflow-hidden border border-rose-100",
+        cardBadge: "rounded-full bg-rose-600 text-white",
+        cardCategory: "text-rose-600",
+        wholesaleBadge:
+          "text-rose-800 bg-rose-50 border-rose-200 rounded-full",
+        addBtn:
+          "rounded-full bg-rose-600 hover:bg-rose-700 text-white shadow-sm",
+      };
+    }
+    if (currentTheme === "minimal-noir") {
+      return {
+        pageBg: "bg-[#F4F6F8] text-zinc-950",
+        topBar: "bg-zinc-950 text-emerald-300 border-b border-emerald-500/30",
+        header: "bg-white border-b-2 border-zinc-950",
+        logoBox:
+          "rounded-none bg-zinc-950 text-emerald-400 border-2 border-emerald-400",
+        brandSub: "text-emerald-700",
+        cartBtn:
+          "rounded-none bg-zinc-950 hover:bg-emerald-600 text-white border border-zinc-950",
+        cartBadge: "bg-emerald-400 text-zinc-950 rounded-none",
+        heroSection:
+          "bg-gradient-to-r from-zinc-950 via-neutral-900 to-emerald-950 text-white border-b-4 border-emerald-500",
+        heroPill:
+          "rounded-none bg-emerald-400/15 border-emerald-400/50 text-emerald-300",
+        heroHighlight: "text-emerald-400",
+        heroCtaPrimary:
+          "rounded-none bg-emerald-400 hover:bg-emerald-300 text-zinc-950 border-2 border-zinc-950 shadow-[4px_4px_0px_#000]",
+        sliderCard:
+          "rounded-none border-2 border-emerald-400 bg-zinc-950 shadow-[6px_6px_0px_#10b981]",
+        sliderTag: "rounded-none bg-emerald-400 text-zinc-950",
+        filterBar:
+          "bg-white rounded-none border-2 border-zinc-950 shadow-[4px_4px_0px_#18181b]",
+        catActive:
+          "rounded-none bg-zinc-950 text-emerald-400 border border-zinc-950",
+        catInactive:
+          "rounded-none bg-zinc-100 text-zinc-800 hover:bg-zinc-200 border border-zinc-300",
+        card: "bg-white rounded-none border-2 border-zinc-950 shadow-[4px_4px_0px_#18181b] hover:shadow-[6px_6px_0px_#10b981] hover:-translate-y-0.5",
+        cardImgWrap:
+          "relative h-40 sm:h-64 bg-zinc-100 overflow-hidden border-b-2 border-zinc-950",
+        cardBadge:
+          "rounded-none bg-emerald-400 text-zinc-950 border border-zinc-950",
+        cardCategory: "text-emerald-700",
+        wholesaleBadge:
+          "text-emerald-950 bg-emerald-100 border-zinc-900 rounded-none",
+        addBtn:
+          "rounded-none bg-zinc-950 hover:bg-emerald-600 text-white uppercase tracking-wider",
+      };
+    }
+    return {
+      pageBg: "bg-[#FAF7F2] text-stone-900",
+      topBar: "bg-stone-900 text-amber-100",
+      header: "bg-white/95 border-stone-200/80",
+      logoBox:
+        "rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-800 to-stone-900 text-amber-100",
+      brandSub: "text-amber-800",
+      cartBtn: "rounded-xl bg-stone-900 hover:bg-amber-900 text-white",
+      cartBadge: "bg-amber-400 text-stone-950 rounded-full",
+      heroSection:
+        "bg-gradient-to-br from-stone-900 via-stone-800 to-amber-950 text-white",
+      heroPill: "bg-amber-400/15 border-amber-300/30 text-amber-300",
+      heroHighlight: "text-amber-300",
+      heroCtaPrimary: "rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950",
+      sliderCard:
+        "rounded-3xl border-2 border-amber-300/35 bg-stone-900/90 shadow-2xl",
+      sliderTag: "rounded-full bg-amber-400 text-stone-950",
+      filterBar:
+        "bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-xs",
+      catActive: "rounded-xl sm:rounded-2xl bg-stone-900 text-white shadow-sm",
+      catInactive:
+        "rounded-xl sm:rounded-2xl bg-stone-100 text-stone-700 hover:bg-stone-200",
+      card: "bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-xs hover:shadow-xl",
+      cardImgWrap: "relative h-40 sm:h-64 bg-stone-100 overflow-hidden",
+      cardBadge: "rounded-full bg-stone-900/90 text-amber-300",
+      cardCategory: "text-amber-800",
+      wholesaleBadge:
+        "text-amber-900 bg-amber-50 border-amber-200/80 rounded-md sm:rounded-lg",
+      addBtn:
+        "rounded-xl sm:rounded-2xl bg-stone-900 hover:bg-amber-900 text-white",
+    };
+  }, [currentTheme]);
+
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-stone-900 flex flex-col pb-16 md:pb-0">
+    <div
+      className={`min-h-screen ${themeStyles.pageBg} flex flex-col pb-16 md:pb-0 transition-colors duration-300`}
+    >
       {/* Top Announcement Bar */}
-      <div className="bg-stone-900 text-amber-100 text-[11px] sm:text-xs py-2 px-3 sm:px-4">
+      <div className={`${themeStyles.topBar} text-[11px] sm:text-xs py-2 px-3 sm:px-4`}>
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <p className="flex items-center gap-1.5 font-medium leading-snug">
             <span>
@@ -525,7 +655,9 @@ export default function PontPontShopPage() {
       </div>
 
       {/* Main Sticky Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
+      <header
+        className={`sticky top-0 z-40 backdrop-blur-md border-b shadow-xs ${themeStyles.header}`}
+      >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo */}
           <button
@@ -536,13 +668,15 @@ export default function PontPontShopPage() {
             }}
             className="flex items-center gap-2 sm:gap-3 text-left group min-w-0"
           >
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-800 to-stone-900 text-amber-100 flex items-center justify-center font-serif font-extrabold text-base sm:text-xl shadow-md shrink-0">
+            <div
+              className={`w-9 h-9 sm:w-11 sm:h-11 ${themeStyles.logoBox} flex items-center justify-center font-serif font-extrabold text-base sm:text-xl shadow-md shrink-0`}
+            >
               P
             </div>
             <div className="min-w-0">
               <span className="block text-base sm:text-2xl font-extrabold tracking-tight text-stone-900 truncate">
                 Pont Pont{" "}
-                <span className="text-amber-800 font-bold text-xs sm:text-lg">
+                <span className={`${themeStyles.brandSub} font-bold text-xs sm:text-lg`}>
                   (ပုံ့ပုံ့)
                 </span>
               </span>
@@ -647,11 +781,13 @@ export default function PontPontShopPage() {
             {/* Shopping Cart Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-amber-900 text-white text-xs font-bold transition shadow-sm"
+              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition shadow-sm ${themeStyles.cartBtn}`}
             >
-              <ShoppingBag className="w-4 h-4 text-amber-300" />
+              <ShoppingBag className="w-4 h-4" />
               <span className="hidden sm:inline">ဈေးခြင်း</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-stone-950 text-[11px] font-extrabold">
+              <span
+                className={`px-1.5 py-0.5 text-[11px] font-extrabold ${themeStyles.cartBadge}`}
+              >
                 {totalCartItems}
               </span>
             </button>
@@ -693,6 +829,7 @@ export default function PontPontShopPage() {
             orders={orders}
             announcements={announcements}
             categories={categories}
+            currentTheme={currentTheme}
             onAddProduct={handleAddProduct}
             onUpdateProduct={handleUpdateProduct}
             onDeleteProduct={handleDeleteProduct}
@@ -703,6 +840,7 @@ export default function PontPontShopPage() {
             onDeleteAnnouncement={handleDeleteAnnouncement}
             onAddCategory={handleAddCategory}
             onDeleteCategory={handleDeleteCategory}
+            onUpdateTheme={handleUpdateTheme}
             onBackToShop={() => setViewMode("shop")}
           />
         </main>
@@ -724,16 +862,22 @@ export default function PontPontShopPage() {
       ) : (
         <main className="flex-1">
           {/* Compact Hero Section with Style (A) Announcement Slider Card */}
-          <section className="relative overflow-hidden bg-gradient-to-br from-stone-900 via-stone-800 to-amber-950 text-white">
+          <section
+            className={`relative overflow-hidden ${themeStyles.heroSection}`}
+          >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
               {/* Left Side: Compact Shop Info */}
               <div className="lg:col-span-7 space-y-3.5">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-300/30 text-amber-300 text-[11px] font-semibold">
+                <div
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-semibold ${themeStyles.heroPill}`}
+                >
                   မန္တလေးမြို့၏ နာမည်ကြီး လက်လီ/လက်ကား အိတ်အရောင်းဆိုင်ကြီး
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-snug">
-                  <span className="text-amber-300">ပုံ့ပုံ့ (Pont Pont)</span>{" "}
+                  <span className={themeStyles.heroHighlight}>
+                    ပုံ့ပုံ့ (Pont Pont)
+                  </span>{" "}
                   အိတ်အမျိုးမျိုး ရောင်းဝယ်ရေး
                 </h1>
 
@@ -766,7 +910,7 @@ export default function PontPontShopPage() {
                 <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
                   <a
                     href="#catalog"
-                    className="w-full sm:w-auto text-center px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-extrabold text-xs sm:text-sm transition shadow-md"
+                    className={`w-full sm:w-auto text-center px-5 py-2.5 font-extrabold text-xs sm:text-sm transition shadow-md ${themeStyles.heroCtaPrimary}`}
                   >
                     အိတ်ဒီဇိုင်းများ ကြည့်ရှုရန် (Shop Now)
                   </a>
@@ -787,7 +931,9 @@ export default function PontPontShopPage() {
                       announcements[annIndex % announcements.length] ||
                       announcements[0];
                     return (
-                      <div className="relative rounded-3xl overflow-hidden border-2 border-amber-300/35 shadow-2xl bg-stone-900/90 flex flex-col justify-between h-64 sm:h-72 group">
+                      <div
+                        className={`relative overflow-hidden flex flex-col justify-between h-64 sm:h-72 group ${themeStyles.sliderCard}`}
+                      >
                         {/* Background Image or Luxury Gradient */}
                         {currentAnn.image ? (
                           <img
@@ -803,7 +949,9 @@ export default function PontPontShopPage() {
                         {/* Slider Top Bar */}
                         <div className="relative z-10 px-5 pt-4 flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-400 text-stone-950 text-[11px] font-extrabold uppercase tracking-wider shadow">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider shadow ${themeStyles.sliderTag}`}
+                            >
                               <Megaphone className="w-3 h-3" />
                               {currentAnn.tag}
                             </span>
@@ -911,7 +1059,9 @@ export default function PontPontShopPage() {
             className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-5 sm:space-y-8"
           >
             {/* Category Filter Pills & Sort Controls */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-xs">
+            <div
+              className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 ${themeStyles.filterBar}`}
+            >
               <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5 lg:pb-0">
                 {categories.map((cat) => {
                   const active =
@@ -923,10 +1073,10 @@ export default function PontPontShopPage() {
                         setShowWishlistOnly(false);
                         setSelectedCategory(cat.id);
                       }}
-                      className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold whitespace-nowrap transition ${
+                      className={`px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-bold whitespace-nowrap transition ${
                         active
-                          ? "bg-stone-900 text-white shadow-sm"
-                          : "bg-stone-100 text-stone-700 hover:bg-stone-200"
+                          ? themeStyles.catActive
+                          : themeStyles.catInactive
                       }`}
                     >
                       {cat.labelEn}
@@ -1004,11 +1154,11 @@ export default function PontPontShopPage() {
                   return (
                     <div
                       key={product.id}
-                      className="group bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                      className={`group overflow-hidden transition-all duration-300 flex flex-col justify-between ${themeStyles.card}`}
                     >
                       <div>
                         {/* Image Container */}
-                        <div className="relative h-40 sm:h-64 bg-stone-100 overflow-hidden">
+                        <div className={themeStyles.cardImgWrap}>
                           <img
                             src={product.image}
                             alt={product.nameEn}
@@ -1017,7 +1167,9 @@ export default function PontPontShopPage() {
                           />
 
                           {product.badge && (
-                            <span className="absolute top-2.5 left-2.5 sm:top-3.5 sm:left-3.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-stone-900/90 text-amber-300 backdrop-blur-xs">
+                            <span
+                              className={`absolute top-2.5 left-2.5 sm:top-3.5 sm:left-3.5 px-2 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider backdrop-blur-xs ${themeStyles.cardBadge}`}
+                            >
                               {product.badge}
                             </span>
                           )}
@@ -1048,13 +1200,15 @@ export default function PontPontShopPage() {
 
                         {/* Card Details */}
                         <div className="p-3 sm:p-5">
-                          <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-bold text-amber-800 uppercase tracking-wider">
+                          <div
+                            className={`flex items-center justify-between text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${themeStyles.cardCategory}`}
+                          >
                             <span className="truncate">{product.category}</span>
                           </div>
 
                           <h3
                             onClick={() => setActiveProduct(product)}
-                            className="font-bold text-stone-900 text-xs sm:text-sm mt-1 line-clamp-2 sm:line-clamp-1 cursor-pointer hover:text-amber-900 min-h-[2rem] sm:min-h-0"
+                            className="font-bold text-stone-900 text-xs sm:text-sm mt-1 line-clamp-2 sm:line-clamp-1 cursor-pointer hover:opacity-80 min-h-[2rem] sm:min-h-0"
                           >
                             {product.nameEn}
                           </h3>
@@ -1072,7 +1226,9 @@ export default function PontPontShopPage() {
                               )}
                             </div>
                             {product.wholesalePrice && (
-                              <p className="text-[10px] sm:text-[11px] font-bold text-amber-900 bg-amber-50 px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg border border-amber-200/80 w-fit truncate max-w-full">
+                              <p
+                                className={`text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 border w-fit truncate max-w-full ${themeStyles.wholesaleBadge}`}
+                              >
                                 လက်ကား: {product.wholesalePrice.toLocaleString()} MMK
                               </p>
                             )}
@@ -1093,7 +1249,7 @@ export default function PontPontShopPage() {
                                 title={c.name}
                                 className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border transition shrink-0 ${
                                   chosenColor === c.name
-                                    ? "ring-2 ring-amber-800 ring-offset-1 scale-110"
+                                    ? "ring-2 ring-stone-900 ring-offset-1 scale-110"
                                     : "border-stone-300 opacity-80 hover:opacity-100"
                                 }`}
                                 style={{ backgroundColor: c.hex }}
@@ -1112,9 +1268,9 @@ export default function PontPontShopPage() {
                           type="button"
                           disabled={product.stock <= 0}
                           onClick={() => handleAddToCart(product, chosenColor, 1)}
-                          className="w-full py-2 sm:py-2.5 px-2.5 sm:px-4 rounded-xl sm:rounded-2xl bg-stone-900 hover:bg-amber-900 disabled:bg-stone-300 text-white text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 sm:gap-2 transition shadow-sm"
+                          className={`w-full py-2 sm:py-2.5 px-2.5 sm:px-4 disabled:bg-stone-300 text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 sm:gap-2 transition shadow-sm ${themeStyles.addBtn}`}
                         >
-                          <ShoppingBag className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                          <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
                           <span className="sm:hidden">
                             {product.stock > 0 ? "Add to Bag" : "Sold Out"}
                           </span>
