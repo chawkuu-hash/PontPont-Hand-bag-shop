@@ -1,0 +1,41 @@
+{
+  "name": "PontPont Hand-bag Shop (Next.js & Flutter)",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/flutter:2": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Dart-Code.flutter",
+        "Dart-Code.dart-code",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "dart.flutterSdkPath": "/usr/local/flutter",
+        "dart.openDevTools": "flutter"
+      }
+    }
+  },
+  "forwardPorts": [3000, 3001, 8080],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js Web Store",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "Next.js Production API",
+      "onAutoForward": "silent"
+    },
+    "8080": {
+      "label": "Flutter Mobile App (Web Preview)",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "npm install && (cd pontpont_mobile && flutter config --enable-web && flutter pub get)"
+}
