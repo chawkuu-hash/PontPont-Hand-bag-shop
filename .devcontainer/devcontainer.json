@@ -2,12 +2,12 @@
   "name": "PontPont Hand-bag Shop (Next.js & Flutter)",
   "image": "mcr.microsoft.com/devcontainers/universal:2",
   "features": {
-    "ghcr.io/devcontainers-contrib/features/flutter:2": {
-      "version": "latest"
-    },
     "ghcr.io/devcontainers/features/java:1": {
       "version": "17"
     }
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:HOME}/flutter/bin:${containerEnv:PATH}"
   },
   "customizations": {
     "vscode": {
@@ -17,7 +17,7 @@
         "dbaeumer.vscode-eslint"
       ],
       "settings": {
-        "dart.flutterSdkPath": "/usr/local/flutter",
+        "dart.flutterSdkPath": "${containerEnv:HOME}/flutter",
         "dart.openDevTools": "flutter"
       }
     }
@@ -37,5 +37,5 @@
       "onAutoForward": "openBrowser"
     }
   },
-  "postCreateCommand": "npm install && (cd pontpont_mobile && flutter config --enable-web && flutter pub get)"
+  "postCreateCommand": "bash -lc 'if [ ! -x \"$HOME/flutter/bin/flutter\" ]; then git clone --depth 1 -b stable https://github.com/flutter/flutter.git \"$HOME/flutter\"; fi && \"$HOME/flutter/bin/flutter\" --version && \"$HOME/flutter/bin/flutter\" config --enable-web && cd /workspaces/PontPont-Hand-bag-shop && npm install && (cd pontpont_mobile && \"$HOME/flutter/bin/flutter\" pub get)'"
 }
