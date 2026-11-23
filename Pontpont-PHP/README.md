@@ -45,7 +45,7 @@
 ## 📁 ဖိုဒါနှင့် ဖိုင်များ တည်ဆောက်ပုံ (Folder Structure)
 
 ```text
-php/
+Pontpont-PHP/
 ├── index.php                 # မူလ စတိုးဆိုင် Web Frontend + Cart + Checkout + Admin Dashboard UI
 ├── install.php               # Browser မှ ၁ ချက်နှိပ်ရုံဖြင့် Database သွင်းပေးသည့် 1-Click Installer
 ├── .htaccess                 # Bluehost Apache အတွက် Clean URLs, CORS, Gzip နှင့် လုံခြုံရေး ဆက်တင်
