@@ -44,6 +44,7 @@ import CartCheckoutDrawer from "@/components/CartCheckoutDrawer";
 import OrdersModal from "@/components/OrdersModal";
 import AdminDashboard from "@/components/AdminDashboard";
 import UserProfilePage from "@/components/UserProfilePage";
+import ChatbotWidget from "@/components/ChatbotWidget";
 
 export default function PontPontShopPage() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -1002,22 +1003,22 @@ export default function PontPontShopPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-stone-200">
                   <div className="p-2 rounded-xl bg-white/10 border border-white/10">
                     <span className="font-bold text-amber-300 block">
-                      {lang === "en" ? "Branch (1) Main" : "ဆိုင်ခွဲ (၁) ပင်မဆိုင်"}
-                    </span>
-                    <span>
-                      {lang === "en"
-                        ? "73rd St, Bet 36th & 37th St, Mandalay"
-                        : "၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေး"}
-                    </span>
-                  </div>
-                  <div className="p-2 rounded-xl bg-white/10 border border-white/10">
-                    <span className="font-bold text-amber-300 block">
-                      {lang === "en" ? "Branch (2)" : "ဆိုင်ခွဲ (၂)"}
+                      {lang === "en" ? "Main Store - 65th St" : "ပင်မဆိုင် (၆၅ လမ်း)"}
                     </span>
                     <span>
                       {lang === "en"
                         ? "65th St, Bet 107th & 108th St, Mandalay"
                         : "၆၅ လမ်း၊ ၁၀၇×၁၀၈ လမ်းကြား၊ မန္တလေး"}
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-white/10 border border-white/10">
+                    <span className="font-bold text-amber-300 block">
+                      {lang === "en" ? "Branch (2) - 73rd St" : "ဆိုင်ခွဲ (၂) - ၇၃ လမ်း"}
+                    </span>
+                    <span>
+                      {lang === "en"
+                        ? "73rd St, Bet 36th & 37th St, Mandalay"
+                        : "၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေး"}
                     </span>
                   </div>
                   <div className="p-2 rounded-xl bg-white/10 border border-white/10">
@@ -1621,8 +1622,8 @@ export default function PontPontShopPage() {
               <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <span>
                 {lang === "en"
-                  ? "Main: 73rd St (Bet 36th & 37th St) | Branch 2: 65th St (Bet 107th & 108th St) | Branch 3: 78th St, Near Thakhun Taing Market, Mandalay"
-                  : "ပင်မဆိုင်: ၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေးမြို့ (ဆိုင်ခွဲ ၂: ၆၅ လမ်း၊ ၁၀၇×၁၀၈ ကြား / ဆိုင်ခွဲ ၃: ၇၈ လမ်း၊ တံခွန်တိုင်ဈေးအနီး)"}
+                  ? "Main: 65th St (Bet 107th & 108th St) | Branch 2: 73rd St (Bet 36th & 37th St) | Branch 3: 78th St, Near Thakhun Taing Market, Mandalay"
+                  : "ပင်မဆိုင်: ၆၅ လမ်း၊ ၁၀၇×၁၀၈ လမ်းကြား၊ မန္တလေးမြို့ (ဆိုင်ခွဲ ၂: ၇၃ လမ်း၊ ၃၆×၃၇ ကြား / ဆိုင်ခွဲ ၃: ၇၈ လမ်း၊ တံခွန်တိုင်ဈေးအနီး)"}
               </span>
             </p>
             <p className="flex items-center gap-2">
@@ -1852,6 +1853,15 @@ export default function PontPontShopPage() {
           </div>
         </div>
       )}
+
+      {/* Interactive Shop Chatbot */}
+      <ChatbotWidget
+        products={products}
+        lang={lang}
+        onSelectCategory={(cat) => setSelectedCategory(cat)}
+        onOpenCart={() => setIsCartOpen(true)}
+        onSelectProduct={(p) => setActiveProduct(p)}
+      />
     </div>
   );
 }

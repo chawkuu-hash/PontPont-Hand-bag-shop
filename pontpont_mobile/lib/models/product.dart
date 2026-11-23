@@ -2,7 +2,7 @@ class ProductColor {
   final String name;
   final String hex;
 
-  ProductColor({required this.name, required this.hex});
+  const ProductColor({required this.name, required this.hex});
 
   factory ProductColor.fromJson(Map<String, dynamic> json) {
     return ProductColor(
@@ -58,8 +58,8 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     final rawColors = json['colors'] as List? ?? [];
     final colorList = rawColors.map((c) {
-      if (c is Map<String, dynamic>) {
-        return ProductColor.fromJson(c);
+      if (c is Map) {
+        return ProductColor.fromJson(Map<String, dynamic>.from(c));
       }
       return ProductColor(name: c.toString(), hex: '#78350F');
     }).toList();
@@ -68,7 +68,7 @@ class Product {
       id: json['id']?.toString() ?? '',
       nameEn: json['nameEn']?.toString() ?? '',
       nameMm: json['nameMm']?.toString() ?? '',
-      category: json['category']?.toString() ?? 'all',
+      category: json['category']?.toString() ?? 'All',
       categoryMm: json['categoryMm']?.toString() ?? '',
       price: (json['price'] as num?)?.toInt() ?? 0,
       originalPrice: (json['originalPrice'] as num?)?.toInt(),
@@ -76,15 +76,36 @@ class Product {
       image: json['image']?.toString() ?? '',
       colors: colorList.isNotEmpty
           ? colorList
-          : [ProductColor(name: 'Standard', hex: '#A16207')],
+          : [const ProductColor(name: 'Standard', hex: '#A16207')],
       badge: json['badge']?.toString(),
       rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
       reviewsCount: (json['reviewsCount'] as num?)?.toInt() ?? 0,
       stock: (json['stock'] as num?)?.toInt() ?? 0,
-      material: json['material']?.toString() ?? 'High Quality Leather',
-      dimensions: json['dimensions']?.toString() ?? 'Standard Size',
+      material: json['material']?.toString() ?? '',
+      dimensions: json['dimensions']?.toString() ?? '',
       descriptionEn: json['descriptionEn']?.toString() ?? '',
       descriptionMm: json['descriptionMm']?.toString() ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'nameEn': nameEn,
+        'nameMm': nameMm,
+        'category': category,
+        'categoryMm': categoryMm,
+        'price': price,
+        if (originalPrice != null) 'originalPrice': originalPrice,
+        if (wholesalePrice != null) 'wholesalePrice': wholesalePrice,
+        'image': image,
+        'colors': colors.map((c) => c.toJson()).toList(),
+        if (badge != null && badge!.isNotEmpty) 'badge': badge,
+        'rating': rating,
+        'reviewsCount': reviewsCount,
+        'stock': stock,
+        'material': material,
+        'dimensions': dimensions,
+        'descriptionEn': descriptionEn,
+        'descriptionMm': descriptionMm,
+      };
 }

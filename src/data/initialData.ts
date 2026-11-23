@@ -182,16 +182,16 @@ export const SHOP_INFO = {
   primaryPhone: "09963000502",
   branches: [
     {
-      name: "ဆိုင်ခွဲ (၁) - ပင်မဆိုင်",
-      nameEn: "Branch (1) - Main Store",
-      addressMm: "၇၃ လမ်း၊ ၃၆ လမ်းနှင့် ၃၇ လမ်းကြား၊ မန္တလေးမြို့",
-      addressEn: "73rd Street, Between 36th & 37th Streets, Mandalay",
-    },
-    {
-      name: "ဆိုင်ခွဲ (၂)",
-      nameEn: "Branch (2) - 65th Street",
+      name: "ပင်မဆိုင် - ၆၅ လမ်း",
+      nameEn: "Main Store - 65th Street",
       addressMm: "၆၅ လမ်း၊ ၁၀၇ လမ်းနှင့် ၁၀၈ လမ်းကြား၊ မန္တလေးမြို့",
       addressEn: "65th Street, Between 107th & 108th Streets, Mandalay",
+    },
+    {
+      name: "ဆိုင်ခွဲ (၂) - ၇၃ လမ်း",
+      nameEn: "Branch (2) - 73rd Street",
+      addressMm: "၇၃ လမ်း၊ ၃၆ လမ်းနှင့် ၃၇ လမ်းကြား၊ မန္တလေးမြို့",
+      addressEn: "73rd Street, Between 36th & 37th Streets, Mandalay",
     },
     {
       name: "ဆိုင်ခွဲ (၃) - တံခွန်တိုင်",
