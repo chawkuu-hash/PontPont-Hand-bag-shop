@@ -729,6 +729,7 @@ try {
                 <button onclick="switchAdminTab('announcements')" id="adminTabannouncements" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">ကြေညာချက်များ (News)</button>
                 <button onclick="switchAdminTab('users')" id="adminTabusers" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">အသုံးပြုသူများ (Users)</button>
                 <button onclick="switchAdminTab('theme')" id="adminTabtheme" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">ဒီဇိုင်း Theme</button>
+                <button onclick="switchAdminTab('chatbot')" id="adminTabchatbot" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">🤖 AI Chatbot ဆက်တင်</button>
             </div>
 
             <!-- Content Area -->
@@ -917,6 +918,74 @@ try {
                             <p class="text-xs text-stone-500 mt-1">ခေတ်မီ အနက်နှင့် မြစိမ်းရောင် မဂ္ဂဇင်းစတိုင်</p>
                         </div>
                     </div>
+                </div>
+
+                <!-- Chatbot Configuration Pane -->
+                <div id="adminPanechatbot" class="admin-pane space-y-5 hidden">
+                    <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <h4 class="font-extrabold text-stone-900 text-sm flex items-center gap-2">
+                                🤖 AI Chatbot Configuration (ဆက်တင်များ)
+                            </h4>
+                            <p class="text-xs text-stone-600 mt-0.5">
+                                AI Provider (Gemini / OpenAI / Groq)၊ API Key နှင့် မေးခွန်းများဖြေကြားမည့် System Prompt များကို ပြင်ဆင်နိုင်ပါသည်။
+                            </p>
+                        </div>
+                        <label class="flex items-center gap-2 text-xs font-bold text-stone-800 cursor-pointer">
+                            <input type="checkbox" id="adminBotEnabled" checked class="w-4 h-4 text-amber-600 rounded">
+                            <span>Chatbot ဖွင့်ထားမည်</span>
+                        </label>
+                    </div>
+
+                    <form id="adminChatbotForm" onsubmit="saveChatbotConfig(event)" class="space-y-4 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-bold text-stone-700 mb-1.5 uppercase">AI Provider (ဝန်ဆောင်မှု ရွေးချယ်ရန်)</label>
+                                <select id="adminBotProvider" onchange="handleBotProviderChange()" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-bold">
+                                    <option value="mock">Built-in Rule Engine (API Key မလိုပါ - မူလစနစ်)</option>
+                                    <option value="gemini">Google Gemini API (အကြံပြုချက် - မြန်မာစာကျွမ်းကျင်)</option>
+                                    <option value="openai">OpenAI (GPT-4o-mini)</option>
+                                    <option value="groq">Groq (Llama 3.1 / Ultra-fast)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-stone-700 mb-1.5 uppercase">Model Name (မော်ဒယ်အမည်)</label>
+                                <input type="text" id="adminBotModel" value="gemini-1.5-flash" class="w-full px-3 py-2 rounded-xl border border-stone-300 font-mono">
+                            </div>
+                        </div>
+
+                        <div id="adminApiKeyContainer" class="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 space-y-1.5 hidden">
+                            <label class="block font-bold text-stone-800 uppercase">AI API Key</label>
+                            <input type="password" id="adminBotApiKey" placeholder="AIzaSy... သို့မဟုတ် sk-..." class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-mono">
+                            <p class="text-[11px] text-stone-500">🔒 Google AI Studio (aistudio.google.com) သို့မဟုတ် OpenAI Platform မှ API Key ကို ထည့်သွင်းပေးပါ။</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-bold text-stone-700 mb-1.5 uppercase">Chatbot အမည်</label>
+                                <input type="text" id="adminBotName" value="Pont Pont AI Assistant" class="w-full px-3 py-2 rounded-xl border border-stone-300">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-stone-700 mb-1.5 uppercase">စတင်နှုတ်ဆက်စာ (Welcome Message)</label>
+                                <input type="text" id="adminBotWelcome" value="မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။" class="w-full px-3 py-2 rounded-xl border border-stone-300">
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="block font-bold text-stone-700 uppercase">AI System Prompt (ဆိုင်အချက်အလက်များနှင့် လမ်းညွှန်ချက်များ)</label>
+                                <button type="button" onclick="resetDefaultPrompt()" class="text-[11px] text-amber-700 underline font-bold">Default Prompt ပြန်ထားမည်</button>
+                            </div>
+                            <textarea id="adminBotSystemPrompt" rows="8" class="w-full p-3 rounded-2xl border border-stone-300 font-mono leading-relaxed bg-stone-50 text-[11px]"></textarea>
+                            <p class="text-[11px] text-stone-500 mt-1">ပင်မဆိုင် (၆၅ လမ်း၊ ၁၀၇×၁၀၈ လမ်းကြား၊ မန္တလေးမြို့)၊ ပို့ဆောင်ခနှုန်းထားများနှင့် ဆက်သွယ်ရမည့် ဖုန်းနံပါတ် 09-963000502 များကို ဤ System Prompt တွင် ထည့်သွင်းထားပါသည်။</p>
+                        </div>
+
+                        <div class="pt-2 flex justify-end">
+                            <button type="submit" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-md transition">
+                                💾 Chatbot ဆက်တင်များ သိမ်းဆည်းမည်
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -1699,6 +1768,84 @@ try {
                 btn.className = 'admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200';
             });
             document.getElementById('adminTab' + tab).className = 'admin-tab-btn px-4 py-2 rounded-xl bg-amber-600 text-white';
+
+            if (tab === 'chatbot') {
+                loadChatbotSettingsIntoForm();
+            }
+        }
+
+        const DEFAULT_PROMPT_TEMPLATE = `You are "Pont Pont AI" (ပုံ့ပုံ့ AI အကူအညီ), the polite, friendly customer assistant for "Pont Pont Handbag Shop" (ပုံ့ပုံ့ အိတ်အမျိုးမျိုး ရောင်းဝယ်ရေး) based in Mandalay, Myanmar.
+
+Store Information:
+- Owner: Ma Pont Pont (မပုံ့)
+- Main Branch (ပင်မဆိုင်): 65th Street, Between 107th & 108th Streets, Mandalay (၆၅ လမ်း၊ ၁၀၇×၁၀၈ လမ်းကြား၊ မန္တလေးမြို့)
+- Branch (2): 73rd Street, Between 36th & 37th Streets, Mandalay (၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေးမြို့)
+- Branch (3): 78th Street, Near Thakhun Taing Market, Mandalay (၇၈ လမ်း၊ တံခွန်တိုင်ဈေးအနီး)
+- Opening Hours: Daily 8:00 AM – 8:00 PM (နေ့စဉ် မနက် 8:00 မှ ည 8:00 အထိ)
+- Contact Phones / Viber: 09-963000502, 09-750072752, 09-404448881
+- Delivery: Mandalay downtown 2,500 MMK (COD available), Yangon 3,500 MMK, Naypyitaw 3,500 MMK, other cities 4,000 MMK via Bus Gates. Free delivery over 100,000 MMK.
+- Payment Methods: KBZPay (09-963000502), WavePay (09-963000502), Mobile Banking. No extra percentage fee.
+- Wholesale: Minimum 5-10 bags for wholesale discount. Resellers can contact 09-963000502 directly.`;
+
+        let currentBotConfig = {
+            provider: 'mock',
+            apiKey: '',
+            model: 'gemini-1.5-flash',
+            botName: 'Pont Pont AI Assistant',
+            welcomeMessage: 'မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။',
+            systemPrompt: DEFAULT_PROMPT_TEMPLATE,
+            enabled: true
+        };
+
+        function handleBotProviderChange() {
+            const prov = document.getElementById('adminBotProvider').value;
+            const keyBox = document.getElementById('adminApiKeyContainer');
+            const modelInp = document.getElementById('adminBotModel');
+
+            if (prov === 'mock') {
+                keyBox.classList.add('hidden');
+                modelInp.value = 'built-in';
+            } else {
+                keyBox.classList.remove('hidden');
+                if (prov === 'gemini') modelInp.value = 'gemini-1.5-flash';
+                else if (prov === 'openai') modelInp.value = 'gpt-4o-mini';
+                else if (prov === 'groq') modelInp.value = 'llama-3.1-8b-instant';
+            }
+        }
+
+        function resetDefaultPrompt() {
+            document.getElementById('adminBotSystemPrompt').value = DEFAULT_PROMPT_TEMPLATE;
+        }
+
+        function loadChatbotSettingsIntoForm() {
+            try {
+                const saved = localStorage.getItem('pontpont_chatbot_config');
+                if (saved) currentBotConfig = { ...currentBotConfig, ...JSON.parse(saved) };
+            } catch {}
+
+            document.getElementById('adminBotProvider').value = currentBotConfig.provider || 'mock';
+            document.getElementById('adminBotModel').value = currentBotConfig.model || 'gemini-1.5-flash';
+            document.getElementById('adminBotApiKey').value = currentBotConfig.apiKey || '';
+            document.getElementById('adminBotName').value = currentBotConfig.botName || 'Pont Pont AI Assistant';
+            document.getElementById('adminBotWelcome').value = currentBotConfig.welcomeMessage || 'မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။';
+            document.getElementById('adminBotSystemPrompt').value = currentBotConfig.systemPrompt || DEFAULT_PROMPT_TEMPLATE;
+            document.getElementById('adminBotEnabled').checked = currentBotConfig.enabled !== false;
+            handleBotProviderChange();
+        }
+
+        function saveChatbotConfig(e) {
+            e.preventDefault();
+            currentBotConfig = {
+                provider: document.getElementById('adminBotProvider').value,
+                model: document.getElementById('adminBotModel').value.trim(),
+                apiKey: document.getElementById('adminBotApiKey').value.trim(),
+                botName: document.getElementById('adminBotName').value.trim(),
+                welcomeMessage: document.getElementById('adminBotWelcome').value.trim(),
+                systemPrompt: document.getElementById('adminBotSystemPrompt').value.trim(),
+                enabled: document.getElementById('adminBotEnabled').checked
+            };
+            localStorage.setItem('pontpont_chatbot_config', JSON.stringify(currentBotConfig));
+            alert('AI Chatbot ဆက်တင်များကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီရှင်။');
         }
 
         function updateAdminStats() {
