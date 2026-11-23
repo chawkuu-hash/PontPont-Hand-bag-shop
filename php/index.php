@@ -1979,6 +1979,205 @@ try {
                 alert(err);
             }
         }
+
+        // ==================== AI CHATBOT ====================
+        let chatbotOpen = false;
+        function toggleChatbot() {
+            chatbotOpen = !chatbotOpen;
+            const win = document.getElementById('chatbotWindow');
+            const btn = document.getElementById('chatbotToggleBtn');
+            if (chatbotOpen) {
+                win.classList.remove('hidden');
+                win.classList.add('flex');
+                btn.classList.add('hidden');
+                scrollChatToBottom();
+            } else {
+                win.classList.add('hidden');
+                win.classList.remove('flex');
+                btn.classList.remove('hidden');
+            }
+        }
+
+        function scrollChatToBottom() {
+            const body = document.getElementById('chatMessages');
+            if (body) body.scrollTop = body.scrollHeight;
+        }
+
+        function sendChatPrompt(promptText) {
+            const inp = document.getElementById('chatInput');
+            inp.value = promptText;
+            handleChatSubmit(new Event('submit'));
+        }
+
+        function handleChatSubmit(e) {
+            if (e) e.preventDefault();
+            const inp = document.getElementById('chatInput');
+            const query = inp.value.trim();
+            if (!query) return;
+
+            // Append user message
+            appendChatMessage('user', query);
+            inp.value = '';
+
+            // Show typing indicator
+            const typingId = 'typing-' + Date.now();
+            const body = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = typingId;
+            typingDiv.className = 'flex items-center gap-2 text-stone-500 text-xs bg-white px-3 py-2 rounded-2xl border border-stone-200 w-fit';
+            typingDiv.innerHTML = `<span>✨ ပုံ့ပုံ့ AI ဖြေကြားနေပါသည်...</span>`;
+            body.appendChild(typingDiv);
+            scrollChatToBottom();
+
+            setTimeout(() => {
+                const el = document.getElementById(typingId);
+                if (el) el.remove();
+                const reply = generateChatbotReply(query);
+                appendChatMessage('bot', reply.text, reply.action);
+            }, 400);
+        }
+
+        function appendChatMessage(sender, text, action) {
+            const body = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex gap-2 ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+
+            let actionHtml = '';
+            if (action) {
+                actionHtml = `
+                    <div class="mt-2">
+                        <button onclick="${action.onClick}" class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-bold rounded-xl border border-amber-300 transition">
+                            ${action.label}
+                        </button>
+                    </div>
+                `;
+            }
+
+            if (sender === 'user') {
+                msgDiv.innerHTML = `
+                    <div class="max-w-[80%] bg-amber-600 text-white rounded-2xl rounded-br-none px-3.5 py-2.5 shadow-sm text-xs">
+                        <p class="whitespace-pre-line">${text}</p>
+                        <span class="block text-[10px] text-amber-200 text-right mt-1">${time}</span>
+                    </div>
+                `;
+            } else {
+                msgDiv.innerHTML = `
+                    <div class="w-7 h-7 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">🤖</div>
+                    <div class="max-w-[80%] bg-white border border-stone-200 text-stone-800 rounded-2xl rounded-bl-none px-3.5 py-2.5 shadow-sm text-xs">
+                        <p class="whitespace-pre-line">${text}</p>
+                        ${actionHtml}
+                        <span class="block text-[10px] text-stone-400 mt-1">${time}</span>
+                    </div>
+                `;
+            }
+            body.appendChild(msgDiv);
+            scrollChatToBottom();
+        }
+
+        function generateChatbotReply(query) {
+            const q = query.toLowerCase();
+
+            // Branches / Address
+            if (q.includes('လိပ်စာ') || q.includes('ဆိုင်') || q.includes('ပင်မ') || q.includes('address') || q.includes('branch')) {
+                return {
+                    text: "🏪 မန္တလေးမြို့ ဆိုင်ခွဲ (၃) ဆိုင် လိပ်စာများ:\n\n• ပင်မဆိုင်: ၆၅ လမ်း၊ ၁၀၇×၁၀၈ လမ်းကြား၊ မန္တလေးမြို့\n• ဆိုင်ခွဲ (၂): ၇၃ လမ်း၊ ၃၆×၃၇ လမ်းကြား၊ မန္တလေးမြို့\n• ဆိုင်ခွဲ (၃): ၇၈ လမ်း (ရန်ကုန်-မန္တလေးလမ်း)၊ တံခွန်တိုင်ဈေးအနီး\n\n⏰ ဆိုင်ဖွင့်ချိန်: နေ့စဉ် မနက် 8:00 AM မှ ည 8:00 PM အထိ",
+                    action: { label: "📍 ဆိုင်ခွဲလိပ်စာများ ကြည့်မည်", onClick: "window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); toggleChatbot();" }
+                };
+            }
+
+            // Phone / Contact
+            if (q.includes('ဖုန်း') || q.includes('ဆက်သွယ်') || q.includes('phone') || q.includes('call') || q.includes('viber')) {
+                return {
+                    text: "📞 ဆက်သွယ်ရန် ဖုန်းနံပါတ်များ:\n• 09-963000502 (ပင်မဖုန်း / Viber)\n• 09-750072752\n• 09-404448881\n\nနေ့စဉ် မနက် 8:00 မှ ည 8:00 ထိ စုံစမ်းမေးမြန်းနိုင်ပါတယ်ရှင်။",
+                    action: { label: "📞 09-963000502 သို့ ဖုန်းခေါ်မည်", onClick: "window.open('tel:09963000502');" }
+                };
+            }
+
+            // Delivery
+            if (q.includes('ပို့') || q.includes('delivery') || q.includes('ကားဂိတ်') || q.includes('deli')) {
+                return {
+                    text: "🚚 ပို့ဆောင်ခနှုန်းထားများ:\n• မန္တလေးမြို့တွင်း: ၂,၅၀၀ ကျပ် (အိမ်အရောက်ငွေချေစနစ် ရပါသည်)\n• ရန်ကုန်မြို့တွင်း: ၃,၅၀၀ ကျပ်\n• နေပြည်တော်: ၃,၅၀၀ ကျပ်\n• နယ်ဝေးမြို့များ: ၄,၀၀၀ ကျပ် (ကားဂိတ်တင် စနစ်)\n\n⚡ အမြန်ဆုံး ၁-၃ ရက်အတွင်း ပို့ဆောင်ပေးပါသည်ရှင်။"
+                };
+            }
+
+            // Payment
+            if (q.includes('ငွေ') || q.includes('kpay') || q.includes('wave') || q.includes('pay') || q.includes('ဘဏ်')) {
+                return {
+                    text: "💰 ငွေပေးချေမှု နည်းလမ်းများ:\n• KBZPay (09-963000502 - Ma Pont Pont)\n• WavePay (09-963000502 - Ma Pont Pont)\n• မန္တလေးမြို့တွင်း အိမ်အရောက်ငွေချေ (COD)\n• Mobile Banking (KBZ, CB, AYA)\n\n% ထပ်ဆောင်းပေးရန် မလိုပါရှင်။"
+                };
+            }
+
+            // Wholesale
+            if (q.includes('ကား') || q.includes('လက်ကား') || q.includes('wholesale')) {
+                return {
+                    text: "📦 လက်ကား မှာယူမှုများ:\nဆိုင်ရှင်များနှင့် ပြန်လည်ရောင်းချသူများအတွက် အထူးလက်ကားဈေးနှုန်း သီးသန့်ရှိပါသည် (အနည်းဆုံး ၅ လုံးမှ ၁၀ လုံးအထက်)။ လက်ကားကတ်တလောက်နှင့် ဈေးနှုန်းညှိနှိုင်းရန် ဖုန်း 09-963000502 သို့ ဆက်သွယ်ပေးပါရှင်။",
+                    action: { label: "📞 လက်ကားဌာန သို့ ခေါ်ဆိုရန်", onClick: "window.open('tel:09963000502');" }
+                };
+            }
+
+            // Default
+            return {
+                text: "မင်္ဂလာပါရှင် 🙏 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) ပင်မဆိုင် (၆၅ လမ်း၊ ၁၀၇×၁၀၈ ကြား) မှ ကြိုဆိုပါတယ်။ အိတ်ဒီဇိုင်းများ၊ ဈေးနှုန်း၊ ပို့ဆောင်ခနှင့် ပတ်သက်၍ အသေးစိတ် မေးမြန်းနိုင်ပါသည်ရှင်။",
+                action: { label: "👜 အိတ်အားလုံး ကြည့်ရှုမည်", onClick: "window.scrollTo({top: 500, behavior: 'smooth'}); toggleChatbot();" }
+            };
+        }
     </script>
+
+    <!-- Floating Chatbot Toggle Button -->
+    <button id="chatbotToggleBtn" onclick="toggleChatbot()" class="fixed bottom-6 right-5 z-50 group flex items-center gap-2.5 bg-gradient-to-r from-amber-600 via-rose-600 to-amber-700 text-white px-4 py-3 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 border border-amber-300/40">
+        <span class="text-lg">🤖</span>
+        <span class="text-xs font-bold tracking-wide">အိတ်ဆိုင် Chatbot</span>
+        <span class="px-1.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase">AI</span>
+    </button>
+
+    <!-- Chatbot Window -->
+    <div id="chatbotWindow" class="hidden fixed bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-96 max-h-[85vh] h-[520px] bg-white rounded-3xl shadow-2xl border border-stone-200 flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 text-white px-4 py-3.5 flex items-center justify-between shadow-md">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-600/30 border border-amber-400/40 flex items-center justify-center text-xl shadow-inner">
+                    🤖
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm tracking-tight flex items-center gap-1.5">
+                        Pont Pont AI Assistant ✨
+                    </h3>
+                    <p class="text-[11px] text-amber-300 font-medium">
+                        ပုံ့ပုံ့ အိတ်ဆိုင် အကူအညီ • အသင့်ရှိပါသည်
+                    </p>
+                </div>
+            </div>
+            <button onclick="toggleChatbot()" class="p-1.5 rounded-full hover:bg-white/10 text-stone-300 hover:text-white transition">
+                ✕
+            </button>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-stone-50/70 text-xs">
+            <div class="flex gap-2 justify-start">
+                <div class="w-7 h-7 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">🤖</div>
+                <div class="max-w-[80%] bg-white border border-stone-200 text-stone-800 rounded-2xl rounded-bl-none px-3.5 py-2.5 shadow-sm text-xs">
+                    <p>မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။ အိတ်ဒီဇိုင်းများ၊ ဈေးနှုန်း၊ ပို့ဆောင်ခ၊ ဆိုင်လိပ်စာနှင့် ဖုန်းနံပါတ်များ စိတ်ကြိုက်မေးမြန်းနိုင်ပါတယ်ရှင်။</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Prompts -->
+        <div class="px-3 py-2 bg-stone-100 border-t border-stone-200 overflow-x-auto flex gap-1.5 no-scrollbar">
+            <button onclick="sendChatPrompt('📍 ပင်မဆိုင်လိပ်စာ')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-white text-stone-700 hover:bg-amber-50 hover:text-amber-800 text-[11px] font-medium border border-stone-200 transition">📍 ပင်မဆိုင်လိပ်စာ</button>
+            <button onclick="sendChatPrompt('👜 ရောင်းအားအကောင်းဆုံးအိတ်များ')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-white text-stone-700 hover:bg-amber-50 hover:text-amber-800 text-[11px] font-medium border border-stone-200 transition">👜 အိတ်ဒီဇိုင်းများ</button>
+            <button onclick="sendChatPrompt('🚚 ပို့ဆောင်ခနှင့် ကားဂိတ်')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-white text-stone-700 hover:bg-amber-50 hover:text-amber-800 text-[11px] font-medium border border-stone-200 transition">🚚 ပို့ဆောင်ခ</button>
+            <button onclick="sendChatPrompt('📞 ဆက်သွယ်ရန်ဖုန်း')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-white text-stone-700 hover:bg-amber-50 hover:text-amber-800 text-[11px] font-medium border border-stone-200 transition">📞 ဖုန်းနံပါတ်</button>
+        </div>
+
+        <!-- Input Box -->
+        <form onsubmit="handleChatSubmit(event)" class="p-3 bg-white border-t border-stone-200 flex items-center gap-2">
+            <input type="text" id="chatInput" placeholder="အိတ်များ၊ ဆိုင်လိပ်စာ၊ ပို့ဆောင်ခ မေးပါ..." class="flex-1 bg-stone-100 text-stone-900 text-xs px-3.5 py-2.5 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition" />
+            <button type="submit" class="px-3.5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-md transition">
+                Send
+            </button>
+        </form>
+    </div>
 </body>
 </html>
