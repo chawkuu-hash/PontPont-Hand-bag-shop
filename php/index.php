@@ -726,6 +726,7 @@ try {
                 <button onclick="switchAdminTab('overview')" id="adminTaboverview" class="admin-tab-btn px-4 py-2 rounded-xl bg-amber-600 text-white">ခြုံငုံသုံးသပ်ချက် (Overview)</button>
                 <button onclick="switchAdminTab('orders')" id="adminTaborders" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">အော်ဒါများ (Orders)</button>
                 <button onclick="switchAdminTab('products')" id="adminTabproducts" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">ပစ္စည်းများ (Products)</button>
+                <button onclick="switchAdminTab('categories')" id="adminTabcategories" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">🏷️ ကဏ္ဍများ (Categories)</button>
                 <button onclick="switchAdminTab('announcements')" id="adminTabannouncements" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">ကြေညာချက်များ (News)</button>
                 <button onclick="switchAdminTab('users')" id="adminTabusers" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">အသုံးပြုသူများ (Users)</button>
                 <button onclick="switchAdminTab('theme')" id="adminTabtheme" class="admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200">ဒီဇိုင်း Theme</button>
@@ -850,6 +851,44 @@ try {
                     </div>
                 </div>
 
+                <!-- Categories Pane -->
+                <div id="adminPanecategories" class="admin-pane space-y-4 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <!-- Add Category Form -->
+                        <div class="md:col-span-5 bg-stone-50 p-5 rounded-2xl border border-stone-200 space-y-3 h-fit">
+                            <h4 class="font-bold text-stone-900 text-sm flex items-center gap-2">
+                                <i data-lucide="tag" class="w-4 h-4 text-amber-700"></i>
+                                Category အသစ်ထည့်ရန်
+                            </h4>
+                            <form onsubmit="handleAddCategory(event)" class="space-y-3 text-xs">
+                                <div>
+                                    <label class="block font-bold mb-1">Category အမည် (English Label) *</label>
+                                    <input type="text" id="catLabelEn" required placeholder="e.g. Travel & Luggage, Luxury Clutches" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white">
+                                </div>
+                                <div>
+                                    <label class="block font-bold mb-1">Category Code / Tag (Optional)</label>
+                                    <input type="text" id="catId" placeholder="e.g. Travel, Clutch (အလွတ်ထားပါက အလိုအလျောက် သတ်မှတ်မည်)" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white">
+                                </div>
+                                <button type="submit" class="w-full bg-stone-900 hover:bg-black text-white font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-1.5 shadow-xs">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                    <span>Category ထည့်သွင်းမည်</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Active Categories List -->
+                        <div class="md:col-span-7 bg-white p-5 rounded-2xl border border-stone-200 space-y-3">
+                            <div class="flex items-center justify-between border-b border-stone-200 pb-2">
+                                <h4 class="font-bold text-stone-900 text-sm">လက်ရှိ Category စာရင်းများ</h4>
+                                <span class="text-[11px] text-stone-500">ဆိုင်မျက်နှာစာတွင် အသုံးပြုနေသော ကဏ္ဍများ</span>
+                            </div>
+                            <div id="adminCategoriesList" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Announcements Pane -->
                 <div id="adminPaneannouncements" class="admin-pane space-y-4 hidden">
                     <div class="flex justify-between items-center">
@@ -944,20 +983,43 @@ try {
                                 <select id="adminBotProvider" onchange="handleBotProviderChange()" class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-bold">
                                     <option value="mock">Built-in Rule Engine (API Key မလိုပါ - မူလစနစ်)</option>
                                     <option value="gemini">Google Gemini API (အကြံပြုချက် - မြန်မာစာကျွမ်းကျင်)</option>
-                                    <option value="openai">OpenAI (GPT-4o-mini)</option>
-                                    <option value="groq">Groq (Llama 3.1 / Ultra-fast)</option>
+                                    <option value="openai">OpenAI (GPT-4o-mini / GPT-4o)</option>
+                                    <option value="groq">Groq (Llama 3.3 / Ultra-fast)</option>
+                                    <option value="custom">Custom OpenAI-Compatible API (OpenWebUI, Ollama, LM Studio)</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-bold text-stone-700 mb-1.5 uppercase">Model Name (မော်ဒယ်အမည်)</label>
-                                <input type="text" id="adminBotModel" value="gemini-1.5-flash" class="w-full px-3 py-2 rounded-xl border border-stone-300 font-mono">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block font-bold text-stone-700 uppercase">Model Name (မော်ဒယ်အမည်)</label>
+                                    <span id="modelStatusBadge" class="text-[10px] text-amber-700 font-bold hidden"></span>
+                                </div>
+                                <div id="modelInputContainer">
+                                    <input type="text" id="adminBotModel" value="gemini-1.5-flash" placeholder="e.g. gemini-1.5-flash, gpt-4o-mini" class="w-full px-3 py-2 rounded-xl border border-stone-300 font-mono">
+                                    <select id="adminBotModelSelect" onchange="document.getElementById('adminBotModel').value = this.value;" class="w-full px-3 py-2 rounded-xl border border-emerald-400 bg-emerald-50/60 font-mono font-bold hidden">
+                                        <!-- Populated from Fetch Models -->
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
-                        <div id="adminApiKeyContainer" class="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 space-y-1.5 hidden">
+                        <!-- Custom API URL (shown for custom provider) -->
+                        <div id="adminApiUrlContainer" class="p-3.5 bg-blue-50/50 rounded-2xl border border-blue-200 space-y-1.5 hidden">
+                            <label class="block font-bold text-blue-900 uppercase">Custom API URL (Endpoint)</label>
+                            <input type="text" id="adminBotApiUrl" placeholder="e.g. http://localhost:11434/v1 or https://my-open-webui.com/api" class="w-full px-3 py-2 rounded-xl border border-blue-300 bg-white font-mono text-xs">
+                            <p class="text-[11px] text-blue-700">OpenAI-compatible chat completions endpoint (စနစ်မှ /chat/completions ကို လိုအပ်ပါက အလိုအလျောက် ပေါင်းထည့်ပေးပါမည်)။</p>
+                        </div>
+
+                        <!-- API Key & Fetch Models -->
+                        <div id="adminApiKeyContainer" class="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 space-y-2 hidden">
                             <label class="block font-bold text-stone-800 uppercase">AI API Key</label>
-                            <input type="password" id="adminBotApiKey" placeholder="AIzaSy... သို့မဟုတ် sk-..." class="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-mono">
-                            <p class="text-[11px] text-stone-500">🔒 Google AI Studio (aistudio.google.com) သို့မဟုတ် OpenAI Platform မှ API Key ကို ထည့်သွင်းပေးပါ။</p>
+                            <div class="flex gap-2">
+                                <input type="password" id="adminBotApiKey" placeholder="AIzaSy... သို့မဟုတ် sk-..." class="flex-1 px-3 py-2 rounded-xl border border-stone-300 bg-white font-mono text-xs">
+                                <button type="button" id="btnFetchModels" onclick="fetchAvailableModels()" class="px-3.5 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-xs">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                    <span id="btnFetchModelsText">Fetch Models</span>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-stone-500">🔒 API Key သည် Bluehost MySQL Database ထဲတွင် လုံခြုံစွာ သိမ်းဆည်းထားပြီး ဧည့်သည်များထံ ပေါက်ကြားခြင်း မရှိပါ။</p>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1030,6 +1092,23 @@ try {
                 renderAnnouncements();
                 renderProducts();
                 updateUserUI();
+
+                if (data.chatbotConfig) {
+                    if (data.chatbotConfig.botName) {
+                        const botTitleEl = document.getElementById('chatbotTitle');
+                        if (botTitleEl) botTitleEl.innerText = data.chatbotConfig.botName;
+                    }
+                    if (data.chatbotConfig.welcomeMessageMm) {
+                        const botWelcomeEl = document.getElementById('chatbotWelcomeMsg');
+                        if (botWelcomeEl) botWelcomeEl.innerText = data.chatbotConfig.welcomeMessageMm;
+                    }
+                    const botBtn = document.getElementById('chatbotToggleBtn');
+                    if (botBtn && data.chatbotConfig.enabled === false) {
+                        botBtn.classList.add('hidden');
+                    } else if (botBtn && !chatbotOpen) {
+                        botBtn.classList.remove('hidden');
+                    }
+                }
             } catch (err) {
                 console.error("Failed loading shop data:", err);
             }
@@ -1751,6 +1830,7 @@ try {
             updateAdminStats();
             renderAdminOrders();
             renderAdminProducts();
+            renderAdminCategories();
             renderAdminAnnouncements();
             renderAdminUsers();
             lucide.createIcons();
@@ -1762,15 +1842,97 @@ try {
 
         function switchAdminTab(tab) {
             document.querySelectorAll('.admin-pane').forEach(el => el.classList.add('hidden'));
-            document.getElementById('adminPane' + tab).classList.remove('hidden');
+            const targetPane = document.getElementById('adminPane' + tab);
+            if (targetPane) targetPane.classList.remove('hidden');
 
             document.querySelectorAll('.admin-tab-btn').forEach(btn => {
                 btn.className = 'admin-tab-btn px-4 py-2 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200';
             });
-            document.getElementById('adminTab' + tab).className = 'admin-tab-btn px-4 py-2 rounded-xl bg-amber-600 text-white';
+            const activeBtn = document.getElementById('adminTab' + tab);
+            if (activeBtn) activeBtn.className = 'admin-tab-btn px-4 py-2 rounded-xl bg-amber-600 text-white';
 
-            if (tab === 'chatbot') {
+            if (tab === 'categories') {
+                renderAdminCategories();
+            } else if (tab === 'chatbot') {
                 loadChatbotSettingsIntoForm();
+            }
+            lucide.createIcons();
+        }
+
+        // Categories Management
+        function renderAdminCategories() {
+            const container = document.getElementById('adminCategoriesList');
+            if (!container) return;
+            container.innerHTML = '';
+            const cats = (shopData.categories || []).filter(c => c.id !== 'All');
+
+            cats.forEach(cat => {
+                const count = (shopData.products || []).filter(p => p.category.toLowerCase() === cat.id.toLowerCase()).length;
+                const div = document.createElement('div');
+                div.className = 'p-3.5 rounded-2xl border border-stone-200 bg-stone-50 flex items-center justify-between text-xs';
+                div.innerHTML = `
+                    <div>
+                        <span class="text-[10px] font-bold uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">${cat.id}</span>
+                        <h5 class="font-bold text-stone-900 mt-1">${cat.labelEn}</h5>
+                        <p class="text-[11px] text-stone-500">${count} items</p>
+                    </div>
+                    <div>
+                        <button onclick="handleDeleteCategory('${cat.id}')" class="px-2.5 py-1 text-red-600 hover:bg-red-50 rounded-lg text-xs font-bold transition">Delete</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        async function handleAddCategory(e) {
+            e.preventDefault();
+            const label = document.getElementById('catLabelEn').value.trim();
+            let catId = document.getElementById('catId').value.trim();
+            if (!label) return;
+            if (!catId) catId = label.replace(/[^a-zA-Z0-9]/g, '');
+
+            try {
+                const res = await fetch('api/shop.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'ADD_CATEGORY',
+                        category: { id: catId, labelEn: label }
+                    })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    document.getElementById('catLabelEn').value = '';
+                    document.getElementById('catId').value = '';
+                    await loadShopData();
+                    renderAdminCategories();
+                    alert('Category အသစ် အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။');
+                } else {
+                    alert('Error: ' + (data.error || 'Server error'));
+                }
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+        async function handleDeleteCategory(catId) {
+            if (!confirm(`"${catId}" category အား ဖျက်ရန် သေချာပါသလား?`)) return;
+            try {
+                const res = await fetch('api/shop.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'DELETE_CATEGORY', categoryId: catId })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    await loadShopData();
+                    renderAdminCategories();
+                } else {
+                    alert('Error: ' + (data.error || 'Server error'));
+                }
+            } catch (err) {
+                alert(err);
             }
         }
 
@@ -1787,29 +1949,81 @@ Store Information:
 - Payment Methods: KBZPay (09-963000502), WavePay (09-963000502), Mobile Banking. No extra percentage fee.
 - Wholesale: Minimum 5-10 bags for wholesale discount. Resellers can contact 09-963000502 directly.`;
 
-        let currentBotConfig = {
-            provider: 'mock',
-            apiKey: '',
-            model: 'gemini-1.5-flash',
-            botName: 'Pont Pont AI Assistant',
-            welcomeMessage: 'မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။',
-            systemPrompt: DEFAULT_PROMPT_TEMPLATE,
-            enabled: true
-        };
-
         function handleBotProviderChange() {
             const prov = document.getElementById('adminBotProvider').value;
             const keyBox = document.getElementById('adminApiKeyContainer');
+            const urlBox = document.getElementById('adminApiUrlContainer');
             const modelInp = document.getElementById('adminBotModel');
 
             if (prov === 'mock') {
                 keyBox.classList.add('hidden');
+                urlBox.classList.add('hidden');
                 modelInp.value = 'built-in';
+            } else if (prov === 'custom') {
+                keyBox.classList.remove('hidden');
+                urlBox.classList.remove('hidden');
+                if (!modelInp.value || modelInp.value === 'built-in') modelInp.value = 'gpt-3.5-turbo';
             } else {
                 keyBox.classList.remove('hidden');
+                urlBox.classList.add('hidden');
                 if (prov === 'gemini') modelInp.value = 'gemini-1.5-flash';
                 else if (prov === 'openai') modelInp.value = 'gpt-4o-mini';
-                else if (prov === 'groq') modelInp.value = 'llama-3.1-8b-instant';
+                else if (prov === 'groq') modelInp.value = 'llama-3.3-70b-versatile';
+            }
+        }
+
+        async function fetchAvailableModels() {
+            const prov = document.getElementById('adminBotProvider').value;
+            const apiKey = document.getElementById('adminBotApiKey').value.trim();
+            const apiUrl = document.getElementById('adminBotApiUrl').value.trim();
+            const btnText = document.getElementById('btnFetchModelsText');
+            const badge = document.getElementById('modelStatusBadge');
+            const select = document.getElementById('adminBotModelSelect');
+            const inp = document.getElementById('adminBotModel');
+
+            if (!apiKey && prov !== 'custom') {
+                alert('Models များ ဆွဲယူရန် API Key အရင် ဖြည့်သွင်းပေးပါရှင်။');
+                return;
+            }
+
+            btnText.innerText = 'Loading...';
+            badge.innerText = '⚡ Models ဆွဲယူနေပါသည်...';
+            badge.classList.remove('hidden');
+
+            try {
+                const res = await fetch('api/shop.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'FETCH_AI_MODELS',
+                        provider: prov,
+                        apiKey: apiKey,
+                        apiUrl: apiUrl
+                    })
+                });
+                const data = await res.json();
+                if (data.ok && Array.isArray(data.models) && data.models.length > 0) {
+                    select.innerHTML = '';
+                    data.models.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = m;
+                        opt.innerText = m;
+                        if (m === inp.value) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+                    select.classList.remove('hidden');
+                    inp.classList.add('hidden');
+                    inp.value = select.value;
+                    badge.innerText = `✓ Models (${data.models.length}) ခု အသင့်ရရှိပါသည်`;
+                    badge.className = 'text-[10px] text-emerald-700 font-bold';
+                } else {
+                    badge.innerText = '⚠️ Models မတွေ့ပါ (Input ထဲတွင် တိုက်ရိုက် ရိုက်ထည့်နိုင်ပါသည်)';
+                    badge.className = 'text-[10px] text-amber-700 font-bold';
+                }
+            } catch (err) {
+                badge.innerText = '⚠️ API ချိတ်ဆက်မှု မအောင်မြင်ပါ';
+            } finally {
+                btnText.innerText = 'Fetch Models';
             }
         }
 
@@ -1818,34 +2032,66 @@ Store Information:
         }
 
         function loadChatbotSettingsIntoForm() {
-            try {
-                const saved = localStorage.getItem('pontpont_chatbot_config');
-                if (saved) currentBotConfig = { ...currentBotConfig, ...JSON.parse(saved) };
-            } catch {}
+            const cfg = shopData.chatbotConfig || {};
 
-            document.getElementById('adminBotProvider').value = currentBotConfig.provider || 'mock';
-            document.getElementById('adminBotModel').value = currentBotConfig.model || 'gemini-1.5-flash';
-            document.getElementById('adminBotApiKey').value = currentBotConfig.apiKey || '';
-            document.getElementById('adminBotName').value = currentBotConfig.botName || 'Pont Pont AI Assistant';
-            document.getElementById('adminBotWelcome').value = currentBotConfig.welcomeMessage || 'မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။';
-            document.getElementById('adminBotSystemPrompt').value = currentBotConfig.systemPrompt || DEFAULT_PROMPT_TEMPLATE;
-            document.getElementById('adminBotEnabled').checked = currentBotConfig.enabled !== false;
+            document.getElementById('adminBotProvider').value = cfg.provider || 'mock';
+            document.getElementById('adminBotModel').value = cfg.model || 'gemini-1.5-flash';
+            document.getElementById('adminBotApiUrl').value = cfg.apiUrl || '';
+            document.getElementById('adminBotApiKey').value = cfg.apiKey || '';
+            if (cfg.hasApiKey && !cfg.apiKey) {
+                document.getElementById('adminBotApiKey').placeholder = '●●●●●●●● (Database တွင် သိမ်းဆည်းပြီးသား)';
+            }
+            document.getElementById('adminBotName').value = cfg.botName || 'ပုံ့ပုံ့ AI အကူအညီ';
+            document.getElementById('adminBotWelcome').value = cfg.welcomeMessageMm || 'မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။ ဘာများ ကူညီပေးရမလဲရှင်။';
+            document.getElementById('adminBotSystemPrompt').value = cfg.systemPrompt || DEFAULT_PROMPT_TEMPLATE;
+            document.getElementById('adminBotEnabled').checked = cfg.enabled !== false;
             handleBotProviderChange();
         }
 
-        function saveChatbotConfig(e) {
+        async function saveChatbotConfig(e) {
             e.preventDefault();
-            currentBotConfig = {
-                provider: document.getElementById('adminBotProvider').value,
-                model: document.getElementById('adminBotModel').value.trim(),
-                apiKey: document.getElementById('adminBotApiKey').value.trim(),
-                botName: document.getElementById('adminBotName').value.trim(),
-                welcomeMessage: document.getElementById('adminBotWelcome').value.trim(),
-                systemPrompt: document.getElementById('adminBotSystemPrompt').value.trim(),
-                enabled: document.getElementById('adminBotEnabled').checked
+            const provider = document.getElementById('adminBotProvider').value;
+            const model = document.getElementById('adminBotModel').value.trim();
+            const apiUrl = document.getElementById('adminBotApiUrl').value.trim();
+            const apiKey = document.getElementById('adminBotApiKey').value.trim();
+            const botName = document.getElementById('adminBotName').value.trim();
+            const welcomeMessageMm = document.getElementById('adminBotWelcome').value.trim();
+            const systemPrompt = document.getElementById('adminBotSystemPrompt').value.trim();
+            const enabled = document.getElementById('adminBotEnabled').checked;
+
+            const payload = {
+                action: 'UPDATE_CHATBOT_CONFIG',
+                chatbotConfig: {
+                    provider,
+                    model,
+                    apiUrl,
+                    apiKey,
+                    botName,
+                    welcomeMessageMm,
+                    welcomeMessageEn: 'Hello! Welcome to Pont Pont Handbag Shop Mandalay.',
+                    systemPrompt,
+                    enabled
+                }
             };
-            localStorage.setItem('pontpont_chatbot_config', JSON.stringify(currentBotConfig));
-            alert('AI Chatbot ဆက်တင်များကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီရှင်။');
+
+            try {
+                const res = await fetch('api/shop.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    if (data.db && data.db.chatbotConfig) {
+                        shopData.chatbotConfig = data.db.chatbotConfig;
+                    }
+                    alert('AI Chatbot ဆက်တင်များကို Bluehost MySQL Database ထဲသို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီရှင်။');
+                } else {
+                    alert('Error: ' + (data.error || 'Server error'));
+                }
+            } catch (err) {
+                alert('သိမ်းဆည်းမှု မအောင်မြင်ပါ: ' + err);
+            }
         }
 
         function updateAdminStats() {
@@ -2156,7 +2402,7 @@ Store Information:
             handleChatSubmit(new Event('submit'));
         }
 
-        function handleChatSubmit(e) {
+        async function handleChatSubmit(e) {
             if (e) e.preventDefault();
             const inp = document.getElementById('chatInput');
             const query = inp.value.trim();
@@ -2176,12 +2422,40 @@ Store Information:
             body.appendChild(typingDiv);
             scrollChatToBottom();
 
-            setTimeout(() => {
+            try {
+                // If chatbot is configured with AI, query the server REST API
+                const botCfg = shopData.chatbotConfig;
+                let gotAiReply = false;
+
+                if (botCfg && botCfg.enabled !== false && botCfg.provider !== 'mock') {
+                    const res = await fetch('api/shop.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'CHAT_MESSAGE', message: query })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.reply) {
+                            const el = document.getElementById(typingId);
+                            if (el) el.remove();
+                            appendChatMessage('bot', data.reply);
+                            gotAiReply = true;
+                        }
+                    }
+                }
+
+                if (!gotAiReply) {
+                    const el = document.getElementById(typingId);
+                    if (el) el.remove();
+                    const reply = generateChatbotReply(query);
+                    appendChatMessage('bot', reply.text, reply.action);
+                }
+            } catch (err) {
                 const el = document.getElementById(typingId);
                 if (el) el.remove();
                 const reply = generateChatbotReply(query);
                 appendChatMessage('bot', reply.text, reply.action);
-            }, 400);
+            }
         }
 
         function appendChatMessage(sender, text, action) {
@@ -2287,8 +2561,8 @@ Store Information:
                     🤖
                 </div>
                 <div>
-                    <h3 class="font-bold text-sm tracking-tight flex items-center gap-1.5">
-                        Pont Pont AI Assistant ✨
+                    <h3 id="chatbotTitle" class="font-bold text-sm tracking-tight flex items-center gap-1.5">
+                        ပုံ့ပုံ့ AI အကူအညီ ✨
                     </h3>
                     <p class="text-[11px] text-amber-300 font-medium">
                         ပုံ့ပုံ့ အိတ်ဆိုင် အကူအညီ • အသင့်ရှိပါသည်
@@ -2305,7 +2579,7 @@ Store Information:
             <div class="flex gap-2 justify-start">
                 <div class="w-7 h-7 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">🤖</div>
                 <div class="max-w-[80%] bg-white border border-stone-200 text-stone-800 rounded-2xl rounded-bl-none px-3.5 py-2.5 shadow-sm text-xs">
-                    <p>မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။ အိတ်ဒီဇိုင်းများ၊ ဈေးနှုန်း၊ ပို့ဆောင်ခ၊ ဆိုင်လိပ်စာနှင့် ဖုန်းနံပါတ်များ စိတ်ကြိုက်မေးမြန်းနိုင်ပါတယ်ရှင်။</p>
+                    <p id="chatbotWelcomeMsg">မင်္ဂလာပါရှင် 👋 ပုံ့ပုံ့ အိတ်ဆိုင် (မန္တလေး) မှ ကြိုဆိုပါတယ်။ အိတ်ဒီဇိုင်းများ၊ ဈေးနှုန်း၊ ပို့ဆောင်ခ၊ ဆိုင်လိပ်စာနှင့် ဖုန်းနံပါတ်များ စိတ်ကြိုက်မေးမြန်းနိုင်ပါတယ်ရှင်။</p>
                 </div>
             </div>
         </div>
