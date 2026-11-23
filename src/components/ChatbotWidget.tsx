@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Bot, User, Phone, MapPin, Sparkles, ShoppingBag } from "lucide-react";
-import { Product } from "@/data/initialData";
+import { Product, ChatbotConfig } from "@/data/initialData";
 
 interface Message {
   id: string;
@@ -19,6 +19,7 @@ interface Message {
 interface ChatbotWidgetProps {
   products: Product[];
   lang: "mm" | "en";
+  chatbotConfig?: ChatbotConfig;
   onSelectCategory?: (category: string) => void;
   onOpenCart?: () => void;
   onSelectProduct?: (product: Product) => void;
@@ -27,6 +28,7 @@ interface ChatbotWidgetProps {
 export default function ChatbotWidget({
   products,
   lang,
+  chatbotConfig,
   onSelectCategory,
   onOpenCart,
   onSelectProduct,
@@ -241,7 +243,7 @@ export default function ChatbotWidget({
     };
   }
 
-  function handleSend(textToSend?: string) {
+  async function handleSend(textToSend?: string) {
     const query = textToSend || input;
     if (!query.trim()) return;
 
@@ -256,18 +258,41 @@ export default function ChatbotWidget({
     if (!textToSend) setInput("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      const res = getBotResponse(query);
-      const botMsg: Message = {
-        id: `bot-${Date.now()}`,
-        sender: "bot",
-        text: res.text,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        suggestedAction: res.suggestedAction,
-      };
-      setMessages((prev) => [...prev, botMsg]);
-      setIsTyping(false);
-    }, 450);
+    try {
+      // First try live server AI if configured
+      const res = await fetch("/api/shop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "CHAT_MESSAGE", message: query }),
+      });
+      const data = await res.json();
+
+      if (data.reply) {
+        const botMsg: Message = {
+          id: `bot-${Date.now()}`,
+          sender: "bot",
+          text: data.reply,
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        };
+        setMessages((prev) => [...prev, botMsg]);
+        setIsTyping(false);
+        return;
+      }
+    } catch {
+      // Fallback to local rule engine
+    }
+
+    // Fallback rule engine with local shop data & actions
+    const localRes = getBotResponse(query);
+    const botMsg: Message = {
+      id: `bot-${Date.now()}`,
+      sender: "bot",
+      text: localRes.text,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      suggestedAction: localRes.suggestedAction,
+    };
+    setMessages((prev) => [...prev, botMsg]);
+    setIsTyping(false);
   }
 
   function handleActionClick(action: Message["suggestedAction"]) {

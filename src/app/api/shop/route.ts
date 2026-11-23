@@ -145,6 +145,18 @@ function buildScopedResponse(
       )
     : [];
 
+  const publicChatbotConfig = db.chatbotConfig
+    ? {
+        provider: db.chatbotConfig.provider,
+        model: db.chatbotConfig.model,
+        botName: db.chatbotConfig.botName,
+        welcomeMessageMm: db.chatbotConfig.welcomeMessageMm,
+        welcomeMessageEn: db.chatbotConfig.welcomeMessageEn,
+        enabled: db.chatbotConfig.enabled,
+        hasApiKey: Boolean(db.chatbotConfig.apiKey),
+      }
+    : null;
+
   return {
     products: db.products,
     categories: db.categories || INITIAL_CATEGORIES,
@@ -154,6 +166,7 @@ function buildScopedResponse(
     usersCount: db.users.length,
     currentUser: sessionUser ? sanitizeUser(sessionUser) : null,
     theme: db.theme || "luxury-gold",
+    chatbotConfig: isAdmin ? db.chatbotConfig : publicChatbotConfig,
   };
 }
 
@@ -443,6 +456,105 @@ export async function POST(request: Request) {
       });
     }
 
+    if (body.action === "CHAT_MESSAGE") {
+      const message = String(body.message || "").trim();
+      if (!message) {
+        return NextResponse.json({ error: "Empty message" }, { status: 400 });
+      }
+
+      const cfg = db.chatbotConfig;
+      if (!cfg || !cfg.enabled) {
+        return NextResponse.json({
+          reply: "Chatbot ဝန်ဆောင်မှု ခေတ္တပိတ်ထားပါသည်ရှင်။",
+        });
+      }
+
+      // If provider is Gemini and API key is provided
+      if (cfg.provider === "gemini" && cfg.apiKey) {
+        try {
+          const modelName = cfg.model || "gemini-1.5-flash";
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${cfg.apiKey}`;
+          
+          const promptPayload = {
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: `System Prompt Instructions: ${cfg.systemPrompt}\n\nCustomer Message: ${message}`,
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 800,
+            },
+          };
+
+          const aiRes = await fetch(geminiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(promptPayload),
+          });
+
+          if (aiRes.ok) {
+            const data = await aiRes.json();
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              return NextResponse.json({ reply: text });
+            }
+          }
+        } catch (err) {
+          console.error("Gemini API call failed:", err);
+        }
+      }
+
+      // If provider is OpenAI compatible (OpenAI, Groq)
+      if ((cfg.provider === "openai" || cfg.provider === "groq") && cfg.apiKey) {
+        try {
+          const endpoint =
+            cfg.provider === "groq"
+              ? "https://api.groq.com/openai/v1/chat/completions"
+              : "https://api.openai.com/v1/chat/completions";
+          const defaultModel =
+            cfg.provider === "groq" ? "llama-3.1-8b-instant" : "gpt-4o-mini";
+
+          const aiRes = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${cfg.apiKey}`,
+            },
+            body: JSON.stringify({
+              model: cfg.model || defaultModel,
+              messages: [
+                { role: "system", content: cfg.systemPrompt },
+                { role: "user", content: message },
+              ],
+              temperature: 0.7,
+              max_tokens: 800,
+            }),
+          });
+
+          if (aiRes.ok) {
+            const data = await aiRes.json();
+            const text = data?.choices?.[0]?.message?.content;
+            if (text) {
+              return NextResponse.json({ reply: text });
+            }
+          }
+        } catch (err) {
+          console.error("OpenAI/Groq API call failed:", err);
+        }
+      }
+
+      // Fallback: Handled by client-side rule-engine or basic response
+      return NextResponse.json({
+        reply: null, // Signals frontend to use its intelligent local knowledgebase
+      });
+    }
+
     // All remaining actions strictly require Admin role!
     if (!sessionUser || sessionUser.role !== "admin") {
       return NextResponse.json(
@@ -608,6 +720,29 @@ export async function POST(request: Request) {
         theme === "minimal-noir"
       ) {
         db.theme = theme;
+        writeDb(db);
+      }
+      return NextResponse.json({
+        ok: true,
+        db: buildScopedResponse(db, sessionUser),
+      });
+    }
+
+    if (body.action === "UPDATE_CHATBOT_CONFIG") {
+      const incomingConfig = body.chatbotConfig;
+      if (incomingConfig) {
+        db.chatbotConfig = {
+          provider: ["mock", "gemini", "openai", "groq"].includes(incomingConfig.provider)
+            ? incomingConfig.provider
+            : "mock",
+          apiKey: typeof incomingConfig.apiKey === "string" ? incomingConfig.apiKey.trim() : "",
+          model: String(incomingConfig.model || "gemini-1.5-flash").trim(),
+          systemPrompt: String(incomingConfig.systemPrompt || "").trim(),
+          botName: String(incomingConfig.botName || "Pont Pont AI Assistant").trim(),
+          welcomeMessageMm: String(incomingConfig.welcomeMessageMm || "").trim(),
+          welcomeMessageEn: String(incomingConfig.welcomeMessageEn || "").trim(),
+          enabled: Boolean(incomingConfig.enabled),
+        };
         writeDb(db);
       }
       return NextResponse.json({

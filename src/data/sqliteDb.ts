@@ -6,12 +6,14 @@ import {
   INITIAL_ORDERS,
   INITIAL_ANNOUNCEMENTS,
   INITIAL_CATEGORIES,
+  DEFAULT_CHATBOT_CONFIG,
   Product,
   Order,
   UserProfile,
   Announcement,
   CategoryItem,
   ShopThemeId,
+  ChatbotConfig,
 } from "@/data/initialData";
 
 const DATA_DIR = path.join(process.cwd(), "src", "data");
@@ -25,6 +27,7 @@ export interface DatabaseSchema {
   announcements: Announcement[];
   categories: CategoryItem[];
   theme?: ShopThemeId;
+  chatbotConfig?: ChatbotConfig;
 }
 
 let dbInstance: Database.Database | null = null;
@@ -274,6 +277,17 @@ export function readFullDbFromSqlite(): DatabaseSchema {
       } catch {}
       return "luxury-gold" as ShopThemeId;
     })(),
+    chatbotConfig: (() => {
+      try {
+        const row = db
+          .prepare("SELECT value FROM settings WHERE key = 'chatbot_config'")
+          .get() as { value: string } | undefined;
+        if (row && row.value) {
+          return JSON.parse(row.value) as ChatbotConfig;
+        }
+      } catch {}
+      return DEFAULT_CHATBOT_CONFIG;
+    })(),
   };
 }
 
@@ -389,6 +403,12 @@ export function writeFullDbToSqlite(data: DatabaseSchema) {
       db.prepare(
         "INSERT OR REPLACE INTO settings (key, value) VALUES ('theme', ?)"
       ).run(data.theme);
+    }
+
+    if (data.chatbotConfig) {
+      db.prepare(
+        "INSERT OR REPLACE INTO settings (key, value) VALUES ('chatbot_config', ?)"
+      ).run(JSON.stringify(data.chatbotConfig));
     }
   });
 

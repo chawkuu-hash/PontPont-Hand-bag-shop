@@ -29,6 +29,7 @@ import {
   INITIAL_PRODUCTS,
   INITIAL_ORDERS,
   INITIAL_ANNOUNCEMENTS,
+  DEFAULT_CHATBOT_CONFIG,
   SHOP_INFO,
   Product,
   CartItem,
@@ -37,6 +38,7 @@ import {
   Announcement,
   CategoryItem,
   ShopThemeId,
+  ChatbotConfig,
 } from "@/data/initialData";
 import AuthModal from "@/components/AuthModal";
 import ProductDetailModal from "@/components/ProductDetailModal";
@@ -55,6 +57,8 @@ export default function PontPontShopPage() {
     useState<CategoryItem[]>(INITIAL_CATEGORIES);
   const [currentTheme, setCurrentTheme] =
     useState<ShopThemeId>("luxury-gold");
+  const [chatbotConfig, setChatbotConfig] =
+    useState<ChatbotConfig>(DEFAULT_CHATBOT_CONFIG);
   const [announcements, setAnnouncements] = useState<Announcement[]>(
     INITIAL_ANNOUNCEMENTS
   );
@@ -113,6 +117,7 @@ export default function PontPontShopPage() {
         if (data.announcements) setAnnouncements(data.announcements);
         if (data.categories) setCategories(data.categories);
         if (data.theme) setCurrentTheme(data.theme);
+        if (data.chatbotConfig) setChatbotConfig(data.chatbotConfig);
         if (typeof data.usersCount === "number") setUsersCount(data.usersCount);
         if (data.users) setUsers(data.users);
         if (data.currentUser) {
@@ -512,6 +517,24 @@ export default function PontPontShopPage() {
         setCurrentTheme(data.db.theme);
       }
     } catch {}
+  };
+
+  const handleUpdateChatbotConfig = async (config: ChatbotConfig) => {
+    setChatbotConfig(config);
+    try {
+      const res = await fetch("/api/shop", {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ action: "UPDATE_CHATBOT_CONFIG", chatbotConfig: config }),
+      });
+      const data = await res.json();
+      if (data.db?.chatbotConfig) {
+        setChatbotConfig(data.db.chatbotConfig);
+      }
+    } catch (err) {
+      console.error("Failed to update chatbot config:", err);
+      throw err;
+    }
   };
 
   // Filtered and sorted products
@@ -928,6 +951,8 @@ export default function PontPontShopPage() {
             announcements={announcements}
             categories={categories}
             currentTheme={currentTheme}
+            chatbotConfig={chatbotConfig}
+            onUpdateChatbotConfig={handleUpdateChatbotConfig}
             onAddProduct={handleAddProduct}
             onUpdateProduct={handleUpdateProduct}
             onDeleteProduct={handleDeleteProduct}
@@ -1858,6 +1883,7 @@ export default function PontPontShopPage() {
       <ChatbotWidget
         products={products}
         lang={lang}
+        chatbotConfig={chatbotConfig}
         onSelectCategory={(cat) => setSelectedCategory(cat)}
         onOpenCart={() => setIsCartOpen(true)}
         onSelectProduct={(p) => setActiveProduct(p)}

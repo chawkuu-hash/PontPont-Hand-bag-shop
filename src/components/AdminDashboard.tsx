@@ -21,6 +21,10 @@ import {
   Tag,
   Palette,
   Globe,
+  Bot,
+  Sparkles,
+  Key,
+  Sliders,
 } from "lucide-react";
 import {
   Announcement,
@@ -30,6 +34,8 @@ import {
   SHOP_THEMES,
   ShopThemeId,
   UserProfile,
+  ChatbotConfig,
+  DEFAULT_CHATBOT_CONFIG,
 } from "@/data/initialData";
 
 interface AdminDashboardProps {
@@ -40,6 +46,8 @@ interface AdminDashboardProps {
   announcements: Announcement[];
   categories: CategoryItem[];
   currentTheme: ShopThemeId;
+  chatbotConfig?: ChatbotConfig;
+  onUpdateChatbotConfig?: (config: ChatbotConfig) => Promise<void>;
   onAddProduct: (product: Product) => Promise<void>;
   onUpdateProduct: (product: Product) => Promise<void>;
   onDeleteProduct: (productId: string) => Promise<void>;
@@ -97,6 +105,8 @@ export default function AdminDashboard({
   announcements,
   categories,
   currentTheme,
+  chatbotConfig = DEFAULT_CHATBOT_CONFIG,
+  onUpdateChatbotConfig,
   onAddProduct,
   onUpdateProduct,
   onDeleteProduct,
@@ -119,8 +129,28 @@ export default function AdminDashboard({
     | "users"
     | "announcements"
     | "themes"
+    | "chatbot"
     | "add"
   >("orders");
+
+  // Chatbot Settings Form State
+  const [botProvider, setBotProvider] = useState<ChatbotConfig["provider"]>(
+    chatbotConfig?.provider || "mock"
+  );
+  const [botApiKey, setBotApiKey] = useState(chatbotConfig?.apiKey || "");
+  const [botModel, setBotModel] = useState(chatbotConfig?.model || "gemini-1.5-flash");
+  const [botName, setBotName] = useState(chatbotConfig?.botName || "Pont Pont AI Assistant");
+  const [botSystemPrompt, setBotSystemPrompt] = useState(
+    chatbotConfig?.systemPrompt || DEFAULT_CHATBOT_CONFIG.systemPrompt
+  );
+  const [botWelcomeMm, setBotWelcomeMm] = useState(
+    chatbotConfig?.welcomeMessageMm || DEFAULT_CHATBOT_CONFIG.welcomeMessageMm
+  );
+  const [botWelcomeEn, setBotWelcomeEn] = useState(
+    chatbotConfig?.welcomeMessageEn || DEFAULT_CHATBOT_CONFIG.welcomeMessageEn
+  );
+  const [botEnabled, setBotEnabled] = useState(chatbotConfig?.enabled ?? true);
+  const [isSavingBot, setIsSavingBot] = useState(false);
 
   // New Category Form State
   const [newCatId, setNewCatId] = useState("");
@@ -436,6 +466,17 @@ export default function AdminDashboard({
         >
           <Palette className="w-4 h-4 text-amber-700" />
           {lang === "en" ? "Themes (3)" : "Theme ဒီဇိုင်းရွေးရန် (3 Themes)"}
+        </button>
+        <button
+          onClick={() => setActiveTab("chatbot")}
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold inline-flex items-center gap-1.5 transition ${
+            activeTab === "chatbot"
+              ? "bg-stone-900 text-white shadow"
+              : "bg-amber-50 text-amber-950 border border-amber-300 hover:bg-amber-100"
+          }`}
+        >
+          <Bot className="w-4 h-4 text-amber-700" />
+          {lang === "en" ? "AI Chatbot Settings" : "AI Chatbot ဆက်တင်များ"}
         </button>
         <button
           onClick={() => setActiveTab("add")}
@@ -1317,6 +1358,206 @@ export default function AdminDashboard({
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Tab: AI Chatbot Settings */}
+      {activeTab === "chatbot" && (
+        <div className="max-w-4xl bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 text-amber-900 flex items-center justify-center">
+                <Bot className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-extrabold text-stone-900 flex items-center gap-2">
+                  {lang === "en" ? "AI Chatbot Configuration" : "AI အရောင်းအကူ Chatbot ဆက်တင်များ"}
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                </h3>
+                <p className="text-xs text-stone-500">
+                  {lang === "en"
+                    ? "Manage AI API keys, LLM providers (Gemini/OpenAI/Groq), and shop knowledge system prompt."
+                    : "AI API Key၊ Provider (Gemini / OpenAI / Groq) နှင့် ဆိုင်အချက်အလက် System Prompt များကို စိတ်ကြိုက်ပြင်ဆင်နိုင်ပါသည်။"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-bold text-stone-700 cursor-pointer flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={botEnabled}
+                  onChange={(e) => setBotEnabled(e.target.checked)}
+                  className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
+                />
+                <span>{lang === "en" ? "Enable Chatbot" : "Chatbot ဖွင့်ထားမည်"}</span>
+              </label>
+            </div>
+          </div>
+
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!onUpdateChatbotConfig) return;
+              setIsSavingBot(true);
+              try {
+                await onUpdateChatbotConfig({
+                  provider: botProvider,
+                  apiKey: botApiKey.trim(),
+                  model: botModel.trim(),
+                  botName: botName.trim(),
+                  systemPrompt: botSystemPrompt.trim(),
+                  welcomeMessageMm: botWelcomeMm.trim(),
+                  welcomeMessageEn: botWelcomeEn.trim(),
+                  enabled: botEnabled,
+                });
+                alert(
+                  lang === "en"
+                    ? "Chatbot configuration updated successfully!"
+                    : "Chatbot ဆက်တင်များကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီရှင်။"
+                );
+              } catch (err) {
+                alert("Error saving chatbot config: " + err);
+              } finally {
+                setIsSavingBot(false);
+              }
+            }}
+            className="space-y-5"
+          >
+            {/* Grid 1: Provider & Model */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                  AI Provider (ဝန်ဆောင်မှု ရွေးချယ်ရန်)
+                </label>
+                <select
+                  value={botProvider}
+                  onChange={(e) => {
+                    const val = e.target.value as ChatbotConfig["provider"];
+                    setBotProvider(val);
+                    if (val === "gemini") setBotModel("gemini-1.5-flash");
+                    else if (val === "openai") setBotModel("gpt-4o-mini");
+                    else if (val === "groq") setBotModel("llama-3.1-8b-instant");
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-800 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="mock">Built-in Rule Engine (API Key မလိုပါ - မူလစနစ်)</option>
+                  <option value="gemini">Google Gemini API (အကြံပြုချက် - မြန်မာစာကျွမ်းကျင်)</option>
+                  <option value="openai">OpenAI (GPT-4o-mini)</option>
+                  <option value="groq">Groq (Llama 3.1 / Ultra-fast)</option>
+                </select>
+                <p className="text-[11px] text-stone-500 mt-1">
+                  {botProvider === "gemini" && "⭐ aistudio.google.com မှ Free API Key ယူပြီး အသုံးပြုနိုင်ပါသည်။"}
+                  {botProvider === "mock" && "API Key မထည့်ဘဲ စနစ်ထဲရှိ အိတ်အချက်အလက်များဖြင့် အလိုအလျောက် ဖြေကြားပေးပါသည်။"}
+                  {botProvider === "openai" && "platform.openai.com မှ API Key ဖြင့် တိုက်ရိုက်ချိတ်ဆက်ပါသည်။"}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                  AI Model Name (မော်ဒယ်အမည်)
+                </label>
+                <input
+                  type="text"
+                  value={botModel}
+                  onChange={(e) => setBotModel(e.target.value)}
+                  placeholder="e.g. gemini-1.5-flash, gpt-4o-mini"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs font-mono text-stone-800 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* API Key Input */}
+            {botProvider !== "mock" && (
+              <div className="bg-amber-50/70 p-4 rounded-2xl border border-amber-200/80 space-y-2">
+                <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider flex items-center gap-1.5">
+                  <Key className="w-4 h-4 text-amber-700" />
+                  API Key ({botProvider.toUpperCase()})
+                </label>
+                <input
+                  type="password"
+                  value={botApiKey}
+                  onChange={(e) => setBotApiKey(e.target.value)}
+                  placeholder={
+                    botProvider === "gemini"
+                      ? "AIzaSy..."
+                      : botProvider === "openai"
+                      ? "sk-..."
+                      : "gsk_..."
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-amber-200 text-xs font-mono text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+                <p className="text-[11px] text-amber-800">
+                  🔒 API Key သည် Server ဘက်ခြမ်း SQLite ထဲတွင် လုံခြုံစွာ သိမ်းဆည်းထားပြီး Frontend သို့ ပေါက်ကြားခြင်း မရှိပါ။
+                </p>
+              </div>
+            )}
+
+            {/* Bot Name & Welcome Messages */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                  Chatbot Display Name (ဘော့တ်အမည်)
+                </label>
+                <input
+                  type="text"
+                  value={botName}
+                  onChange={(e) => setBotName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                  Welcome Message (မြန်မာလို နှုတ်ခွန်းဆက်စာ)
+                </label>
+                <input
+                  type="text"
+                  value={botWelcomeMm}
+                  onChange={(e) => setBotWelcomeMm(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* System Prompt Editor */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                  AI System Prompt (ဆိုင်အချက်အလက်နှင့် သင်ကြားထားချက်များ)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setBotSystemPrompt(DEFAULT_CHATBOT_CONFIG.systemPrompt)}
+                  className="text-[11px] text-amber-700 hover:text-amber-900 font-bold underline"
+                >
+                  Reset to Default Prompt
+                </button>
+              </div>
+              <textarea
+                rows={9}
+                value={botSystemPrompt}
+                onChange={(e) => setBotSystemPrompt(e.target.value)}
+                placeholder="ဆိုင်လိပ်စာ၊ ဈေးနှုန်း၊ ဖုန်းနံပါတ်၊ ဖြေကြားရမည့် စည်းမျဉ်းများကို ဤနေရာတွင် ထည့်သွင်းပါ..."
+                className="w-full p-3.5 rounded-2xl border border-stone-200 text-xs font-mono leading-relaxed text-stone-800 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+              <p className="text-[11px] text-stone-500 mt-1">
+                ဤ Prompt သည် AI ဖြေကြားရာတွင် လိုက်နာရမည့် စည်းမျဉ်းများ (ပင်မဆိုင်: ၆၅ လမ်း၊ ၁၀၇×၁၀၈ ကြား၊ ပို့ဆောင်ခ၊ ဖုန်းနံပါတ်) ကို သတ်မှတ်ပေးသည့် နေရာဖြစ်ပါသည်။
+              </p>
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-3 border-t border-stone-200 flex justify-end">
+              <button
+                type="submit"
+                disabled={isSavingBot}
+                className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition disabled:opacity-50 flex items-center gap-2"
+              >
+                <Bot className="w-4 h-4" />
+                <span>{isSavingBot ? "သိမ်းဆည်းနေပါသည်..." : "Chatbot ဆက်တင်များ သိမ်းဆည်းမည်"}</span>
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
