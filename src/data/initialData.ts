@@ -203,7 +203,8 @@ export const SHOP_INFO = {
 };
 
 export interface ChatbotConfig {
-  provider: "mock" | "gemini" | "openai" | "groq";
+  provider: "mock" | "gemini" | "openai" | "groq" | "custom";
+  apiUrl?: string;
   apiKey?: string;
   model?: string;
   systemPrompt: string;
@@ -215,6 +216,7 @@ export interface ChatbotConfig {
 
 export const DEFAULT_CHATBOT_CONFIG: ChatbotConfig = {
   provider: "mock",
+  apiUrl: "",
   apiKey: "",
   model: "gemini-1.5-flash",
   systemPrompt: `You are "Pont Pont AI" (ပုံ့ပုံ့ AI အကူအညီ), the polite, friendly and helpful customer assistant for "Pont Pont Handbag Shop" (ပုံ့ပုံ့ အိတ်အမျိုးမျိုး ရောင်းဝယ်ရေး) based in Mandalay, Myanmar.

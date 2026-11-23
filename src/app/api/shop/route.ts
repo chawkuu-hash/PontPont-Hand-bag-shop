@@ -549,10 +549,109 @@ export async function POST(request: Request) {
         }
       }
 
+      // If custom or open-webui / local endpoint
+      if (cfg.provider === "custom" && cfg.apiUrl) {
+        try {
+          const endpoint = cfg.apiUrl.endsWith("/chat/completions")
+            ? cfg.apiUrl
+            : cfg.apiUrl.replace(/\/+$/, "") + "/chat/completions";
+
+          const headers: Record<string, string> = { "Content-Type": "application/json" };
+          if (cfg.apiKey) {
+            headers["Authorization"] = `Bearer ${cfg.apiKey}`;
+          }
+
+          const aiRes = await fetch(endpoint, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              model: cfg.model || "gpt-3.5-turbo",
+              messages: [
+                { role: "system", content: cfg.systemPrompt },
+                { role: "user", content: message },
+              ],
+              temperature: 0.7,
+              max_tokens: 800,
+            }),
+          });
+
+          if (aiRes.ok) {
+            const data = await aiRes.json();
+            const text = data?.choices?.[0]?.message?.content;
+            if (text) {
+              return NextResponse.json({ reply: text });
+            }
+          }
+        } catch (err) {
+          console.error("Custom AI call failed:", err);
+        }
+      }
+
       // Fallback: Handled by client-side rule-engine or basic response
       return NextResponse.json({
         reply: null, // Signals frontend to use its intelligent local knowledgebase
       });
+    }
+
+    if (body.action === "FETCH_AI_MODELS") {
+      const { apiUrl, apiKey, provider } = body;
+      const models: string[] = [];
+
+      try {
+        if (provider === "gemini" || (!provider && apiKey?.startsWith("AIzaSy"))) {
+          const key = apiKey?.trim();
+          const url = apiUrl?.trim() || `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
+          const res = await fetch(url.includes("key=") ? url : `${url}?key=${key}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data.models)) {
+              for (const m of data.models) {
+                // Keep only generateContent compatible models
+                if (m.supportedGenerationMethods?.includes("generateContent") || m.name?.includes("gemini")) {
+                  const cleanName = m.name?.replace("models/", "");
+                  if (cleanName) models.push(cleanName);
+                }
+              }
+            }
+          }
+        } else {
+          // OpenAI, Groq, Ollama, OpenWebUI, or Custom OpenAI-compatible endpoints
+          let url = apiUrl?.trim();
+          if (!url) {
+            if (provider === "groq") url = "https://api.groq.com/openai/v1/models";
+            else url = "https://api.openai.com/v1/models";
+          } else {
+            // Append /models if needed
+            if (!url.endsWith("/models")) {
+              url = url.replace(/\/+$/, "") + "/models";
+            }
+          }
+
+          const headers: Record<string, string> = {};
+          if (apiKey?.trim()) {
+            headers["Authorization"] = `Bearer ${apiKey.trim()}`;
+          }
+
+          const res = await fetch(url, { headers });
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data.data)) {
+              for (const m of data.data) {
+                if (m.id) models.push(m.id);
+              }
+            } else if (Array.isArray(data.models)) {
+              for (const m of data.models) {
+                if (m.id) models.push(m.id);
+                else if (m.name) models.push(m.name);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch models from API:", err);
+      }
+
+      return NextResponse.json({ ok: true, models });
     }
 
     // All remaining actions strictly require Admin role!
@@ -732,9 +831,10 @@ export async function POST(request: Request) {
       const incomingConfig = body.chatbotConfig;
       if (incomingConfig) {
         db.chatbotConfig = {
-          provider: ["mock", "gemini", "openai", "groq"].includes(incomingConfig.provider)
+          provider: ["mock", "gemini", "openai", "groq", "custom"].includes(incomingConfig.provider)
             ? incomingConfig.provider
             : "mock",
+          apiUrl: typeof incomingConfig.apiUrl === "string" ? incomingConfig.apiUrl.trim() : "",
           apiKey: typeof incomingConfig.apiKey === "string" ? incomingConfig.apiKey.trim() : "",
           model: String(incomingConfig.model || "gemini-1.5-flash").trim(),
           systemPrompt: String(incomingConfig.systemPrompt || "").trim(),

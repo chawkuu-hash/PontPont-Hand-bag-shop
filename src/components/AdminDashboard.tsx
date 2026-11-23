@@ -137,8 +137,11 @@ export default function AdminDashboard({
   const [botProvider, setBotProvider] = useState<ChatbotConfig["provider"]>(
     chatbotConfig?.provider || "mock"
   );
+  const [botApiUrl, setBotApiUrl] = useState(chatbotConfig?.apiUrl || "");
   const [botApiKey, setBotApiKey] = useState(chatbotConfig?.apiKey || "");
   const [botModel, setBotModel] = useState(chatbotConfig?.model || "gemini-1.5-flash");
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [botName, setBotName] = useState(chatbotConfig?.botName || "Pont Pont AI Assistant");
   const [botSystemPrompt, setBotSystemPrompt] = useState(
     chatbotConfig?.systemPrompt || DEFAULT_CHATBOT_CONFIG.systemPrompt
@@ -151,6 +154,57 @@ export default function AdminDashboard({
   );
   const [botEnabled, setBotEnabled] = useState(chatbotConfig?.enabled ?? true);
   const [isSavingBot, setIsSavingBot] = useState(false);
+
+  // Auto-fetch models when API Key or API URL changes
+  const fetchAvailableModels = async (
+    targetUrl?: string,
+    targetKey?: string,
+    targetProvider?: string
+  ) => {
+    const url = targetUrl !== undefined ? targetUrl : botApiUrl;
+    const key = targetKey !== undefined ? targetKey : botApiKey;
+    const provider = targetProvider !== undefined ? targetProvider : botProvider;
+
+    if (provider === "mock") {
+      setAvailableModels([]);
+      return;
+    }
+
+    if (!key && !url) return;
+
+    setIsLoadingModels(true);
+    try {
+      const res = await fetch("/api/shop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "FETCH_AI_MODELS",
+          apiUrl: url,
+          apiKey: key,
+          provider: provider,
+        }),
+      });
+      const data = await res.json();
+      if (Array.isArray(data.models) && data.models.length > 0) {
+        setAvailableModels(data.models);
+        // Automatically select the first or best recommended model if current is not in list
+        if (!data.models.includes(botModel)) {
+          const preferred =
+            data.models.find(
+              (m: string) =>
+                m.includes("flash") ||
+                m.includes("gpt-4o-mini") ||
+                m.includes("llama-3")
+            ) || data.models[0];
+          setBotModel(preferred);
+        }
+      }
+    } catch (err) {
+      console.error("Auto load models error:", err);
+    } finally {
+      setIsLoadingModels(false);
+    }
+  };
 
   // New Category Form State
   const [newCatId, setNewCatId] = useState("");
@@ -1403,6 +1457,7 @@ export default function AdminDashboard({
               try {
                 await onUpdateChatbotConfig({
                   provider: botProvider,
+                  apiUrl: botApiUrl.trim(),
                   apiKey: botApiKey.trim(),
                   model: botModel.trim(),
                   botName: botName.trim(),
@@ -1424,7 +1479,7 @@ export default function AdminDashboard({
             }}
             className="space-y-5"
           >
-            {/* Grid 1: Provider & Model */}
+            {/* Grid 1: Provider & API URL */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
@@ -1435,9 +1490,19 @@ export default function AdminDashboard({
                   onChange={(e) => {
                     const val = e.target.value as ChatbotConfig["provider"];
                     setBotProvider(val);
-                    if (val === "gemini") setBotModel("gemini-1.5-flash");
-                    else if (val === "openai") setBotModel("gpt-4o-mini");
-                    else if (val === "groq") setBotModel("llama-3.1-8b-instant");
+                    if (val === "gemini") {
+                      setBotModel("gemini-1.5-flash");
+                      setBotApiUrl("https://generativelanguage.googleapis.com/v1beta/models");
+                    } else if (val === "openai") {
+                      setBotModel("gpt-4o-mini");
+                      setBotApiUrl("https://api.openai.com/v1");
+                    } else if (val === "groq") {
+                      setBotModel("llama-3.1-8b-instant");
+                      setBotApiUrl("https://api.groq.com/openai/v1");
+                    } else if (val === "custom") {
+                      setBotApiUrl("http://localhost:11434/v1");
+                    }
+                    fetchAvailableModels(undefined, undefined, val);
                   }}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs font-bold text-stone-800 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
@@ -1445,25 +1510,54 @@ export default function AdminDashboard({
                   <option value="gemini">Google Gemini API (အကြံပြုချက် - မြန်မာစာကျွမ်းကျင်)</option>
                   <option value="openai">OpenAI (GPT-4o-mini)</option>
                   <option value="groq">Groq (Llama 3.1 / Ultra-fast)</option>
+                  <option value="custom">Custom API URL (OpenWebUI / Local LLM / Ollama)</option>
                 </select>
                 <p className="text-[11px] text-stone-500 mt-1">
                   {botProvider === "gemini" && "⭐ aistudio.google.com မှ Free API Key ယူပြီး အသုံးပြုနိုင်ပါသည်။"}
                   {botProvider === "mock" && "API Key မထည့်ဘဲ စနစ်ထဲရှိ အိတ်အချက်အလက်များဖြင့် အလိုအလျောက် ဖြေကြားပေးပါသည်။"}
                   {botProvider === "openai" && "platform.openai.com မှ API Key ဖြင့် တိုက်ရိုက်ချိတ်ဆက်ပါသည်။"}
+                  {botProvider === "custom" && "OpenWebUI, LMStudio, vLLM သို့မဟုတ် Ollama OpenAI-compatible Base URL"}
                 </p>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                  AI Model Name (မော်ဒယ်အမည်)
+                  AI API URL / Endpoint
                 </label>
-                <input
-                  type="text"
-                  value={botModel}
-                  onChange={(e) => setBotModel(e.target.value)}
-                  placeholder="e.g. gemini-1.5-flash, gpt-4o-mini"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs font-mono text-stone-800 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={botApiUrl}
+                    onChange={(e) => {
+                      const url = e.target.value;
+                      setBotApiUrl(url);
+                    }}
+                    onBlur={() => {
+                      if (botApiUrl) fetchAvailableModels(botApiUrl, botApiKey, botProvider);
+                    }}
+                    placeholder={
+                      botProvider === "gemini"
+                        ? "https://generativelanguage.googleapis.com/v1beta/models"
+                        : botProvider === "openai"
+                        ? "https://api.openai.com/v1"
+                        : botProvider === "groq"
+                        ? "https://api.groq.com/openai/v1"
+                        : "http://localhost:11434/v1"
+                    }
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs font-mono text-stone-800 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fetchAvailableModels(botApiUrl, botApiKey, botProvider)}
+                    disabled={isLoadingModels}
+                    className="px-3 py-2 bg-stone-800 hover:bg-stone-900 text-white rounded-xl text-xs font-bold transition disabled:opacity-50 shrink-0"
+                  >
+                    {isLoadingModels ? "Loading..." : "Load Models"}
+                  </button>
+                </div>
+                <p className="text-[11px] text-stone-400 mt-1">
+                  API URL ထည့်လိုက်သည်နှင့် ရရှိနိုင်သော Models များကို အလိုအလျောက် ဆွဲတင်ပေးပါမည်။
+                </p>
               </div>
             </div>
 
@@ -1474,24 +1568,90 @@ export default function AdminDashboard({
                   <Key className="w-4 h-4 text-amber-700" />
                   API Key ({botProvider.toUpperCase()})
                 </label>
-                <input
-                  type="password"
-                  value={botApiKey}
-                  onChange={(e) => setBotApiKey(e.target.value)}
-                  placeholder={
-                    botProvider === "gemini"
-                      ? "AIzaSy..."
-                      : botProvider === "openai"
-                      ? "sk-..."
-                      : "gsk_..."
-                  }
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-amber-200 text-xs font-mono text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    value={botApiKey}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setBotApiKey(val);
+                    }}
+                    onBlur={() => {
+                      if (botApiKey) fetchAvailableModels(botApiUrl, botApiKey, botProvider);
+                    }}
+                    placeholder={
+                      botProvider === "gemini"
+                        ? "AIzaSy..."
+                        : botProvider === "openai"
+                        ? "sk-..."
+                        : "gsk_..."
+                    }
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-amber-200 text-xs font-mono text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fetchAvailableModels(botApiUrl, botApiKey, botProvider)}
+                    disabled={isLoadingModels}
+                    className="px-3.5 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-bold transition disabled:opacity-50 shrink-0 flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{isLoadingModels ? "Loading..." : "Fetch Models"}</span>
+                  </button>
+                </div>
                 <p className="text-[11px] text-amber-800">
                   🔒 API Key သည် Server ဘက်ခြမ်း SQLite ထဲတွင် လုံခြုံစွာ သိမ်းဆည်းထားပြီး Frontend သို့ ပေါက်ကြားခြင်း မရှိပါ။
                 </p>
               </div>
             )}
+
+            {/* AI Model Name / Selection */}
+            <div>
+              <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <span>AI Model Name (မော်ဒယ်အမည်)</span>
+                {isLoadingModels && (
+                  <span className="text-[11px] text-amber-600 font-bold animate-pulse">
+                    ⚡ API မှ Models များ ဆွဲတင်နေပါသည်...
+                  </span>
+                )}
+                {availableModels.length > 0 && !isLoadingModels && (
+                  <span className="text-[11px] text-emerald-700 font-bold">
+                    ✓ Models ({availableModels.length}) ခု အသင့်ရရှိပါသည်
+                  </span>
+                )}
+              </label>
+
+              {availableModels.length > 0 ? (
+                <div className="space-y-1.5">
+                  <select
+                    value={botModel}
+                    onChange={(e) => setBotModel(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-300 text-xs font-mono font-bold text-stone-900 bg-emerald-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {availableModels.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-stone-500">
+                    API URL / Key မှ Auto load လုပ်ထားသော မော်ဒယ်စာရင်းထဲမှ လိုချင်ရာကို ရွေးချယ်နိုင်ပါသည်။
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="text"
+                    value={botModel}
+                    onChange={(e) => setBotModel(e.target.value)}
+                    placeholder="e.g. gemini-1.5-flash, gemini-2.0-flash, gpt-4o-mini"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs font-mono text-stone-800 bg-stone-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <p className="text-[11px] text-stone-400 mt-1">
+                    API URL သို့မဟုတ် API Key ထည့်ပြီး Fetch Models နှိပ်ပါက Models စာရင်း အလိုအလျောက် ဝင်ရောက်လာပါမည်။
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Bot Name & Welcome Messages */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
